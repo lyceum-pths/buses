@@ -27,10 +27,7 @@ public class Emulator {
 			this.transfers[i] = new ArrayList<>();
 		}
 		for (Transfer tr : transfers) {
-			Integer ind = indexs.get(tr.from); 
-			this.transfers[
-			               indexs.get(tr.from)]
-					.add(tr);
+			this.transfers[indexs.get(tr.from)].add(tr);
 		}
 	}
 

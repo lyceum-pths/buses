@@ -4,7 +4,7 @@ package teachMeToSeparateClassesOnPackeges;
 public class Nigth {
 	Person[] persons;
 	
-	public Nigth(Person[] persons) {
+	public Nigth(Person... persons) {
 		this.persons = persons;
 	}
 	

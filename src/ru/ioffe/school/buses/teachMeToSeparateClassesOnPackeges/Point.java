@@ -30,6 +30,8 @@ public class Point {
 	
 	@Override
 	public boolean equals(Object obj) {
+		if (obj instanceof Point)
+			return equals((Point) obj);
 		return false;
 	}
 	

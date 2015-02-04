@@ -1,7 +1,10 @@
 package teachMeToSeparateClassesOnPackeges;
 
 import java.util.Arrays;
-
+/**
+ * This class contain information about position of object in every moment.
+ * It should be used in GUI for showing object's movements.
+ */
 public class Route {
 	Segment[] route;
 	int totalTime;

@@ -1,5 +1,9 @@
 package teachMeToSeparateClassesOnPackeges;
 
+/**
+ * This class mean, that object go straight from point "start" to point "end".
+ * It should be used in GUI for showing object's movements and, maybe, for calculating fitness-function.
+ */
 
 public class Segment {
 	Point start;

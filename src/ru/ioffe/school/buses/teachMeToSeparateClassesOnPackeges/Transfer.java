@@ -2,6 +2,11 @@ package teachMeToSeparateClassesOnPackeges;
 
 import java.util.Arrays;
 
+/**
+ * This class contain information about departures bus which has number "busNumber" from point "from" to point "to".
+ * It is used for looking for best way for person to go home.
+ */
+
 public class Transfer {
 	int[] departure;
 	int continuance; 

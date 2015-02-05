@@ -3,7 +3,7 @@ package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 public class Point {
 	double x;
 	double y;
-	int id;
+	long id;
 
 	public Point(double x, double y) {
 		this.x = x;

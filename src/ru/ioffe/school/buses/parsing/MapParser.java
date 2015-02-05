@@ -7,44 +7,56 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.ioffe.school.buses.graphCreation.Road;
+import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
+
+/**
+ * The class handles an XML file that describes a map.
+ * MapParser can give information about Roads describes in the map
+ * or only about Points in the map.
+ * Results are written in .txt files in project root folder.
+ */
+
 public class MapParser {
 	
-	static HashSet<Long> usedId;
-	static HashSet<Long> idsInRoads;
+	private static HashMap<Long, Point> pointsByIds;
 	
-	static boolean isCorrectRoad(Road r) {
-		for (long id : r.path) {
-			if (!usedId.contains(id))
-				return false;
-		}
-		return true;
+	public MapParser() {
+		pointsByIds = new HashMap<>();
 	}
 	
-	static String[] getTextFromFile(String filename) throws IOException {
-		BufferedReader in = new BufferedReader(new FileReader(new File(filename)));
-//		StringBuilder builder = new StringBuilder();
+	public void getRoads(File file) throws IOException {
+		String[] text = parseText(file);
+		roadsToFile(new File("roads.txt"), parseRoads(text));
+	}
+	
+	public void getPoints(File file) throws IOException {
+		String[] text = parseText(file);
+		pointsToFile(new File("nodes.txt"), parsePoints(text));
+	}
+	
+	private static String[] parseText(File file) throws IOException {
+		BufferedReader in = new BufferedReader(new FileReader(file));
 		ArrayList<String> arr = new ArrayList<>();
 		String inputLine;
 		while ((inputLine = in.readLine()) != null) {
-//			builder.append(inputLine);
 			arr.add(inputLine.trim());
 		}
 		in.close();
-//		String text = builder.toString();
 		String[] ans = new String[arr.size()];
 		for (int i = 0; i < arr.size(); i++) {
 			ans[i] = arr.get(i);
 		}
 		return ans;
-//		return text;
 	}
 	
-	static ArrayList<Node> getNodes(String[] text) {
-		ArrayList<Node> nodes = new ArrayList<>();
+	private static ArrayList<Point> parsePoints(String[] text) {
+		ArrayList<Point> points = new ArrayList<>();
 		String nodeRegex = "<node.*";
 		String idRegex = "<node id=\"\\d+\"";
 		String lonRegex = "lon=\"\\d+\\.\\d+\"";
@@ -67,22 +79,20 @@ public class MapParser {
 					latStr = latStr.substring(5, latStr.length() - 1);
 					double lon = Double.parseDouble(lonStr);
 					double lat = Double.parseDouble(latStr);
-					nodes.add(new Node(id, lon, lat));
-					if (!usedId.contains(id)) {
-						usedId.add(id);
-					} else {
-						System.out.println("Something strange: same node was found twice or more");
-					}
+					Point currPoint = new Point(id, lon, lat);
+					points.add(currPoint);
+					pointsByIds.put(id, currPoint);
 				} else {
 					System.out.println("Error: one of the nodes doesn't have info about it's id, lat or lon");
 				}
 			}
 		}
 		
-		return nodes;
+		return points;
 	}
  	
-	static ArrayList<Road> getRoads(String[] text) {
+	private static ArrayList<Road> parseRoads(String[] text) {
+		parsePoints(text);
 		ArrayList<Road> roads = new ArrayList<>();
 		String wayRegex = "<way.*";
 		String wayCloseRegex = "</way>";
@@ -95,10 +105,10 @@ public class MapParser {
 			neededTypes.add(types[i]);
 		}
 		Matcher matcher;
-		ArrayList<Long> path; 
+		ArrayList<Point> crossroads; 
 		for (int i = 0; i < text.length; i++) {
 			if (text[i].matches(wayRegex)) {
-				path = new ArrayList<>();
+				crossroads = new ArrayList<>();
 				while (i < text.length - 1) {
 					i++;
 					if (text[i].matches(wayCloseRegex))
@@ -106,15 +116,14 @@ public class MapParser {
 					if (text[i].matches(refRegex)) {
 						String ref = text[i].substring(9, text[i].length() - 3);
 						Long refId = Long.parseLong(ref);
-						path.add(refId);
+						crossroads.add(pointsByIds.get(refId));
 					} else if (text[i].matches(highwayTagRegex)) {
 						matcher = Pattern.compile(highwayTypeRegex).matcher(text[i]);
 						if (matcher.find()) {
 							String type = text[i].substring(matcher.start() + 3, matcher.end() - 1);
 							if (neededTypes.contains(type)) {
-								Road road = new Road(path);
+								Road road = new Road(crossroads);
 								roads.add(road);
-								idsInRoads.addAll(path);
 							}
 						}
 					}
@@ -122,26 +131,21 @@ public class MapParser {
 			}
 		}
 		
-		for (Road r : roads) {
-			if (!isCorrectRoad(r))
-				System.out.println("One of roads is incorrect. That will probably never happen but if it does you should punch me in my face with anger.");
-		}
-		
 		return roads;
 	}
 	
-	static void nodesToFile(String filename, ArrayList<Node> nodes) throws IOException {
-		FileOutputStream fos = new FileOutputStream(new File(filename));
+	private static void pointsToFile(File file, ArrayList<Point> points) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		for (Node node : nodes) {
-			oos.writeObject(node);			
+		for (Point p : points) {
+			oos.writeObject(p);			
 		}
 		oos.flush();
 		oos.close();
 	}
 	
-	static void roadsToFile(String filename, ArrayList<Road> roads) throws IOException {
-		FileOutputStream fos = new FileOutputStream(new File(filename));
+	private static void roadsToFile(File file, ArrayList<Road> roads) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
 		for (Road road : roads) {
 			oos.writeObject(road);			
@@ -150,42 +154,5 @@ public class MapParser {
 		oos.close();
 	}
 	
-	public static void main(String[] args) throws IOException {
-		long start = System.currentTimeMillis();
-		usedId = new HashSet<>();
-		idsInRoads = new HashSet<>();
-		
-		String filename = "map.osm";
-		String text[] = getTextFromFile(filename);
-		System.out.println("Text loaded successfully");
-		
-		ArrayList<Node> nodes = getNodes(text);
-		System.out.println(nodes.size() + " nodes found");
-		
-		ArrayList<Road> roads = getRoads(text);
-		System.out.println(roads.size() + " roads found");		
-		
-		ArrayList<Node> nodesInRoads = new ArrayList<>();
-		for (Node curr : nodes) {
-			if (idsInRoads.contains(curr.id))
-				nodesInRoads.add(curr);
-		}
-		System.out.println(nodesInRoads.size() + " nodes are used in roads");
-		
-		nodesToFile("nodes.txt", nodes);
-		roadsToFile("roads.txt", roads);
-		
-		System.out.println("Nodes and roads saved in files");
-		System.out.println("Processed in " + (System.currentTimeMillis() - start) + " millis");
-		
-//		FileInputStream fis = new FileInputStream(new File("nodes.txt"));
-//		ObjectInputStream oin = new ObjectInputStream(fis);
-//		try {
-//			while (true) {
-//				Node node = (Node) oin.readObject();
-//			}
-//		} catch (Exception e) {}
-//		oin.close();
-	}
 }
 

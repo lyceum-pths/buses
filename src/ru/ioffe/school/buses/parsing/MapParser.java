@@ -79,36 +79,9 @@ public class MapParser {
 			}
 		}
 		
-//		Matcher idMatcher = Pattern.compile(idRegex).matcher(text);
-//		Matcher lonMatcher = Pattern.compile(lonRegex).matcher(text);
-//		Matcher latMatcher = Pattern.compile(latRegex).matcher(text);
-//		while (idMatcher.find()) {
-//			boolean b = lonMatcher.find() && latMatcher.find();
-//			if (!b) {
-//				System.out.println("Error: one of the nodes doesn't have info about it's lat or lon");
-//				System.exit(0);
-//			} else {
-//				String idStr = text.substring(idMatcher.start(), idMatcher.end());
-//				String lonStr = text.substring(lonMatcher.start(), lonMatcher.end());
-//				String latStr = text.substring(latMatcher.start(), latMatcher.end());
-//				idStr = idStr.substring(10, idStr.length() - 1);
-//				long id = Long.parseLong(idStr);
-//				lonStr = lonStr.substring(5, lonStr.length() - 1);
-//				latStr = latStr.substring(5, latStr.length() - 1);
-//				double lon = Double.parseDouble(lonStr);
-//				double lat = Double.parseDouble(latStr);
-//				nodes.add(new Node(id, lon, lat));
-//				if (!usedId.contains(id)) {
-//					usedId.add(id);
-//				} else {
-//					System.out.println("Something strange: same node was found twice or more");
-//				}
-//			}
-//		}
-		
 		return nodes;
 	}
-	
+ 	
 	static ArrayList<Road> getRoads(String[] text) {
 		ArrayList<Road> roads = new ArrayList<>();
 		String wayRegex = "<way.*";

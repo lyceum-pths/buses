@@ -7,7 +7,6 @@ public class Node implements Serializable {
 	long id;
 	double lon;
 	double lat;
-	boolean isUsed;
 	
 	public Node(long id, double lon, double lat) {
 		this.id = id;

@@ -28,8 +28,9 @@ public class Tester {
 				new Road(new Point(2, 2), new Point(4, 2), man),
 				new Road(new Point(2, 4), new Point(2, 2), man));
 		Scanner in = new Scanner(System.in);
-		while(true) {
+		while(in.hasNext()) {
 			System.out.println(Arrays.toString(manager.findWay(new Point(in.nextDouble(), in.nextDouble()), new Point(in.nextDouble(), in.nextDouble()))));
 		}
+		in.close();
 	}
 }

@@ -177,7 +177,7 @@ public class MapParser {
 		oos.close();
 	}
 	
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
+	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
 		usedId = new HashSet<>();
 		idsInRoads = new HashSet<>();

@@ -26,4 +26,12 @@ public class Road {
 	public Point[] getCrossroads() {
 		return crossroads;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder build = new StringBuilder();
+		for (int i = 0; i < crossroads.length; i++) 
+			build.append((i == 0? "" : " -> ") + crossroads[i]);
+		return build.toString();
+	}
 }

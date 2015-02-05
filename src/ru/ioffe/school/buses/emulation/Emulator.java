@@ -14,9 +14,6 @@ public class Emulator {
 	GeographyManager geographyManager;
 	double speed;
 
-	// output
-	Route[] routes;
-
 	@SuppressWarnings("unchecked")
 	public Emulator(Point[] stations, GeographyManager geographyManager, double speed, Transfer... transfers) {
 		this.stations = stations;
@@ -32,17 +29,17 @@ public class Emulator {
 			this.transfers[indexs.get(tr.getFrom())].add(tr);
 	}
 
-	public synchronized Report startEmulation(Night nigth, int threadsNumber) {
+	public Report startEmulation(Night nigth, int threadsNumber) {
 		if (threadsNumber < 1) 
 			throw new IllegalArgumentException("Bad idea");
 		threadsNumber = Math.min(threadsNumber, stations.length);
 		Thread[] threads = new Thread[threadsNumber];
 		int n = nigth.getPersons().length;
-		routes = new Route[n];
+		Route[] routes = new Route[n];
 		int d = (n - 1) / threadsNumber + 1;  // rounding up
 		for (int i = 0; i < threadsNumber; i++) {
 			threads[i] = new Thread(
-					new Module(nigth.getPersons(), i * d, Math.min((i + 1) * d, n)));
+					new Module(nigth.getPersons(), i * d, Math.min((i + 1) * d, n), routes));
 			threads[i].start();
 		}
 		for (int i = 0; i < threadsNumber; i++) {
@@ -55,14 +52,20 @@ public class Emulator {
 
 
 	public class Module implements Runnable {
+		// input
 		Person[] persons;
 		int begin;
 		int end;
 
-		public Module(Person[] persons, int begin, int end) {
+		// output
+		Route[] routes;
+
+
+		public Module(Person[] persons, int begin, int end, Route[] routes) {
 			this.begin = begin;
 			this.end = end;
 			this.persons = persons;
+			this.routes = routes;
 		}
 
 		@Override
@@ -151,6 +154,6 @@ public class Emulator {
 			return new Route(rigthWay);
 		}
 	}
-	
-	
+
+
 }

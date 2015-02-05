@@ -1,5 +1,7 @@
 package ru.ioffe.school.buses.graphCreation;
 
+import java.util.Collection;
+
 import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
 
 /**
@@ -8,35 +10,20 @@ import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
  */
 
 public class Road {
-	Point begin;
-	Point end;
-	GeographyManager geographyManager;
+	Point[] crossroads;
 	
-	double length;
-	
-	public Road(Point begin, Point end, GeographyManager geographyManager) {
-		this.begin = begin;
-		this.end = end;
-		this.geographyManager = geographyManager;
-		this.length = -1;
+	public Road(Point... crossroads) {
+		this.crossroads = crossroads;
 	}
 	
-	public Point getBegin() {
-		return begin;
+	public Road(Collection<Point> crossroads) {
+		this.crossroads = new Point[crossroads.size()];
+		int pos = 0;
+		for (Point crossroad : crossroads) 
+			this.crossroads[pos++] = crossroad;
 	}
 	
-	public Point getEnd() {
-		return end;
-	}
-	
-	public double getLength() {
-		if (length == -1)
-			length = geographyManager.getDistance(begin, end);
-		return length;
-	}
-	
-	@Override
-	public String toString() {
-		return begin  + " -> " + end;
+	public Point[] getCrossroads() {
+		return crossroads;
 	}
 }

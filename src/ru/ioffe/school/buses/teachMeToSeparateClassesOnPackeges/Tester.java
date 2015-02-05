@@ -3,7 +3,8 @@ package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import ru.ioffe.school.buses.graphCreation.*;
+import ru.ioffe.school.buses.graphCreation.Road;
+import ru.ioffe.school.buses.graphCreation.RoadManager;
 
 public class Tester {
 	public static void main(String[] args) {
@@ -18,18 +19,10 @@ public class Tester {
 //		Emulator em = new Emulator(points, new GeographyManager(), 1, new Transfer(1, new Point(2, 2), new Point(10, 10), 3, 0, 1, 3, 4));
 //		System.out.println(em.startEmulation(nigth, 1));
 		GeographyManager man = new GeographyManager();
-		RoadManager manager = new RoadManager(new Road(new Point(1, 1), new Point(2, 2), man),
-				new Road(new Point(2, 2), new Point(1, 1), man),
-				new Road(new Point(4, 4), new Point(2, 4), man),
-				new Road(new Point(3, 3), new Point(4, 4), man),
-				new Road(new Point(5, 3), new Point(3, 3), man),
-				new Road(new Point(4, 2), new Point(5, 3), man),
-				new Road(new Point(5, 3), new Point(4, 2), man),
-				new Road(new Point(2, 2), new Point(4, 2), man),
-				new Road(new Point(2, 4), new Point(2, 2), man));
+		RoadManager manager = new RoadManager(new GeographyManager(), new Road(new Point(1, 1), new Point(2,3), new Point(3, 5)), new Road(new Point(3, 1), new Point(2, 3), new Point(4, -3)));
 		Scanner in = new Scanner(System.in);
 		while(in.hasNext()) {
-			System.out.println(Arrays.toString(manager.findWay(new Point(in.nextDouble(), in.nextDouble()), new Point(in.nextDouble(), in.nextDouble()))));
+			System.out.println(Arrays.toString(manager.findWay(new Point(in.nextDouble(), in.nextDouble()), new Point(in.nextDouble(), in.nextDouble())).getCrossroads()));
 		}
 		in.close();
 	}

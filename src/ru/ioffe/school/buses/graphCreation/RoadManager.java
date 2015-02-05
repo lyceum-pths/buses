@@ -1,4 +1,4 @@
-package graphCreation;
+package ru.ioffe.school.buses.graphCreation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

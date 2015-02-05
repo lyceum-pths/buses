@@ -1,4 +1,4 @@
-package graphCreation;
+package ru.ioffe.school.buses.graphCreation;
 
 import teachMeToSeparateClassesOnPackeges.GeographyManager;
 import teachMeToSeparateClassesOnPackeges.Point;

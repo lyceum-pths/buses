@@ -1,4 +1,4 @@
-package nigthGeneration;
+package ru.ioffe.school.buses.nigthGeneration;
 
 import teachMeToSeparateClassesOnPackeges.House;
 import teachMeToSeparateClassesOnPackeges.InterestingPoint;

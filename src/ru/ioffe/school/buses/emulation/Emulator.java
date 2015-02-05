@@ -1,4 +1,4 @@
-package emulation;
+package ru.ioffe.school.buses.emulation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

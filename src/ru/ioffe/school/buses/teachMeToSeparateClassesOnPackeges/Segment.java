@@ -1,4 +1,4 @@
-package teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 
 /**
  * This class mean, that object go straight from point "start" to point "end".

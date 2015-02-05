@@ -1,4 +1,4 @@
-package teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 
 import java.util.Arrays;
 /**

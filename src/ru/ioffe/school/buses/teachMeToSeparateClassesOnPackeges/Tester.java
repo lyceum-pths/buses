@@ -11,9 +11,9 @@ public class Tester {
 //		Double.sum(a, b)
 //		Point d = (Point) manager.load("point.point");
 //		System.out.println(d);
-		Night nigth = new Night(new Person(new Point(0,0), new Point(10, 10), 0));
-		Point[] points = {new Point(2, 2), new Point(10, 10)};
-		Emulator em = new Emulator(points, new GeographyManager(), 1, new Transfer(1, new Point(2, 2), new Point(10, 10), 3, 0, 1, 3, 4));
+		Night nigth = new Night(new Person(new Point(0, 0,0), new Point(0, 10, 10), 0));
+		Point[] points = {new Point(0, 2, 2), new Point(0, 10, 10)};
+		Emulator em = new Emulator(points, new GeographyManager(), 1, new Transfer(1, new Point(0, 2, 2), new Point(0, 10, 10), 3, 0, 1, 3, 4));
 		System.out.println(em.startEmulation(nigth, 1));
 //		GeographyManager man = new GeographyManager();
 //		RoadManager manager = new RoadManager(new GeographyManager(), new Road(new Point(1, 1), new Point(2,3), new Point(3, 5)), new Road(new Point(3, 1), new Point(2, 3), new Point(4, -3)));
@@ -22,6 +22,6 @@ public class Tester {
 //			System.out.println(Arrays.toString(manager.findWay(new Point(in.nextDouble(), in.nextDouble()), new Point(in.nextDouble(), in.nextDouble())).getCrossroads()));
 //		}
 //		in.close();
-		System.out.println(new Road(new Point(1, 1), new Point(2,3), new Point(3, 5)));
+		System.out.println(new Road(new Point(0, 1, 1), new Point(0, 2,3), new Point(0, 3, 5)));
 	}
 }

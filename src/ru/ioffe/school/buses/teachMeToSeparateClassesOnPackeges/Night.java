@@ -1,10 +1,10 @@
 package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 
 
-public class Nigth {
+public class Night {
 	Person[] persons;
 	
-	public Nigth(Person... persons) {
+	public Night(Person... persons) {
 		this.persons = persons;
 	}
 	

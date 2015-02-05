@@ -32,7 +32,7 @@ public class Emulator {
 			this.transfers[indexs.get(tr.getFrom())].add(tr);
 	}
 
-	public synchronized Report startEmulation(Nigth nigth, int threadsNumber) {
+	public synchronized Report startEmulation(Night nigth, int threadsNumber) {
 		if (threadsNumber < 1) 
 			throw new IllegalArgumentException("Bad idea");
 		threadsNumber = Math.min(threadsNumber, stations.length);

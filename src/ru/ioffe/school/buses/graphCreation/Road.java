@@ -12,6 +12,7 @@ import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
  */
 
 public class Road implements Serializable {
+	
 	private static final long serialVersionUID = 2284501799222650859L;
 	
 	Point[] crossroads;

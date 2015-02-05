@@ -1,7 +1,6 @@
 package ru.ioffe.school.buses.graphCreation;
 
-import teachMeToSeparateClassesOnPackeges.GeographyManager;
-import teachMeToSeparateClassesOnPackeges.Point;
+import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
 
 /**
  * This class contain information about road from point "from" to point "to".

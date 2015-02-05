@@ -1,10 +1,6 @@
 package ru.ioffe.school.buses.nigthGeneration;
 
-import teachMeToSeparateClassesOnPackeges.House;
-import teachMeToSeparateClassesOnPackeges.InterestingPoint;
-import teachMeToSeparateClassesOnPackeges.Nigth;
-import teachMeToSeparateClassesOnPackeges.Person;
-
+import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
 
 public class NigthGenerator {
 	int timeStart;

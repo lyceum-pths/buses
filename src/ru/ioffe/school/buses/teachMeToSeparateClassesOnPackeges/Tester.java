@@ -3,8 +3,7 @@ package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import graphCreation.Road;
-import graphCreation.RoadManager;
+import ru.ioffe.school.buses.graphCreation.*;
 
 public class Tester {
 	public static void main(String[] args) {

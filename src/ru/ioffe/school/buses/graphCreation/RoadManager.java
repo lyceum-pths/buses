@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import teachMeToSeparateClassesOnPackeges.Point;
+import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
 
 public class RoadManager {
 	ArrayList<Point> nodes;

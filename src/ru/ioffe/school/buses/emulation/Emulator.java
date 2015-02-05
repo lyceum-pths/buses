@@ -3,13 +3,7 @@ package ru.ioffe.school.buses.emulation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import teachMeToSeparateClassesOnPackeges.GeographyManager;
-import teachMeToSeparateClassesOnPackeges.Nigth;
-import teachMeToSeparateClassesOnPackeges.Person;
-import teachMeToSeparateClassesOnPackeges.Point;
-import teachMeToSeparateClassesOnPackeges.Route;
-import teachMeToSeparateClassesOnPackeges.Segment;
-import teachMeToSeparateClassesOnPackeges.Transfer;
+import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
 
 public class Emulator {
 

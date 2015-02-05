@@ -1,6 +1,6 @@
 package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
-import nigthGeneration.Generateable;
 
+import ru.ioffe.school.buses.nigthGeneration.Generateable;
 
 public class House extends Point implements Generateable {
 	int size;

@@ -1,6 +1,6 @@
 package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
 
-import ru.ioffe.school.buses.nigthGeneration.Generateable;
+import ru.ioffe.school.buses.nightGeneration.Generateable;
 
 public class InterestingPoint extends Point implements Generateable {
 	int popularity;

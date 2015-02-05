@@ -1,4 +1,4 @@
-package ru.ioffe.school.buses.nigthGeneration;
+package ru.ioffe.school.buses.nightGeneration;
 import java.util.Random;
 
 

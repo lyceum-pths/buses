@@ -24,18 +24,14 @@ import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
 
 public class MapParser {
 	
-	private static HashMap<Long, Point> pointsByIds;
+	private static HashMap<Long, Point> pointsByIds = new HashMap<Long, Point>();
 	
-	public MapParser() {
-		pointsByIds = new HashMap<>();
-	}
-	
-	public void getRoads(File file) throws IOException {
+	public static void getRoads(File file) throws IOException {
 		String[] text = parseText(file);
 		roadsToFile(new File("roads.txt"), parseRoads(text));
 	}
 	
-	public void getPoints(File file) throws IOException {
+	public static void getPoints(File file) throws IOException {
 		String[] text = parseText(file);
 		pointsToFile(new File("nodes.txt"), parsePoints(text));
 	}

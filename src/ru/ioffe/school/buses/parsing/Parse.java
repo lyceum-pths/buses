@@ -6,8 +6,7 @@ import java.io.IOException;
 public class Parse {
 	public static void main(String[] args) throws IOException {
 		String filename = "map.osm";
-		MapParser parser = new MapParser();
-		parser.getRoads(new File(filename));
+		MapParser.getRoads(new File(filename));
 		
 //		FileInputStream fis = new FileInputStream(new File("nodes.txt"));
 //		ObjectInputStream oin = new ObjectInputStream(fis);

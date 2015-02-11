@@ -1,9 +1,10 @@
 package ru.ioffe.school.buses.graphCreation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
+import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
 
 /**
  * This class contains information about road from point "from" to point "to".
@@ -15,28 +16,27 @@ public class Road implements Serializable {
 	
 	private static final long serialVersionUID = 2284501799222650859L;
 	
-	Point[] crossroads;
+	ArrayList<Point> crossroads;
 	
 	public Road(Point... crossroads) {
-		this.crossroads = crossroads;
+		this.crossroads = new ArrayList<>(crossroads.length);
+		for (Point p : crossroads)
+			this.crossroads.add(p);
 	}
 	
 	public Road(Collection<Point> crossroads) {
-		this.crossroads = new Point[crossroads.size()];
-		int pos = 0;
-		for (Point crossroad : crossroads) 
-			this.crossroads[pos++] = crossroad;
+		this.crossroads = new ArrayList<>(crossroads);
 	}
 	
-	public Point[] getCrossroads() {
+	public ArrayList<Point> getCrossroads() {
 		return crossroads;
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder build = new StringBuilder();
-		for (int i = 0; i < crossroads.length; i++) 
-			build.append((i == 0? "" : " -> ") + crossroads[i]);
+		for (int i = 0; i < crossroads.size(); i++) 
+			build.append((i == 0? "" : " -> ") + crossroads.get(i));
 		return build.toString();
 	}
 }

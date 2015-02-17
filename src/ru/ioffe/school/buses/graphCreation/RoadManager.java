@@ -11,7 +11,6 @@ public class RoadManager {
 	ArrayList<Point> nodes;
 	HashMap<Point, Integer> indexs;
 	ArrayList<Edge>[] roads;
-	GeographyManager geographyManager;
 
 	private void addNode(Point point) {
 		if (indexs.containsKey(point))
@@ -21,8 +20,7 @@ public class RoadManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public RoadManager(GeographyManager geographyManager, Road... roads) {
-		this.geographyManager = geographyManager;
+	public RoadManager(Road... roads) {
 		this.indexs = new HashMap<>();
 		this.nodes = new ArrayList<>();
 		for (Road road : roads)
@@ -139,7 +137,7 @@ public class RoadManager {
 
 		public double getLength() {
 			if (length == -1) { // didn't calculated yet
-				length = geographyManager.getDistance(nodes.get(nodeStart),
+				length = GeographyManager.getDistance(nodes.get(nodeStart),
 						nodes.get(nodeEnd));
 			}
 			return length;

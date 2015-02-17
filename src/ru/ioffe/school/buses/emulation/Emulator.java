@@ -17,14 +17,12 @@ public class Emulator {
 	Point[] stations;
 	ArrayList<Transfer>[] transfers; 
 	HashMap<Point, Integer> indexs;
-	GeographyManager geographyManager;
 	double speed;
 
 	@SuppressWarnings("unchecked")
-	public Emulator(Point[] stations, GeographyManager geographyManager, double speed, Transfer... transfers) {
+	public Emulator(Point[] stations, double speed, Transfer... transfers) {
 		this.stations = stations;
 		this.transfers = new ArrayList[stations.length];
-		this.geographyManager = geographyManager;
 		this.speed = speed;
 		this.indexs = new HashMap<>();
 		for (int i = 0; i < stations.length; i++) {
@@ -140,7 +138,7 @@ public class Emulator {
 					if (checked[i])
 						continue;
 					// next line should work slowly
-					int dt = (int) (geographyManager.getDistance(getPoint(person, minIndex), getPoint(person, i)) / speed);
+					int dt = (int) (GeographyManager.getDistance(getPoint(person, minIndex), getPoint(person, i)) / speed);
 					if (time[i] > time[minIndex] + dt) {
 						time[i] = time[minIndex] + dt;
 						pred[i] = minIndex;

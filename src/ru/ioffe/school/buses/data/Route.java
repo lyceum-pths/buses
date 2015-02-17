@@ -81,7 +81,9 @@ public class Route {
 				throw new IllegalArgumentException("Value of time to skip can't be negative");
 			currentTime += time;
 			for (; currentSegment < route.length && 
-					route[currentSegment].getTimeEnd() < currentTime; currentSegment++);
+					route[currentSegment].getTimeEnd() < currentTime; currentSegment++) {
+				
+			}
 		}
 	}
 }

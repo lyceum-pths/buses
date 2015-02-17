@@ -1,7 +1,10 @@
-package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses;
 
 import java.util.Scanner;
 
+import ru.ioffe.school.buses.data.Point;
+import ru.ioffe.school.buses.data.Route;
+import ru.ioffe.school.buses.data.Segment;
 import ru.ioffe.school.buses.timeManaging.PositionIndicator;
 
 
@@ -28,9 +31,10 @@ public class Tester {
 		Segment[] segments = {new Segment(new Point(1, 0, 0), new Point(1, 100, 100), 12, 112), new Segment(new Point(1, 100, 100), new Point(1, 100, 200), 112, 162)};
 		Route route = new Route(segments);
 		PositionIndicator ind = route.getPositionIndicator(0);
-		while (true) {
+		while (in.hasNextDouble()) {
 			ind.skipTime(in.nextDouble());
 			System.out.println(ind.getPosition());
 		}
+		in.close();
 	}
 }

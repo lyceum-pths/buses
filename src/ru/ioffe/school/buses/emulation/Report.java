@@ -2,7 +2,7 @@ package ru.ioffe.school.buses.emulation;
 
 import java.util.Arrays;
 
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Route;
+import ru.ioffe.school.buses.data.Route;
 
 public class Report {
 	Route[] routes;

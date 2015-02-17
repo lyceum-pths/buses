@@ -1,6 +1,8 @@
-package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.timeManaging;
 
 import java.util.Arrays;
+
+import ru.ioffe.school.buses.data.Point;
 
 /**
  * This class contain information about departures bus which has number "busNumber" from point "from" to point "to".

@@ -1,4 +1,6 @@
-package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.geographyManaging;
+
+import ru.ioffe.school.buses.data.Point;
 
 
 public class GeographyManager {

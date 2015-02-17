@@ -1,4 +1,5 @@
-package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.data;
+
 
 
 public class Person {

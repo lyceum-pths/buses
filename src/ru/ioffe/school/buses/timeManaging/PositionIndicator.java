@@ -1,6 +1,6 @@
 package ru.ioffe.school.buses.timeManaging;
 
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
+import ru.ioffe.school.buses.data.Point;
 
 
 /**

@@ -12,8 +12,8 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.graphCreation.Road;
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
 
 /**
  * The class handles an XML file that describes a map.

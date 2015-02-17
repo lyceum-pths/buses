@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
+import ru.ioffe.school.buses.data.Point;
 
 /**
  * This class contains information about road from point "from" to point "to".

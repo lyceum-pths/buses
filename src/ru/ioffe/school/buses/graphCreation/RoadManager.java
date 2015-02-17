@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.GeographyManager;
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.Point;
+import ru.ioffe.school.buses.data.Point;
+import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
 public class RoadManager {
 	ArrayList<Point> nodes;

@@ -1,6 +1,9 @@
 package ru.ioffe.school.buses.nightGeneration;
 
-import ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges.*;
+import ru.ioffe.school.buses.data.House;
+import ru.ioffe.school.buses.data.InterestingPoint;
+import ru.ioffe.school.buses.data.Night;
+import ru.ioffe.school.buses.data.Person;
 
 public class NightGenerator {
 	int timeStart;

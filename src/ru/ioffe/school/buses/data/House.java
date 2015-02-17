@@ -1,4 +1,4 @@
-package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.data;
 
 import ru.ioffe.school.buses.nightGeneration.Generateable;
 

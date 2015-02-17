@@ -1,7 +1,8 @@
-package ru.ioffe.school.buses.teachMeToSeparateClassesOnPackeges;
+package ru.ioffe.school.buses.data;
 
 import java.util.ArrayList;
 
+import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 import ru.ioffe.school.buses.graphCreation.Road;
 
 public class Bus {

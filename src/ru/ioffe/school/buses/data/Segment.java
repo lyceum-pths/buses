@@ -7,10 +7,10 @@ package ru.ioffe.school.buses.data;
  */
 
 public class Segment {
-	Point start;
-	Point end;
-	double dx, dy;
-	double timeStart, timeEnd;
+	final Point start;
+	final Point end;
+	final double dx, dy;
+	final double timeStart, timeEnd;
 	
 	public Segment(Point start, Point end, double timeStart, double timeEnd) {
 		this.start = start;

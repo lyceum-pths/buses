@@ -3,9 +3,9 @@ package ru.ioffe.school.buses.data;
 
 
 public class Person {
-	Point from;
-	Point to;
-	int time;
+	final Point from;
+	final Point to;
+	final int time;
 	
 	public Person(Point from, Point to, int time) {
 		this.from = from;

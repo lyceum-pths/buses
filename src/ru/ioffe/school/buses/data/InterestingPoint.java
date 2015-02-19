@@ -5,7 +5,7 @@ import ru.ioffe.school.buses.nightGeneration.Generateable;
 public class InterestingPoint extends Point implements Generateable {
 	
 	private static final long serialVersionUID = 9133810140827049601L;
-	int popularity;
+	final int popularity;
 
 	public InterestingPoint(double x, double y, int popularity) {
 		super(0, x, y);

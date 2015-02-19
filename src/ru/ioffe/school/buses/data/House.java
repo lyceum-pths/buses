@@ -5,7 +5,7 @@ import ru.ioffe.school.buses.nightGeneration.Generateable;
 public class House extends Point implements Generateable {
 	
 	private static final long serialVersionUID = 866189470358886686L;
-	int size;
+	final int size;
 	
 	public House(double x, double y, int size) {
 		super(0, x, y);

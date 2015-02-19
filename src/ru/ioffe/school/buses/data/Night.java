@@ -3,7 +3,7 @@ package ru.ioffe.school.buses.data;
 
 
 public class Night {
-	Person[] persons;
+	final Person[] persons;
 	
 	public Night(Person... persons) {
 		this.persons = persons;

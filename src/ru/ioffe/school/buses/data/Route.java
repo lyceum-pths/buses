@@ -8,14 +8,15 @@ import ru.ioffe.school.buses.timeManaging.PositionIndicator;
  * It should be used in GUI for showing object's movements.
  */
 public class Route {
-	Segment[] route;
-	int totalTime;
+	final Segment[] route;
+	final int totalTime;
 
 	public Route(Segment[] route) {
 		this.route = route;
-		totalTime = 0;
+		int totalTime = 0;
 		for (Segment s : route)
 			totalTime += s.getTimeEnd() - s.getTimeStart();
+		this.totalTime = totalTime;
 	}
 
 	public Segment[] getRoute() {
@@ -74,16 +75,37 @@ public class Route {
 				return null;
 			return route[currentSegment].getPosition(currentTime);
 		}
+		
+		private boolean isReady() {
+			return currentSegment == route.length || route[currentSegment].getTimeEnd() >= currentTime;
+		}
 
 		@Override
 		public void skipTime(double time) {
 			if (time < 0)
 				throw new IllegalArgumentException("Value of time to skip can't be negative");
 			currentTime += time;
-			for (; currentSegment < route.length && 
-					route[currentSegment].getTimeEnd() < currentTime; currentSegment++) {
-				
+			while (isReady())
+				currentSegment++;
+		}
+
+		@Override
+		public double getCurrentTime() {
+			return currentTime;
+		}
+		
+		public void setTime(double time) {
+			currentTime = time;
+			int L = 0, R = route.length, M;
+			while (R - L > 1) {
+				M = (R + L) >> 1;
+				if (route[M].getTimeStart() > currentTime) {
+					R = M;
+				} else {
+					L = M;
+				}
 			}
+			currentSegment = L;
 		}
 	}
 }

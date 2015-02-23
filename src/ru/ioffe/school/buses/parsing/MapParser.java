@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.graphCreation.Road;
+import ru.ioffe.school.buses.data.Road2;
 
 /**
  * The class handles an XML file that describes a map.
@@ -87,9 +87,9 @@ public class MapParser {
 		return points;
 	}
  	
-	private static ArrayList<Road> parseRoads(String[] text) {
+	private static ArrayList<Road2> parseRoads(String[] text) {
 		parsePoints(text);
-		ArrayList<Road> roads = new ArrayList<>();
+		ArrayList<Road2> roads = new ArrayList<>();
 		String wayRegex = "<way.*";
 		String wayCloseRegex = "</way>";
 		String highwayTagRegex = "<tag k=\"highway\".*";
@@ -101,10 +101,12 @@ public class MapParser {
 			neededTypes.add(types[i]);
 		}
 		Matcher matcher;
-		ArrayList<Point> crossroads; 
+		long last;
+		ArrayList<Road2> currentRoads;
 		for (int i = 0; i < text.length; i++) {
 			if (text[i].matches(wayRegex)) {
-				crossroads = new ArrayList<>();
+				last = -1;
+				currentRoads = new ArrayList<>();
 				while (i < text.length - 1) {
 					i++;
 					if (text[i].matches(wayCloseRegex))
@@ -112,14 +114,18 @@ public class MapParser {
 					if (text[i].matches(refRegex)) {
 						String ref = text[i].substring(9, text[i].length() - 3);
 						Long refId = Long.parseLong(ref);
-						crossroads.add(pointsByIds.get(refId));
+						if (last == -1) {
+							last = refId;
+						} else {
+							currentRoads.add(new Road2(last, refId));
+							last = refId;
+						}
 					} else if (text[i].matches(highwayTagRegex)) {
 						matcher = Pattern.compile(highwayTypeRegex).matcher(text[i]);
 						if (matcher.find()) {
 							String type = text[i].substring(matcher.start() + 3, matcher.end() - 1);
 							if (neededTypes.contains(type)) {
-								Road road = new Road(crossroads);
-								roads.add(road);
+								roads.addAll(currentRoads);
 							}
 						}
 					}
@@ -140,10 +146,10 @@ public class MapParser {
 		oos.close();
 	}
 	
-	private static void roadsToFile(File file, ArrayList<Road> roads) throws IOException {
+	private static void roadsToFile(File file, ArrayList<Road2> roads) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		for (Road road : roads) {
+		for (Road2 road : roads) {
 			oos.writeObject(road);			
 		}
 		oos.flush();

@@ -28,6 +28,10 @@ public class Point implements Serializable {
 	public double getY() {
 		return y;
 	}
+	
+	public long getID() {
+		return id;
+	}
 
 	@Override
 	public String toString() {

@@ -8,15 +8,23 @@ import java.io.Serializable;
 
 public class Road2 implements Serializable {
 	private static final long serialVersionUID = 6411040026365599897L;
-	final long idFrom;
-	final long idTo;
+	final long fromId;
+	final long toId;
 	
 	public Road2(long from, long to) {
-		this.idFrom = from;
-		this.idTo = to;
+		this.fromId = from;
+		this.toId = to;
+	}
+	
+	public long getToId() {
+		return toId;
+	}
+	
+	public long getFromId() {
+		return fromId;
 	}
 	
 	public String toString() {
-		return "[from " + idFrom + " to " + idTo + "]";
+		return "[from " + fromId + " to " + toId + "]";
 	}
 }

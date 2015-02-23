@@ -2,10 +2,12 @@ package ru.ioffe.school.buses.parsing;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +35,7 @@ public class MapParser {
 	
 	public static void getPoints(File file) throws IOException {
 		String[] text = parseText(file);
-		pointsToFile(new File("nodes.txt"), parsePoints(text));
+		pointsToFile(new File("points.txt"), parsePoints(text));
 	}
 	
 	private static String[] parseText(File file) throws IOException {
@@ -51,7 +53,7 @@ public class MapParser {
 		return ans;
 	}
 	
-	private static ArrayList<Point> parsePoints(String[] text) {
+	private static ArrayList<Point> parsePoints(String[] text) throws FileNotFoundException {
 		ArrayList<Point> points = new ArrayList<>();
 		String nodeRegex = "<node.*";
 		String idRegex = "<node id=\"\\d+\"";
@@ -60,6 +62,7 @@ public class MapParser {
 		Matcher idMatcher;
 		Matcher lonMatcher;
 		Matcher latMatcher;
+		PrintWriter out = new PrintWriter(new File("log.txt"));
 		for (int i = 0; i < text.length; i++) {
 			if (text[i].matches(nodeRegex)) {
 				idMatcher = Pattern.compile(idRegex).matcher(text[i]);
@@ -77,18 +80,20 @@ public class MapParser {
 					double lat = Double.parseDouble(latStr);
 					Point currPoint = new Point(id, lon, lat);
 					points.add(currPoint);
+					out.println(id);
 					pointsByIds.put(id, currPoint);
 				} else {
 					System.out.println("Error: one of the nodes doesn't have info about it's id, lat or lon");
 				}
 			}
 		}
+		out.close();
 		
 		return points;
 	}
  	
 	private static ArrayList<Road2> parseRoads(String[] text) {
-		parsePoints(text);
+//		parsePoints(text);
 		ArrayList<Road2> roads = new ArrayList<>();
 		String wayRegex = "<way.*";
 		String wayCloseRegex = "</way>";
@@ -118,6 +123,8 @@ public class MapParser {
 							last = refId;
 						} else {
 							currentRoads.add(new Road2(last, refId));
+							if (last == 0 && refId == 0)
+								System.out.println("lol");
 							last = refId;
 						}
 					} else if (text[i].matches(highwayTagRegex)) {

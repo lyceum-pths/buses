@@ -10,18 +10,15 @@ import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 
 public class GUIModel {
-	private ArrayList<Point> points;
 	private ArrayList<Road> roads;
 	ArrayList<Road> roadsInBB;
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
 	
-	public GUIModel(File pointsFile, File roadsFile) throws IOException {
-		points = new ArrayList<>();
+	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
 		roadsInBB = new ArrayList<>();
-		getPoints(pointsFile);
 		getRoads(roadsFile);
 		updateWHRatio();
 		getMaxSizes();
@@ -93,17 +90,6 @@ public class GUIModel {
 		up -= totalH * per;
 		down += totalH * per;
 		updateRoadsInBB();
-	}
-	
-	private void getPoints(File file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
-		ObjectInputStream oin = new ObjectInputStream(fis);
-		try {
-			while (true) {
-				points.add((Point) oin.readObject());
-			}
-		} catch (Exception e) {}
-		oin.close();
 	}
 	
 	private void getRoads(File file) throws IOException {

@@ -13,19 +13,24 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class GUIControl extends JFrame {
+public class GUIControl extends JFrame implements KeyListener {
 	
 	GUIModel model;
 	GUIView view;
 	int totalWidth, totalHeight;
 	int controlPanelHeight;
+	int percent;
 	JPanel mapPanel, controlPanel;
+	JPanel mapControlPanel, infoPanel, timelinePanel;
 	JButton zoomButton, unzoomButton, upButton, downButton, leftButton, rightButton;
+	JLabel actualRoadsNumberLabel; 
 	
 	{
 		try {
@@ -36,23 +41,25 @@ public class GUIControl extends JFrame {
 	}
 	
 	private void init() throws IOException {
-		model = new GUIModel(new File("points.txt"), new File("roads.txt"));
+		model = new GUIModel(new File("roads.txt"));
 		view = new GUIView(model);
 		Dimension d = getToolkit().getScreenSize();
+		percent = 20;
 		controlPanelHeight = 200;
 		totalHeight = d.height * 2 / 3;
 		totalWidth = d.width * 2 / 3;
-		int minimumWidth = totalWidth;
+		int minimumWidth = Math.max(d.width / 2, 3 * controlPanelHeight);
 		int minimumHeight = controlPanelHeight;
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
+		actualRoadsNumberLabel = new JLabel();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Map GUI v0.1.1");
+		this.setTitle("Map GUI v0.2");
 		this.setPreferredSize(new Dimension(totalWidth, totalHeight));
 		this.setMinimumSize(new Dimension(minimumWidth, minimumHeight));
 		this.pack();
 		this.setLayout(null);
-//		this.setBackground(Color.red); //why that does not work?
 		setPanels();
+		updateInfoLabels();
 		this.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent e) {
 				updateSizes();
@@ -67,9 +74,16 @@ public class GUIControl extends JFrame {
 		totalWidth = this.getWidth();
 		totalHeight = this.getHeight();
 		mapPanel.setBounds(0, controlPanelHeight, totalWidth, totalHeight);
+		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
+				2 * controlPanelHeight, controlPanelHeight);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		model.updateWHRatio();
+	}
+	
+	private void updateInfoLabels() {		
+		actualRoadsNumberLabel.setText("Roads on the map: " + model.roadsInBB.size());
+		infoPanel.repaint();
 	}
 	
 	private void setPanels() {
@@ -87,82 +101,122 @@ public class GUIControl extends JFrame {
 		controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		controlPanel.setBackground(Color.white);
 		controlPanel.setLayout(null);
+		mapControlPanel = new JPanel();
+		infoPanel = new JPanel();
+		timelinePanel = new JPanel();
+		controlPanel.add(mapControlPanel);
+		controlPanel.add(infoPanel);
+		controlPanel.add(timelinePanel);
+		mapControlPanel.setBounds(0, 0, controlPanelHeight, controlPanelHeight);
+		mapControlPanel.setLayout(null);
+		mapControlPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		infoPanel.setBounds(controlPanelHeight, 0, controlPanelHeight, controlPanelHeight);
+		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
+		infoPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		infoPanel.add(actualRoadsNumberLabel);
+		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
+				2 * controlPanelHeight, controlPanelHeight);
+		timelinePanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
 		setButtons();
 	}
 	
 	private void setButtons() {
 		zoomButton = new JButton("+");
-		controlPanel.add(zoomButton);
-		zoomButton.setBounds(10, 10, 40, 30);
+		mapControlPanel.add(zoomButton);
+		zoomButton.setBounds(10, 10, 50, 50);
 		zoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.zoom(20);
+				model.zoom(percent);
 				mapPanel.repaint();
+				updateInfoLabels();
 			}
 		});
+		zoomButton.addKeyListener(this);
 		unzoomButton = new JButton("-");
-		controlPanel.add(unzoomButton);
-		unzoomButton.setBounds(60, 10, 40, 30);
+		mapControlPanel.add(unzoomButton);
+		unzoomButton.setBounds(140, 10, 50, 50);
 		unzoomButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.zoom(-20);
+				model.zoom(-percent);
 				mapPanel.repaint();
+				updateInfoLabels();
 			}
 		});
+		unzoomButton.addKeyListener(this);
 		upButton = new JButton("Up");
-		controlPanel.add(upButton);
-		upButton.setBounds(10, 40, 100, 30);
+		mapControlPanel.add(upButton);
+		upButton.setBounds(60, 70, 80, 30);
 		upButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.moveUp(20);
+				model.moveUp(percent);
 				mapPanel.repaint();
+				updateInfoLabels();
 			}
 		});
-		upButton.addKeyListener(new KeyListener() {
-			public void keyTyped(KeyEvent e) {
-			}
-			public void keyReleased(KeyEvent e) {
-				
-			}
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_UP) {
-					model.moveUp(20);
-					mapPanel.repaint();
-				}
-				System.out.println(KeyEvent.VK_UNDERSCORE);
-				
-			}
-		});
+		upButton.addKeyListener(this);
 		downButton = new JButton("Down");
-		controlPanel.add(downButton);
-		downButton.setBounds(10, 70, 100, 30);
+		mapControlPanel.add(downButton);
+		downButton.setBounds(60, 150, 80, 30);
 		downButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.moveDown(20);
+				model.moveDown(percent);
 				mapPanel.repaint();
+				updateInfoLabels();
 			}
 		});
+		downButton.addKeyListener(this);
 		rightButton = new JButton("Right");
-		controlPanel.add(rightButton);
-		rightButton.setBounds(10, 100, 100, 30);
+		mapControlPanel.add(rightButton);
+		rightButton.setBounds(110, 110, 80, 30);
 		rightButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.moveRight(20);
+				model.moveRight(percent);
 				mapPanel.repaint();
+				updateInfoLabels();
 			}
 		});
+		rightButton.addKeyListener(this);
 		leftButton = new JButton("Left");
-		controlPanel.add(leftButton);
-		leftButton.setBounds(10, 130, 100, 30);
+		mapControlPanel.add(leftButton);
+		leftButton.setBounds(10, 110, 80, 30);
 		leftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				model.moveLeft(20);
+				model.moveLeft(percent);
 				mapPanel.repaint();
+				updateInfoLabels();
 			}
 		});
+		leftButton.addKeyListener(this);
 	}
 	
 	public static void main(String[] args) {
 		new GUIControl().setVisible(true);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
+			model.moveUp(percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+			model.moveDown(percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			model.moveLeft(percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			model.moveRight(percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
+			model.zoom(percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_MINUS) {
+			model.zoom(-percent);
+		}
+		mapPanel.repaint();
+		updateInfoLabels();
+	}
+	
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {		
 	}
 }

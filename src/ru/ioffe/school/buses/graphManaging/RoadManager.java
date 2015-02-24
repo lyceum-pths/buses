@@ -1,11 +1,10 @@
-package ru.ioffe.school.buses.graphCreation;
+package ru.ioffe.school.buses.graphManaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
 public class RoadManager {
 	ArrayList<Point> nodes;
@@ -23,26 +22,18 @@ public class RoadManager {
 	public RoadManager(Road... roads) {
 		this.indexs = new HashMap<>();
 		this.nodes = new ArrayList<>();
-		for (Road road : roads)
-			for (Point point : road.getCrossroads())
-				addNode(point);
+		for (Road road : roads) {
+			addNode(road.getFrom());
+			addNode(road.getTo());
+		}
 		this.roads = new ArrayList[nodes.size()];
 		for (int i = 0; i < nodes.size(); i++)
 			this.roads[i] = new ArrayList<>();
-		int lastPoint;
-		int currentPoint;
-		for (Road road : roads) {
-			lastPoint = -1;
-			for (Point point : road.getCrossroads()) {
-				currentPoint = indexs.get(point);
-				if (lastPoint != -1)
-					this.roads[lastPoint].add(new Edge(lastPoint, currentPoint));
-				lastPoint = currentPoint;
-			}
-		}
+		for (Road road : roads)
+			this.roads[indexs.get(road.getFrom())].add(new Edge(road));
 	}
 
-	public Road findWay(Point start, Point finish) {
+	public Road[] findWay(Point start, Point finish) {
 		int from;
 		int to;
 		try {
@@ -54,11 +45,9 @@ public class RoadManager {
 		TreeSet<Step> heap = new TreeSet<>();
 		boolean[] checked = new boolean[nodes.size()];
 		double[] distance = new double[nodes.size()];
-		int[] pred = new int[nodes.size()];
-		for (int i = 0; i < nodes.size(); i++) {
+		Edge[] lastEdge = new Edge[nodes.size()];
+		for (int i = 0; i < nodes.size(); i++)
 			distance[i] = Double.POSITIVE_INFINITY;
-			pred[i] = -1;
-		}
 		distance[from] = 0;
 		heap.add(new Step(0, from));
 		int current;
@@ -73,23 +62,23 @@ public class RoadManager {
 					heap.remove(new Step(distance[next], next));
 					distance[next] = distance[current] + edge.getLength();
 					heap.add(new Step(distance[next], next));
-					pred[next] = current;
+					lastEdge[next] = edge;
 				}
 			}
 		}
 		if (distance[to] == Double.POSITIVE_INFINITY)
 			throw new IllegalArgumentException(
 					"There is no way between these points.");
-		ArrayList<Point> invertedWay = new ArrayList<>();
+		ArrayList<Road> invertedWay = new ArrayList<>();
 		current = to;
-		while (current != -1) {
-			invertedWay.add(nodes.get(current));
-			current = pred[current];
+		while (lastEdge[current] != null) {
+			invertedWay.add(lastEdge[current].getRoad());
+			current = lastEdge[current].getStart();
 		}
-		Point[] way = new Point[invertedWay.size()];
+		Road[] way = new Road[invertedWay.size()];
 		for (int i = 0; i < way.length; i++)
 			way[i] = invertedWay.get(way.length - 1 - i);
-		return new Road(way);
+		return way;
 	}
 
 	class Step implements Comparable<Step> {
@@ -118,37 +107,35 @@ public class RoadManager {
 	}
 
 	class Edge {
-		int nodeStart;
-		int nodeEnd;
+		Road road;
+		int from, to;
 
-		double length;
-
-		public Edge(int from, int to) {
-			nodeStart = from;
-			nodeEnd = to;
-			length = -1;
+		public Edge(Road road) {
+			from = indexs.get(road.from);
+			to = indexs.get(road.to);
+			this.road = road;
 		}
 
-		public Edge(Point from, Point to) {
-			nodeStart = indexs.get(from);
-			nodeEnd = indexs.get(to);
-			length = -1;
+		public Edge(Road road, int from, int to) {
+			this.from = from;
+			this.to = to;
+			this.road = road;
 		}
 
 		public double getLength() {
-			if (length == -1) { // didn't calculated yet
-				length = GeographyManager.getDistance(nodes.get(nodeStart),
-						nodes.get(nodeEnd));
-			}
-			return length;
+			return road.getLength();
 		}
 
 		public int getStart() {
-			return nodeStart;
+			return from;
 		}
 
 		public int getEnd() {
-			return nodeEnd;
+			return to;
+		}
+
+		public Road getRoad() {
+			return road;
 		}
 	}
 }

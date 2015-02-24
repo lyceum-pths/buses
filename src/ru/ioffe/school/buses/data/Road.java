@@ -1,8 +1,7 @@
-package ru.ioffe.school.buses.graphManaging;
+package ru.ioffe.school.buses.data;
 
 import java.io.Serializable;
 
-import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
 /**
@@ -15,9 +14,9 @@ public class Road implements Serializable {
 	
 	private static final long serialVersionUID = 2284501799222650859L;
 	
-	final Point from, to;
+	public final Point from, to;
 	// final double speedBound; It should appear soon 
-	final double length;
+	public final double length;
 	
 	public Road(Point from, Point to) {
 		this.from = from;

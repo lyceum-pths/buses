@@ -24,18 +24,19 @@ public class GUIModel {
 		roads = new ArrayList<>();
 		roadsInBB = new ArrayList<>();
 		getPoints(pointsFile);
-		try {
-			getRoads(roadsFile);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		getRoads(roadsFile);
+		updateWHRatio();
 		getMaxSizes();
 		updateRoadsInBB();
-		
 	}
 	
-	public void setTotalSizes(int width, int heigth, int panelHeight) {
+	public void updateWHRatio() {
+		double ratio = (double) totalGUIWidth / (double) (totalGUIHeight - controlPanelHeight);
+		up = down + (right - left) / ratio;
+		updateRoadsInBB();
+	}
+	
+	public void updateTotalSizes(int width, int heigth, int panelHeight) {
 		totalGUIWidth = width;
 		totalGUIHeight = heigth;
 		controlPanelHeight = panelHeight;
@@ -48,7 +49,7 @@ public class GUIModel {
 	public void moveUp(int percent) {
 		double per = (double) percent / 100;
 		double totalH = up - down;
-		if (up + totalH * per > maxY)
+		if (up + totalH * per - totalH / 2 > maxY)
 			return;
 		up += totalH * per;
 		down += totalH * per;
@@ -58,7 +59,7 @@ public class GUIModel {
 	public void moveDown(int percent) {
 		double per = (double) percent / 100;
 		double totalH = up - down;
-		if (down - totalH * per < minY)
+		if (down - totalH * per + totalH / 2 < minY)
 			return;
 		up -= totalH * per;
 		down -= totalH * per;
@@ -68,7 +69,7 @@ public class GUIModel {
 	public void moveRight(int percent) {
 		double per = (double) percent / 100;
 		double totalW = right - left;
-		if (right + totalW * per > maxX)
+		if (right + totalW * per - totalW / 2 > maxX)
 			return;
 		right += totalW * per;
 		left += totalW * per;
@@ -78,7 +79,7 @@ public class GUIModel {
 	public void moveLeft(int percent) {
 		double per = (double) percent / 100;
 		double totalW = right - left;
-		if (left - totalW * per < minX)
+		if (left - totalW * per + totalW / 2 < minX)
 			return;
 		right -= totalW * per;
 		left -= totalW * per;
@@ -110,29 +111,27 @@ public class GUIModel {
 		} catch (Exception e) {}
 		oin.close();
 		pointsById = new HashMap<>();
-		left = Double.MAX_VALUE;
-		down = Double.MAX_VALUE;
-		right = Double.MIN_VALUE;
-		up = Double.MIN_VALUE;
 		for (Point p : points) {
 			pointsById.put(p.getID(), p);
 		}
 	}
 	
-	private void getRoads(File file) throws IOException, ClassNotFoundException {
+	private void getRoads(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		try {
 			while (true) {
 				roads.add((Road2) oin.readObject());
 			}
-			
 		} catch (Exception e) {}
 		oin.close();
-		System.out.println("num of roads = " + roads.size());
 	}
 
 	private void getMaxSizes() {
+		left = Double.MAX_VALUE;
+		down = Double.MAX_VALUE;
+		right = Double.MIN_VALUE;
+		up = Double.MIN_VALUE;
 		for (Road2 r : roads) {
 			Point p = pointsById.get(r.getFromId());
 			if (p.getX() < left)
@@ -157,7 +156,6 @@ public class GUIModel {
 		minY = down;
 		maxX = right;
 		maxY = up;
-		right = left + up - down;
 	}
 	
 	private void updateRoadsInBB() {

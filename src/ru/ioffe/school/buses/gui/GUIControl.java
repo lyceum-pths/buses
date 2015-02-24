@@ -37,20 +37,19 @@ public class GUIControl extends JFrame {
 		model = new GUIModel(new File("points.txt"), new File("roads.txt"));
 		view = new GUIView(model);
 		Dimension d = getToolkit().getScreenSize();
-		totalWidth = 800;
 		controlPanelHeight = 200;
-		totalHeight = d.height;
+		totalHeight = d.height * 2 / 3;
+		totalWidth = d.width * 2 / 3;
 		int minimumWidth = totalWidth;
 		int minimumHeight = controlPanelHeight;
-		model.setTotalSizes(totalWidth, totalHeight, controlPanelHeight);
+		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Map GUI v0.1");
+		this.setTitle("Map GUI v0.1.1");
 		this.setPreferredSize(new Dimension(totalWidth, totalHeight));
 		this.setMinimumSize(new Dimension(minimumWidth, minimumHeight));
 		this.pack();
 		this.setLayout(null);
 //		this.setBackground(Color.red); //why that does not work?
-//		this.setResizable(false);
 		setPanels();
 		this.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent e) {
@@ -67,7 +66,8 @@ public class GUIControl extends JFrame {
 		totalHeight = this.getHeight();
 		mapPanel.setBounds(0, controlPanelHeight, totalWidth, totalHeight);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
-		this.validate();
+		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
+		model.updateWHRatio();
 	}
 	
 	private void setPanels() {

@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.data.Road2;
+import ru.ioffe.school.buses.data.Road;
 
 /**
  * The class handles an XML file that describes a map.
@@ -92,9 +92,9 @@ public class MapParser {
 		return points;
 	}
  	
-	private static ArrayList<Road2> parseRoads(String[] text) throws IOException {
+	private static ArrayList<Road> parseRoads(String[] text) throws IOException {
 		parsePoints(text);
-		ArrayList<Road2> roads = new ArrayList<>();
+		ArrayList<Road> roads = new ArrayList<>();
 		String wayRegex = "<way.*";
 		String wayCloseRegex = "</way>";
 		String highwayTagRegex = "<tag k=\"highway\".*";
@@ -107,7 +107,7 @@ public class MapParser {
 		}
 		Matcher matcher;
 		long last;
-		ArrayList<Road2> currentRoads;
+		ArrayList<Road> currentRoads;
 		for (int i = 0; i < text.length; i++) {
 			if (text[i].matches(wayRegex)) {
 				last = -1;
@@ -122,7 +122,7 @@ public class MapParser {
 						if (last == -1) {
 							last = refId;
 						} else {
-							currentRoads.add(new Road2(last, refId));
+							currentRoads.add(new Road(pointsByIds.get(last), pointsByIds.get(refId)));
 							if (last == 0 && refId == 0)
 								System.out.println("lol");
 							last = refId;
@@ -152,10 +152,10 @@ public class MapParser {
 		oos.close();
 	}
 	
-	private static void roadsToFile(File file, ArrayList<Road2> roads) throws IOException {
+	private static void roadsToFile(File file, ArrayList<Road> roads) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		for (Road2 road : roads) {
+		for (Road road : roads) {
 			oos.writeObject(road);
 		}
 		oos.flush();

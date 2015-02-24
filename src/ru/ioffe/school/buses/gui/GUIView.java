@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.data.Road2;
+import ru.ioffe.school.buses.data.Road;
 
 @SuppressWarnings("serial")
 public class GUIView extends JFrame {
@@ -19,9 +19,9 @@ public class GUIView extends JFrame {
 		double pxSize = model.totalGUIWidth /
 				(model.right - model.left);
 		g.clearRect(0, 0, model.totalGUIWidth, model.totalGUIHeight - model.controlPanelHeight);
-		for (Road2 road : model.roadsInBB) {
-			Point p1 = model.getPoint(road.getFromId());
-			Point p2 = model.getPoint(road.getToId());
+		for (Road road : model.roadsInBB) {
+			Point p1 = road.from;
+			Point p2 = road.to;
 			double difX = p1.getX() - model.left;
 			double difY = - p1.getY() + model.up;
 			int x1 = (int) (difX * pxSize);

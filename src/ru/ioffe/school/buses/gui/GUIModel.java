@@ -5,16 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.data.Road2;
+import ru.ioffe.school.buses.data.Road;
 
 public class GUIModel {
 	private ArrayList<Point> points;
-	private ArrayList<Road2> roads;
-	ArrayList<Road2> roadsInBB;
-	private HashMap<Long, Point> pointsById;
+	private ArrayList<Road> roads;
+	ArrayList<Road> roadsInBB;
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
@@ -42,10 +40,6 @@ public class GUIModel {
 		controlPanelHeight = panelHeight;
 	}
 
-	public Point getPoint(long id) {
-		return pointsById.get(id);
-	}
-	
 	public void moveUp(int percent) {
 		double per = (double) percent / 100;
 		double totalH = up - down;
@@ -110,10 +104,6 @@ public class GUIModel {
 			}
 		} catch (Exception e) {}
 		oin.close();
-		pointsById = new HashMap<>();
-		for (Point p : points) {
-			pointsById.put(p.getID(), p);
-		}
 	}
 	
 	private void getRoads(File file) throws IOException {
@@ -121,7 +111,7 @@ public class GUIModel {
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		try {
 			while (true) {
-				roads.add((Road2) oin.readObject());
+				roads.add((Road) oin.readObject());
 			}
 		} catch (Exception e) {}
 		oin.close();
@@ -132,8 +122,8 @@ public class GUIModel {
 		down = Double.MAX_VALUE;
 		right = Double.MIN_VALUE;
 		up = Double.MIN_VALUE;
-		for (Road2 r : roads) {
-			Point p = pointsById.get(r.getFromId());
+		for (Road r : roads) {
+			Point p = r.from;
 			if (p.getX() < left)
 				left = p.getX();
 			if (p.getX() > right)
@@ -142,7 +132,7 @@ public class GUIModel {
 				down = p.getY();
 			if (p.getY() > up)
 				up = p.getY();
-			p = pointsById.get(r.getToId());
+			p = r.to;
 			if (p.getX() < left)
 				left = p.getX();
 			if (p.getX() > right)
@@ -160,9 +150,9 @@ public class GUIModel {
 	
 	private void updateRoadsInBB() {
 		roadsInBB.clear();
-		for (Road2 r : roads) {
-			Point from = pointsById.get(r.getFromId());
-			Point to = pointsById.get(r.getToId());
+		for (Road r : roads) {
+			Point from = r.from;
+			Point to = r.to;
 			boolean inside = true;
 			if (from.getY() < down || from.getY() > up ||
 					from.getX() < left || from.getX() > right)

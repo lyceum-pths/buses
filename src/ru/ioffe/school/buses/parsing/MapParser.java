@@ -92,8 +92,8 @@ public class MapParser {
 		return points;
 	}
  	
-	private static ArrayList<Road2> parseRoads(String[] text) {
-//		parsePoints(text);
+	private static ArrayList<Road2> parseRoads(String[] text) throws IOException {
+		parsePoints(text);
 		ArrayList<Road2> roads = new ArrayList<>();
 		String wayRegex = "<way.*";
 		String wayCloseRegex = "</way>";
@@ -139,7 +139,6 @@ public class MapParser {
 				}
 			}
 		}
-		
 		return roads;
 	}
 	
@@ -157,7 +156,7 @@ public class MapParser {
 		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
 		for (Road2 road : roads) {
-			oos.writeObject(road);			
+			oos.writeObject(road);
 		}
 		oos.flush();
 		oos.close();

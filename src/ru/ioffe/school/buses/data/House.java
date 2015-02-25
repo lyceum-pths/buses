@@ -1,6 +1,6 @@
 package ru.ioffe.school.buses.data;
 
-import ru.ioffe.school.buses.nightGeneration.Generateable;
+import ru.ioffe.school.buses.randomGeneration.Generateable;
 
 public class House extends Point implements Generateable {
 	

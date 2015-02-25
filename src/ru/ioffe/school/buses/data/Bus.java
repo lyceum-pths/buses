@@ -1,8 +1,5 @@
 package ru.ioffe.school.buses.data;
 
-import java.util.ArrayList;
-
-import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
 public class Bus {
 	Route route;

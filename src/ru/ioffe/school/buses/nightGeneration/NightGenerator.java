@@ -4,6 +4,7 @@ import ru.ioffe.school.buses.data.House;
 import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Night;
 import ru.ioffe.school.buses.data.Person;
+import ru.ioffe.school.buses.randomGeneration.RandomObjectGenerator;
 
 public class NightGenerator {
 	int timeStart;

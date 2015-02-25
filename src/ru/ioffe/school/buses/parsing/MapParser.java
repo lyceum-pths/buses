@@ -19,7 +19,7 @@ import ru.ioffe.school.buses.data.Road;
 
 /**
  * The class handles an XML file that describes a map.
- * MapParser can give information about Roads describes in the map
+ * MapParser can give information about Roads described in the map
  * or only about Points in the map.
  * Results are written in .txt files in project root folder.
  */

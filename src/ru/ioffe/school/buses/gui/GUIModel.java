@@ -15,14 +15,30 @@ public class GUIModel {
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
+	TestBus bus;
+	int currentTime, timeSpeed, maxTime;
+	boolean timePaused;
 	
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
 		roadsInBB = new ArrayList<>();
+		currentTime = 0;
+		timeSpeed = 1;
+		maxTime = 43200;
+		timePaused = false;
 		getRoads(roadsFile);
 		updateWHRatio();
 		getMaxSizes();
 		updateRoadsInBB();
+		bus = new TestBus(1.0 / 3, 0, minX, minY, maxX, maxY);
+	}
+
+	public void setTime(int time) {
+		this.currentTime = time;
+	}
+	
+	public void setTimeSpeed(int speed) {
+		this.timeSpeed = speed;
 	}
 	
 	public void updateWHRatio() {

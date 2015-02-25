@@ -60,8 +60,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		controlPanelHeight = 200;
 		totalHeight = d.height * 2 / 3;
 		totalWidth = d.width * 2 / 3;
-		int minimumWidth = Math.max(d.width / 2, 3 * controlPanelHeight);
-		int minimumHeight = controlPanelHeight;
+		int minimumWidth = Math.max(d.width / 2, 5 * controlPanelHeight);
+		int minimumHeight = 3 * controlPanelHeight;
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		view.updateMapInBB();
 		actualRoadsNumberLabel = new JLabel();
@@ -103,6 +103,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		timeSlider.setBounds(10, 80, totalWidth - 2 * controlPanelHeight - 20, 30);
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		model.updateWHRatio();
+		view.updateMapInBB();
 	}
 	
 	private void updateInfoLabels() {		
@@ -161,8 +162,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.zoom(percent);
 				view.updateMapInBB();
-				mapPanel.repaint();
-				updateInfoLabels();
 			}
 		});
 		zoomButton.addKeyListener(this);
@@ -174,8 +173,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.zoom(-percent);
 				view.updateMapInBB();
-				mapPanel.repaint();
-				updateInfoLabels();
 			}
 		});
 		unzoomButton.addKeyListener(this);
@@ -187,8 +184,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.moveUp(percent);
 				view.updateMapInBB();
-				mapPanel.repaint();
-				updateInfoLabels();
 			}
 		});
 		upButton.addKeyListener(this);
@@ -200,8 +195,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.moveDown(percent);
 				view.updateMapInBB();
-				mapPanel.repaint();
-				updateInfoLabels();
 			}
 		});
 		downButton.addKeyListener(this);
@@ -213,8 +206,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.moveRight(percent);
 				view.updateMapInBB();
-				mapPanel.repaint();
-				updateInfoLabels();
 			}
 		});
 		rightButton.addKeyListener(this);
@@ -226,8 +217,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				model.moveLeft(percent);
 				view.updateMapInBB();
-				mapPanel.repaint();
-				updateInfoLabels();
 			}
 		});
 		leftButton.addKeyListener(this);
@@ -250,37 +239,35 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		});
 		pauseButton.setBounds(10, 10, 100, 30);
 		timeSlider = new JSlider(0, model.maxTime);
+		timeSlider.setFocusable(false);
 		timelinePanel.add(timeSlider);
 		timeSlider.setBounds(10, 90, totalWidth - 2 * controlPanelHeight - 20, 30);
 		timeSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				model.currentTime = timeSlider.getValue();
-				updateInfoLabels();
-				mapPanel.repaint();
 			}
 		});
 		JLabel updateTipLabel = new JLabel("Insert time speed:");
 		timelinePanel.add(updateTipLabel);
 		updateTipLabel.setBounds(150, 10, 130, 30);
 		speedField = new JTextField();
-		speedField.addKeyListener(this);
 		timelinePanel.add(speedField);
 		speedField.setBounds(280, 10, 50, 30);
 		updateSpeedButton = new JButton("Update");
-		updateSpeedButton.setFocusable(false);
+		updateSpeedButton.addKeyListener(this);
 		timelinePanel.add(updateSpeedButton);
-		updateSpeedButton.setBounds(340, 10, 70, 30);
+		updateSpeedButton.setBounds(340, 10, 100, 30);
 		updateSpeedButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String speed = speedField.getText();
+				String speed = speedField.getText().trim();
 				try {
-					Integer.parseInt(speed);
+					int sp = Integer.parseInt(speed);
+					if (sp <= 0)
+						return;
+					model.timeSpeed = sp;
+					updateTimeTimer.setDelay(1000 / sp);
 				} catch (NumberFormatException exept) {
-					return;
 				}
-				int sp = Integer.parseInt(speed);
-				model.timeSpeed = sp;
-				updateTimeTimer.setDelay(1000 / sp);
 			}
 		});
 	}
@@ -317,7 +304,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 	public void keyReleased(KeyEvent e) {		
 	}
 
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == updateScreenTimer) {

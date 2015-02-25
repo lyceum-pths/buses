@@ -13,10 +13,10 @@ public class Route {
 
 	public Route(Segment[] route) {
 		this.route = route;
-		int totalTime = 0;
+		int time = 0;
 		for (Segment s : route)
-			totalTime += s.getTimeEnd() - s.getTimeStart();
-		this.totalTime = totalTime;
+			time += s.getTimeEnd() - s.getTimeStart();
+		this.totalTime = time;
 	}
 
 	public Segment[] getRoute() {

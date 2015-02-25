@@ -65,6 +65,7 @@ public class TimeTable {
 			indicator.setTime(currentTime - (currentPassage < begins[bus].length? begins[bus][currentPassage] : Double.NEGATIVE_INFINITY));
 		}
 		
+		@Override
 		public void setTime(double time) {
 			currentTime = time;
 			int L = 0, R = begins[bus].length, M;

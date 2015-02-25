@@ -61,11 +61,15 @@ public class GUIControl extends JFrame implements KeyListener {
 		setPanels();
 		updateInfoLabels();
 		this.addComponentListener(new ComponentListener() {
+			@Override
 			public void componentResized(ComponentEvent e) {
 				updateSizes();
 			}
+			@Override
 			public void componentShown(ComponentEvent e) {}
+			@Override
 			public void componentMoved(ComponentEvent e) {}
+			@Override
 			public void componentHidden(ComponentEvent e) {}
 		});
 	}
@@ -88,6 +92,7 @@ public class GUIControl extends JFrame implements KeyListener {
 	
 	private void setPanels() {
 		mapPanel = new JPanel() {
+			@Override
 			public void paint(Graphics g) {
 				view.drawMap(g);
 			}
@@ -125,6 +130,7 @@ public class GUIControl extends JFrame implements KeyListener {
 		mapControlPanel.add(zoomButton);
 		zoomButton.setBounds(10, 10, 50, 50);
 		zoomButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.zoom(percent);
 				mapPanel.repaint();
@@ -136,6 +142,7 @@ public class GUIControl extends JFrame implements KeyListener {
 		mapControlPanel.add(unzoomButton);
 		unzoomButton.setBounds(140, 10, 50, 50);
 		unzoomButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.zoom(-percent);
 				mapPanel.repaint();
@@ -147,6 +154,7 @@ public class GUIControl extends JFrame implements KeyListener {
 		mapControlPanel.add(upButton);
 		upButton.setBounds(60, 70, 80, 30);
 		upButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.moveUp(percent);
 				mapPanel.repaint();
@@ -158,6 +166,7 @@ public class GUIControl extends JFrame implements KeyListener {
 		mapControlPanel.add(downButton);
 		downButton.setBounds(60, 150, 80, 30);
 		downButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.moveDown(percent);
 				mapPanel.repaint();
@@ -169,6 +178,7 @@ public class GUIControl extends JFrame implements KeyListener {
 		mapControlPanel.add(rightButton);
 		rightButton.setBounds(110, 110, 80, 30);
 		rightButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.moveRight(percent);
 				mapPanel.repaint();
@@ -180,6 +190,7 @@ public class GUIControl extends JFrame implements KeyListener {
 		mapControlPanel.add(leftButton);
 		leftButton.setBounds(10, 110, 80, 30);
 		leftButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.moveLeft(percent);
 				mapPanel.repaint();

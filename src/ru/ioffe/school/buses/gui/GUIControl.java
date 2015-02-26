@@ -31,13 +31,12 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 	GUIView view;
 	int totalWidth, totalHeight;
 	int controlPanelHeight;
-	int percent;
-	int fps;
+	int percent, fps, timeUpdateDelay;
 	JPanel mapPanel, controlPanel;
 	JPanel mapControlPanel, infoPanel, timelinePanel;
 	JButton zoomButton, unzoomButton, upButton, downButton, leftButton, rightButton;
 	JButton pauseButton, updateSpeedButton;
-	JSlider timeSlider;
+	JSlider timeSlider, timeSpeedSlider;
 	JTextField speedField;
 	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel;
 	Timer updateScreenTimer, updateTimeTimer;
@@ -55,7 +54,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		view = new GUIView(model);
 		Dimension d = getToolkit().getScreenSize();
 		percent = 20;
-		fps = 24;
+		fps = 30;
+		timeUpdateDelay = 25;
 		updateScreenTimer = new Timer(1000 / fps, this);
 		controlPanelHeight = 200;
 		totalHeight = d.height * 2 / 3;
@@ -74,6 +74,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		this.setMinimumSize(new Dimension(minimumWidth, minimumHeight));
 		this.pack();
 		this.setLayout(null);
+		updateTimeTimer = new Timer(timeUpdateDelay, this);
 		setPanels();
 		updateInfoLabels();
 		this.addComponentListener(new ComponentListener() {
@@ -89,8 +90,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void componentHidden(ComponentEvent e) {}
 		});
 		updateScreenTimer.start();
-		updateTimeTimer = new Timer(1000 * model.timeSpeed, this);
 		updateTimeTimer.start();
+		updateSizes();
 	}
 	
 	private void updateSizes() {
@@ -100,7 +101,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
 				2 * controlPanelHeight, controlPanelHeight);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
-		timeSlider.setBounds(10, 80, totalWidth - 2 * controlPanelHeight - 20, 30);
+		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		model.updateWHRatio();
 		view.updateMapInBB();
@@ -110,7 +111,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		actualRoadsNumberLabel.setText("Roads on the map: " + model.roadsInBB.size());
 		fpsLabel.setText("fps: " + fps);
 		speedLabel.setText("Time speed: " + model.timeSpeed);
-		timeLabel.setText("Current time: " + model.currentTime + " secs");
+		timeLabel.setText("Current time: " + (int) model.currentTime + " secs");
 		infoPanel.repaint();
 	}
 	
@@ -165,6 +166,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			}
 		});
 		zoomButton.addKeyListener(this);
+		
 		unzoomButton = new JButton("-");
 		mapControlPanel.add(unzoomButton);
 		unzoomButton.setBounds(140, 10, 50, 50);
@@ -176,6 +178,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			}
 		});
 		unzoomButton.addKeyListener(this);
+		
 		upButton = new JButton("Up");
 		mapControlPanel.add(upButton);
 		upButton.setBounds(60, 70, 80, 30);
@@ -187,6 +190,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			}
 		});
 		upButton.addKeyListener(this);
+		
 		downButton = new JButton("Down");
 		mapControlPanel.add(downButton);
 		downButton.setBounds(60, 150, 80, 30);
@@ -198,6 +202,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			}
 		});
 		downButton.addKeyListener(this);
+		
 		rightButton = new JButton("Right");
 		mapControlPanel.add(rightButton);
 		rightButton.setBounds(110, 110, 80, 30);
@@ -209,6 +214,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			}
 		});
 		rightButton.addKeyListener(this);
+		
 		leftButton = new JButton("Left");
 		mapControlPanel.add(leftButton);
 		leftButton.setBounds(10, 110, 80, 30);
@@ -238,21 +244,47 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			}
 		});
 		pauseButton.setBounds(10, 10, 100, 30);
-		timeSlider = new JSlider(0, model.maxTime);
+		
+		JLabel tssTipLabel = new JLabel("Change time speed:");
+		timelinePanel.add(tssTipLabel);
+		tssTipLabel.setBounds(10, 50, 200, 30);
+		
+		timeSpeedSlider = new JSlider(1, (int) model.maxTime / 7);
+		timeSpeedSlider.setFocusable(false);
+		timelinePanel.add(timeSpeedSlider);
+		timeSpeedSlider.setBounds(10, 80, 2 * controlPanelHeight, 30);
+		timeSpeedSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				model.timeSpeed = timeSpeedSlider.getValue();
+			}
+		});
+		
+		JLabel tsTipLabel = new JLabel("Change time:");
+		timelinePanel.add(tsTipLabel);
+		tsTipLabel.setBounds(10, 120, 200, 30);
+		
+		timeSlider = new JSlider(0, (int) model.maxTime);
 		timeSlider.setFocusable(false);
 		timelinePanel.add(timeSlider);
-		timeSlider.setBounds(10, 90, totalWidth - 2 * controlPanelHeight - 20, 30);
+		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
 		timeSlider.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				model.currentTime = timeSlider.getValue();
 			}
 		});
+		timeSlider.setValue((int) model.currentTime);
+		timeSpeedSlider.setValue((int) model.timeSpeed);
+		
 		JLabel updateTipLabel = new JLabel("Insert time speed:");
 		timelinePanel.add(updateTipLabel);
 		updateTipLabel.setBounds(150, 10, 130, 30);
+		
 		speedField = new JTextField();
 		timelinePanel.add(speedField);
 		speedField.setBounds(280, 10, 50, 30);
+		
 		updateSpeedButton = new JButton("Update");
 		updateSpeedButton.addKeyListener(this);
 		timelinePanel.add(updateSpeedButton);
@@ -261,11 +293,10 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				String speed = speedField.getText().trim();
 				try {
-					int sp = Integer.parseInt(speed);
+					double sp = Double.parseDouble(speed);
 					if (sp <= 0)
 						return;
 					model.timeSpeed = sp;
-					updateTimeTimer.setDelay(1000 / sp);
 				} catch (NumberFormatException exept) {
 				}
 			}
@@ -290,6 +321,12 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			model.zoom(percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_MINUS) {
 			model.zoom(-percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_P) {
+			try {
+				pauseButton.getActionListeners()[0].actionPerformed(null);				
+			} catch (ArrayIndexOutOfBoundsException exept) {
+				System.out.println("No listeners attached to pause button");
+			}
 		}
 		mapPanel.repaint();
 		updateInfoLabels();
@@ -311,8 +348,9 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			updateInfoLabels();
 			infoPanel.repaint();
 		} else if (e.getSource() == updateTimeTimer) {
-			model.currentTime += model.timeSpeed;
-			timeSlider.setValue(model.currentTime);
+			model.currentTime += model.timeSpeed * timeUpdateDelay / 1000;
+			timeSlider.setValue((int) model.currentTime);
+			timeSpeedSlider.setValue((int) model.timeSpeed);
 			if (model.currentTime > model.maxTime)
 				updateTimeTimer.stop();
 		}

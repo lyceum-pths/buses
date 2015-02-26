@@ -16,7 +16,7 @@ public class GUIModel {
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
 	TestBus bus;
-	int currentTime, timeSpeed, maxTime;
+	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
 	
 	public GUIModel(File roadsFile) throws IOException {
@@ -150,20 +150,22 @@ public class GUIModel {
 		maxY = up;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void updateRoadsInBB() {
-		roadsInBB.clear();
-		for (Road r : roads) {
-			Point from = r.from;
-			Point to = r.to;
-			boolean inside = true;
-			if (from.getY() < down || from.getY() > up ||
-					from.getX() < left || from.getX() > right)
-				inside = false;
-			if (to.getY() < down || to.getY() > up ||
-					to.getX() < left || to.getX() > right)
-				inside = false;
-			if (inside)
-				roadsInBB.add(r);
-		}
+//		roadsInBB.clear();
+//		for (Road r : roads) {
+//			Point from = r.from;
+//			Point to = r.to;
+//			boolean inside = true;
+//			if (from.getY() < down || from.getY() > up ||
+//					from.getX() < left || from.getX() > right)
+//				inside = false;
+//			if (to.getY() < down || to.getY() > up ||
+//					to.getX() < left || to.getX() > right)
+//				inside = false;
+//			if (inside)
+//				roadsInBB.add(r);
+//		}
+		roadsInBB = (ArrayList<Road>) roads.clone();
 	}
 }

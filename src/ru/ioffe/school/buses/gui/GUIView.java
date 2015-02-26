@@ -51,9 +51,8 @@ public class GUIView extends JFrame {
 		g.drawImage(mapInBB, 0, 0, model.totalGUIWidth, 
 				model.totalGUIHeight - model.controlPanelHeight, null);
 		g.setColor(Color.red);
-		double pxSize = model.totalGUIWidth /
-				(model.right - model.left);
-		Point p = model.bus.getCoord(model.currentTime);
+		double pxSize = model.totalGUIWidth / (model.right - model.left);
+		Point p = model.bus.getCoord((int) model.currentTime);
 		double difX = p.getX() - model.left;
 		double difY = - p.getY() + model.up;
 		int x = (int) (difX * pxSize);

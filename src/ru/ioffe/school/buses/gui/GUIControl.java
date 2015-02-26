@@ -272,6 +272,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				model.currentTime = timeSlider.getValue();
+				if (!updateTimeTimer.isRunning())
+					updateTimeTimer.start();
 			}
 		});
 		timeSlider.setValue((int) model.currentTime);
@@ -292,9 +294,11 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		updateSpeedButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String speed = speedField.getText().trim();
+				if (speed.equals("NaN"))
+					return;
 				try {
-					double sp = Double.parseDouble(speed);
-					if (sp <= 0)
+					Double sp = Double.parseDouble(speed);
+					if (sp <= 0 || sp >= model.maxTime / 7 || sp.isNaN())
 						return;
 					model.timeSpeed = sp;
 				} catch (NumberFormatException exept) {

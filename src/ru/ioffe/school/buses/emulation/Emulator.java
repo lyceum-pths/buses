@@ -102,7 +102,7 @@ public class Emulator {
 			// begin = n; end = n + 1
 			int n = stations.length;
 			int[] pred = new int[n + 2];
-			int[] time = new int[n + 2];
+			double[] time = new double[n + 2];
 			boolean[] checked = new boolean[n + 2];
 			for (int i = 0; i < n + 2; i++) {
 				time[i] = Integer.MAX_VALUE;
@@ -111,7 +111,7 @@ public class Emulator {
 			time[n] = person.getTime();
 			ArrayList<Transfer> roads;
 			int indexTo;
-			int nextTime;
+			double nextTime;
 			while(!checked[n + 1]) {
 				int minIndex = -1;
 				for (int i = 0; i < n + 2; i++) 
@@ -125,7 +125,7 @@ public class Emulator {
 						if (checked[indexTo])
 							continue;
 						nextTime = tr.getNextDeparture(time[minIndex]);
-						if (nextTime == Integer.MAX_VALUE)
+						if (nextTime == Double.POSITIVE_INFINITY)
 							continue;
 						if (time[indexTo] > nextTime + tr.getContinuance()) {
 							time[indexTo] = nextTime + tr.getContinuance();

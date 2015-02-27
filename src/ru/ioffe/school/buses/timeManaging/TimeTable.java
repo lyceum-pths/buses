@@ -1,89 +1,32 @@
 package ru.ioffe.school.buses.timeManaging;
 
+import java.util.ArrayList;
+
+import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.data.Route;
 
 public class TimeTable {
-	final Route[] routes;
-	final double[][] begins;
+	final Bus[] buses;
 
-	public TimeTable(Route[] routes, double[][] begins) {
-		if (routes.length != begins.length)
-			throw new IllegalArgumentException("Size of arrays \"routes\" and \"begins\" must be equal");
-		this.routes = routes;
-		this.begins = begins;
+	public TimeTable(Bus[] buses) {
+		this.buses = buses;
 	}
 
 	public Point getPosition(int bus, double time) {
-		int L = -1, R = begins[bus].length, M;
-		while (R - L > 1) {
-			M = (R + L) >> 1;
-			if (begins[bus][M] > time) 
-				R = M;
-			else 
-				L = M;
-		}
-		if (L == -1) 
-			return null;
-		return routes[bus].getPosition(time - begins[bus][L]);
+		return buses[bus].getPosition(time);
 	}
 	
-	public BusIndicator getBusIndicator(int bus, double startTime) {
-		return new BusIndicator(bus, startTime);
+	public Point[] getBusesPositions(double time) {
+		Point[] ans = new Point[buses.length];
+		for (int i = 0; i < buses.length; i++) 
+			ans[i] = buses[i].getPosition(time);
+		return ans;
 	}
 	
-	public class BusIndicator implements PositionIndicator {
-		
-		PositionIndicator indicator;
-		double currentTime;
-		int currentPassage;
-		int bus;
-		
-		private BusIndicator(int bus, double startTime) {
-			indicator = routes[bus].getPositionIndicator(startTime);
-			setTime(startTime);
-		}
-		
-		@Override
-		public Point getPosition() {
-			return indicator.getPosition();
-		}
-		
-		private boolean isReady() {
-			return currentPassage == begins[bus].length || currentTime <= begins[bus][currentPassage] + routes[bus].getTotalTime();
-		}
-
-		@Override
-		public void skipTime(double time) { // O(n*log(n)) summary
-			currentTime += time;
-			if (isReady()) {
-				indicator.skipTime(time);
-				return;
-			}
-			while (!isReady())
-				currentPassage++;
-			indicator.setTime(currentTime - (currentPassage < begins[bus].length? begins[bus][currentPassage] : Double.NEGATIVE_INFINITY));
-		}
-		
-		@Override
-		public void setTime(double time) {
-			currentTime = time;
-			int L = 0, R = begins[bus].length, M;
-			while (R - L > 1) {
-				M = (R + L) >> 1;
-				if (begins[bus][M] > currentTime) {
-					R = M;
-				} else {
-					L = M;
-				}
-			}
-			currentPassage = L;
-			indicator.setTime(time - begins[bus][currentPassage]);
-		}
-
-		@Override
-		public double getCurrentTime() {
-			return currentTime;
-		}
+	public ArrayList<Transfer> getTransfers() {
+		ArrayList<Transfer> transfers = new ArrayList<>();
+		for (Bus bus : buses) 
+			transfers.addAll(bus.getTransfers());
+		return transfers;
 	}
 }

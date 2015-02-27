@@ -24,4 +24,20 @@ public class Station implements Generateable {
 	public Point getPosition() {
 		return point;
 	}
+	
+	@Override
+	public int hashCode() {
+		return point.hashCode() * popularity;
+	}
+	
+	public boolean equals(Station station) {
+		return popularity == station.getProbability() && point.equals(station.getPosition());
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Station)
+			return equals((Station) obj);
+		return false;
+	}
 }

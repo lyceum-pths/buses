@@ -9,11 +9,11 @@ import ru.ioffe.school.buses.timeManaging.PositionIndicator;
  */
 public class Route {
 	final Segment[] route;
-	final int totalTime;
+	final double totalTime;
 
 	public Route(Segment[] route) {
 		this.route = route;
-		int time = 0;
+		double time = 0;
 		for (Segment s : route)
 			time += s.getTimeEnd() - s.getTimeStart();
 		this.totalTime = time;
@@ -23,7 +23,7 @@ public class Route {
 		return route;
 	}
 
-	public int getTotalTime() {
+	public double getTotalTime() {
 		return totalTime;
 	}
 	

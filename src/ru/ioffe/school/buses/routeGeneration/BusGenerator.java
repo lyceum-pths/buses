@@ -1,8 +1,9 @@
 package ru.ioffe.school.buses.routeGeneration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Random;
 
+import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
@@ -12,27 +13,27 @@ import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.randomGeneration.RandomIndexGenerator;
 
 
-public class RouteGenerator {
+public class BusGenerator {
 	private RandomIndexGenerator stationGenerator;
 	private RoadManager roadManager;
 	private Station[] stations;
+	private Random random;
 	
-	public RouteGenerator(RoadManager roadManager, Station[] stations) {
+	public BusGenerator(RoadManager roadManager, Station[] stations) {
 		this.roadManager = roadManager;
 		this.stations = stations;
+		this.random = new Random();
 		int[] probability = new int[stations.length];
 		for (int i = 0; i < stations.length; i++)
 			probability[i] = stations[i].getProbability();
 		this.stationGenerator = new RandomIndexGenerator(probability);
 	}
 	
-	public synchronized Route generateRoute(int length, boolean isCicle, boolean reusing) {
+	public synchronized Bus generateBus(int length, boolean isCicle, boolean reusing, double minTime, double maxTime) {
 		if (length <= 1) 
 			throw new IllegalArgumentException("Length of route too small");
 		if (!reusing && length > stationGenerator.size())
 			throw new IllegalArgumentException("There are no so many stations");
-		@SuppressWarnings("unused")
-		ArrayList<Segment> segments = new ArrayList<>();
 		int[] stations = new int[length];
 		for (int i = 0; i < length; i++) {
 			if (reusing) {
@@ -54,10 +55,13 @@ public class RouteGenerator {
 		if (!reusing) 
 			for (int i : stations)
 				stationGenerator.setAbility(i, true);
-		System.out.println(Arrays.toString(stations));
+		Station[] stationsOnWay = new Station[stations.length + (isCicle? 1 : 0)];
+		for (int i = 0; i < stationsOnWay.length; i++)
+			stationsOnWay[i] = this.stations[stations[i % stations.length]];
 		ArrayList<Segment> way = new ArrayList<>();
-		double currentTime = 0, dt;
 		Point from, to = this.stations[stations[0]].getPosition();
+		double[] time = new double[stations.length + (isCicle? 1 : 0)];
+		double currentTime = 0, dt;
 		for (int i = 0; i < stations.length - (isCicle? 0 : 1); i++) {
 			from = to;
 			to = this.stations[stations[(i + 1) % stations.length]].getPosition();
@@ -66,7 +70,18 @@ public class RouteGenerator {
 				way.add(new Segment(road.getFrom(), road.getTo(), currentTime, currentTime + dt));
 				currentTime += dt;
 			}
+			time[i + 1] = currentTime;
 		}
-		return new Route(way.toArray(new Segment[way.size()]));
+		double lastEnd = minTime, randTime;
+		ArrayList<Double> begins = new ArrayList<>();
+		while (lastEnd < maxTime) {
+			randTime = random.nextDouble() * (maxTime - lastEnd);
+			begins.add(lastEnd + randTime);
+			lastEnd += randTime + currentTime;
+		}
+		double[] arrayBegins = new double[begins.size()];
+		for (int i = 0; i < arrayBegins.length; i++)
+			arrayBegins[i] = begins.get(i);
+		return new Bus(new Route(way.toArray(new Segment[way.size()])), stationsOnWay, time, arrayBegins);
 	}
 }

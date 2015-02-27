@@ -2,6 +2,7 @@ package ru.ioffe.school.buses.timeManaging;
 
 import java.util.Arrays;
 
+import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 
 /**
@@ -10,14 +11,14 @@ import ru.ioffe.school.buses.data.Point;
  */
 
 public class Transfer {
-	int[] departure;
-	int continuance; 
-	Point to;
-	Point from;
-	int busNumber;
+	final double[] departure;
+	final double continuance; 
+	final Point to;
+	final Point from;
+	final Bus bus;
 	
-	public Transfer(int busNumber, Point from, Point to, int continuance, int... departure) {
-		this.busNumber = busNumber;
+	public Transfer(Bus bus, Point from, Point to, double continuance, double... departure) {
+		this.bus = bus;
 		this.from = from;
 		this.to = to;
 		this.continuance = continuance;
@@ -25,9 +26,9 @@ public class Transfer {
 		this.departure = departure;
 	}
 	
-	public int getNextDeparture(int current) {
+	public double getNextDeparture(double current) {
 		if (current > departure[departure.length - 1]) 
-			return Integer.MAX_VALUE; // infinity
+			return Double.POSITIVE_INFINITY; // infinity
 		int L = -1, R = departure.length - 1, M; // departure[L] < current, departure[R] >= current
 		while (R - L > 1) {
 			M = (R + L) >> 1;
@@ -40,11 +41,11 @@ public class Transfer {
 		return departure[R];
 	}
 
-	public int[] getDeparture() {
+	public double[] getDeparture() {
 		return departure;
 	}
 
-	public int getContinuance() {
+	public double getContinuance() {
 		return continuance;
 	}
 	
@@ -56,7 +57,7 @@ public class Transfer {
 		return to;
 	}
 
-	public int getBusNumber() {
-		return busNumber;
+	public Bus getBus() {
+		return bus;
 	}
 }

@@ -294,8 +294,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		updateSpeedButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String speed = speedField.getText().trim();
-				if (speed.equals("NaN"))
-					return;
 				try {
 					Double sp = Double.parseDouble(speed);
 					if (sp <= 0 || sp >= model.maxTime / 7 || sp.isNaN())

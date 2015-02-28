@@ -1,11 +1,19 @@
 package ru.ioffe.school.buses.randomGeneration;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class RandomIndexGenerator {
 	int[] probability;
 	Tree tree;
 	Random rand;
+	
+	public RandomIndexGenerator(int size) {
+		probability = new int[size];
+		Arrays.fill(probability, 1);
+		rand = new Random();
+		tree = new Tree(probability);
+	}
 	
 	public RandomIndexGenerator(int[] probability) {
 		this.probability = probability;

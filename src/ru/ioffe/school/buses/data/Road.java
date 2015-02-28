@@ -25,6 +25,13 @@ public class Road implements Serializable {
 		this.speedBound = 1;
 	}
 	
+	private Road(Point from, Point to, double length) {
+		this.from = from;
+		this.to = to;
+		this.length = length;
+		this.speedBound = 1;
+	}
+	
 	public Point getFrom() {
 		return from;
 	}
@@ -39,6 +46,10 @@ public class Road implements Serializable {
 	
 	public double getLength() {
 		return length;
+	}
+	
+	public Road invert() {
+		return new Road(to, from, length);
 	}
 
 	@Override

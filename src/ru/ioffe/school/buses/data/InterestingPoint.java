@@ -16,6 +16,14 @@ public class InterestingPoint extends Point implements Generateable {
 		super(0, p.getX(), p.getY());
 		this.popularity = popularity;
 	}
+	
+	public InterestingPoint(Point p) {
+		this(p, 1);
+	}
+	
+	public InterestingPoint(double x, double y) {
+		this(x, y, 1);
+	}
 
 	public int getPopularity() {
 		return popularity;

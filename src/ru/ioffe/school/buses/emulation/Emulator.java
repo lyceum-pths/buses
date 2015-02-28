@@ -3,30 +3,36 @@ package ru.ioffe.school.buses.emulation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.BusSegment;
 import ru.ioffe.school.buses.data.Night;
 import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.data.Segment;
+import ru.ioffe.school.buses.data.Station;
+import ru.ioffe.school.buses.data.StraightSegment;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class Emulator {
 
 	//  input data
-	Point[] stations;
-	ArrayList<Transfer>[] transfers; 
-	HashMap<Point, Integer> indexs;
-	double speed;
+	final Point[] stations;
+	final ArrayList<Transfer>[] transfers; 
+	final HashMap<Point, Integer> indexs;
+	final double speed;
 
 	@SuppressWarnings("unchecked")
-	public Emulator(Point[] stations, double speed, Transfer... transfers) {
-		this.stations = stations;
+	public Emulator(Station[] stations, double speed, Transfer... transfers) {
+		this.stations = new Point[stations.length];
+		for (int i = 0; i < stations.length; i++)
+			this.stations[i] = stations[i].getPosition();
 		this.transfers = new ArrayList[stations.length];
 		this.speed = speed;
 		this.indexs = new HashMap<>();
 		for (int i = 0; i < stations.length; i++) {
-			indexs.put(stations[i], i);
+			indexs.put(this.stations[i], i);
 			this.transfers[i] = new ArrayList<>();
 		}
 		for (Transfer tr : transfers)
@@ -102,6 +108,7 @@ public class Emulator {
 			// begin = n; end = n + 1
 			int n = stations.length;
 			int[] pred = new int[n + 2];
+			Bus[] mode = new Bus[n + 2];
 			double[] time = new double[n + 2];
 			boolean[] checked = new boolean[n + 2];
 			for (int i = 0; i < n + 2; i++) {
@@ -111,7 +118,7 @@ public class Emulator {
 			time[n] = person.getTime();
 			ArrayList<Transfer> roads;
 			int indexTo;
-			double nextTime;
+			double nextTime, dt;
 			while(!checked[n + 1]) {
 				int minIndex = -1;
 				for (int i = 0; i < n + 2; i++) 
@@ -130,6 +137,7 @@ public class Emulator {
 						if (time[indexTo] > nextTime + tr.getContinuance()) {
 							time[indexTo] = nextTime + tr.getContinuance();
 							pred[indexTo] = minIndex;
+							mode[indexTo] = tr.getBus(); 
 						}
 					}
 				}
@@ -138,18 +146,23 @@ public class Emulator {
 					if (checked[i])
 						continue;
 					// next line should work slowly
-					int dt = (int) (GeographyManager.getDistance(getPoint(person, minIndex), getPoint(person, i)) / speed);
+					dt = GeographyManager.getDistance(getPoint(person, minIndex), getPoint(person, i)) / speed;
 					if (time[i] > time[minIndex] + dt) {
 						time[i] = time[minIndex] + dt;
 						pred[i] = minIndex;
+						mode[i] = null;
 					}
 				}
 			}
 			ArrayList<Segment> way = new ArrayList<>();
 			int current = time.length - 1;
 			while (pred[current] != -1) {
-				way.add(new Segment(getPoint(person, pred[current]),
+				if (mode[current] == null) {
+					way.add(new StraightSegment(getPoint(person, pred[current]),
 						getPoint(person, current), time[pred[current]], time[current]));
+				} else {
+					way.add(new BusSegment(mode[current], time[pred[current]], time[current]));
+				}
 				current = pred[current];
 			}
 			Segment[] rigthWay = new Segment[way.size()];
@@ -159,5 +172,5 @@ public class Emulator {
 		}
 	}
 
-
+	
 }

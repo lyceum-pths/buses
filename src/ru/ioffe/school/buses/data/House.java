@@ -11,6 +11,10 @@ public class House extends Point implements Generateable {
 		super(0, x, y);
 		this.size = size;
 	}
+	
+	public House(double x, double y) {
+		this(x, y, 1);
+	}
 
 	public int getSize() {
 		return size;

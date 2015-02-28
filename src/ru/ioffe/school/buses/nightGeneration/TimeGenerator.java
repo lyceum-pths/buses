@@ -22,11 +22,11 @@ public class TimeGenerator {
 		this.rand = new Random(seed);
 	}
 	
-	public double random() {
+	private double random() {
 		return rand.nextDouble() * randBound + min;
 	}
 	
-	public int getRandomTime() {
-		return (int) (-Math.log(random()) / scaleLog);
+	public double getRandomTime() {
+		return (-Math.log(random()) / scaleLog);
 	}
 }

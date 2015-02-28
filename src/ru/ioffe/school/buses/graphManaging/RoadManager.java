@@ -6,11 +6,12 @@ import java.util.TreeSet;
 
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
+import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
 public class RoadManager {
-	ArrayList<Point> nodes;
-	HashMap<Point, Integer> indexs;
-	ArrayList<Edge>[] roads;
+	final ArrayList<Point> nodes;
+	final HashMap<Point, Integer> indexs;
+	final ArrayList<Edge>[] roads;
 
 	private void addNode(Point point) {
 		if (indexs.containsKey(point))
@@ -33,15 +34,39 @@ public class RoadManager {
 		for (Road road : roads)
 			this.roads[indexs.get(road.getFrom())].add(new Edge(road));
 	}
+	
+	private int tryFindNearestPoint(Point input) {
+		double minDist = Double.POSITIVE_INFINITY;
+		double dist;
+		int ans = -1;
+		for (int i = 0; i < nodes.size(); i++) {
+			dist = GeographyManager.getSquaredDistance(nodes.get(i), input);
+			if (minDist > dist) {
+				ans = i;
+				minDist = dist;
+			}
+		}
+		return ans;
+	}
 
 	public Road[] findWay(Point start, Point finish) {
 		int from;
 		int to;
 		try {
 			from = indexs.get(start);
+		} catch (NullPointerException e) {
+			from = tryFindNearestPoint(start);
+			System.err.println("There isn't such point:" + start);
+			System.err.println("For the start will be used the nearest point: " + nodes.get(from) + 
+					" (distance between = " + GeographyManager.getDistance(start, nodes.get(from)));
+		}
+		try {
 			to = indexs.get(finish);
 		} catch (NullPointerException e) {
-			throw new IllegalArgumentException("There is no such node");
+			to = tryFindNearestPoint(finish);
+			System.err.println("There isn't such point:" + finish);
+			System.err.println("For the finish will be used the nearest point: " + nodes.get(to) + 
+					" (distance between = " + GeographyManager.getDistance(finish, nodes.get(to)));
 		}
 		TreeSet<Step> heap = new TreeSet<>();
 		boolean[] checked = new boolean[nodes.size()];

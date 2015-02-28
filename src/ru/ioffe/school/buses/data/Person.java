@@ -5,9 +5,9 @@ package ru.ioffe.school.buses.data;
 public class Person {
 	final Point from;
 	final Point to;
-	final int time;
+	final double time;
 	
-	public Person(Point from, Point to, int time) {
+	public Person(Point from, Point to, double time) {
 		this.from = from;
 		this.to = to;
 		this.time = time;
@@ -21,7 +21,7 @@ public class Person {
 		return to;
 	}
 
-	public int getTime() {
+	public double getTime() {
 		return time;
 	}
 

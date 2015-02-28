@@ -7,7 +7,7 @@ import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
-import ru.ioffe.school.buses.data.Segment;
+import ru.ioffe.school.buses.data.StraightSegment;
 import ru.ioffe.school.buses.data.Station;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.randomGeneration.RandomIndexGenerator;
@@ -58,7 +58,7 @@ public class BusGenerator {
 		Station[] stationsOnWay = new Station[stations.length + (isCicle? 1 : 0)];
 		for (int i = 0; i < stationsOnWay.length; i++)
 			stationsOnWay[i] = this.stations[stations[i % stations.length]];
-		ArrayList<Segment> way = new ArrayList<>();
+		ArrayList<StraightSegment> way = new ArrayList<>();
 		Point from, to = this.stations[stations[0]].getPosition();
 		double[] time = new double[stations.length + (isCicle? 1 : 0)];
 		double currentTime = 0, dt;
@@ -67,7 +67,7 @@ public class BusGenerator {
 			to = this.stations[stations[(i + 1) % stations.length]].getPosition();
 			for (Road road : roadManager.findWay(from, to)) {
 				dt = road.getLength() / road.getSpeedBound();
-				way.add(new Segment(road.getFrom(), road.getTo(), currentTime, currentTime + dt));
+				way.add(new StraightSegment(road.getFrom(), road.getTo(), currentTime, currentTime + dt));
 				currentTime += dt;
 			}
 			time[i + 1] = currentTime;
@@ -82,6 +82,6 @@ public class BusGenerator {
 		double[] arrayBegins = new double[begins.size()];
 		for (int i = 0; i < arrayBegins.length; i++)
 			arrayBegins[i] = begins.get(i);
-		return new Bus(new Route(way.toArray(new Segment[way.size()])), stationsOnWay, time, arrayBegins);
+		return new Bus(new Route(way.toArray(new StraightSegment[way.size()])), stationsOnWay, time, arrayBegins);
 	}
 }

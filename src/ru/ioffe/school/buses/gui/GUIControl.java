@@ -5,10 +5,13 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -25,7 +28,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 @SuppressWarnings("serial")
-public class GUIControl extends JFrame implements KeyListener, ActionListener {
+public class GUIControl extends JFrame implements KeyListener, ActionListener, MouseListener, MouseMotionListener {
 	
 	GUIModel model;
 	GUIView view;
@@ -40,6 +43,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 	JTextField speedField;
 	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel;
 	Timer updateScreenTimer, updateTimeTimer;
+	int currentX, currentY;
 	
 	{
 		try {
@@ -63,7 +67,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		int minimumWidth = Math.max(d.width / 2, 5 * controlPanelHeight);
 		int minimumHeight = 3 * controlPanelHeight;
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
-		view.updateMapInBB();
+		view.updateMap();
 		actualRoadsNumberLabel = new JLabel();
 		fpsLabel = new JLabel();
 		speedLabel = new JLabel();
@@ -77,17 +81,11 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		updateTimeTimer = new Timer(timeUpdateDelay, this);
 		setPanels();
 		updateInfoLabels();
-		this.addComponentListener(new ComponentListener() {
+		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				updateSizes();
 			}
-			@Override
-			public void componentShown(ComponentEvent e) {}
-			@Override
-			public void componentMoved(ComponentEvent e) {}
-			@Override
-			public void componentHidden(ComponentEvent e) {}
 		});
 		updateScreenTimer.start();
 		updateTimeTimer.start();
@@ -104,7 +102,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		model.updateWHRatio();
-		view.updateMapInBB();
+		view.updateMap();
 	}
 	
 	private void updateInfoLabels() {		
@@ -124,6 +122,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		};
 		controlPanel = new JPanel();
 		this.add(mapPanel);
+		mapPanel.addMouseListener(this);
+		mapPanel.addMouseMotionListener(this);
 		mapPanel.setBounds(0, controlPanelHeight, totalWidth, totalHeight);
 		mapPanel.setLayout(null);
 		this.add(controlPanel);
@@ -162,7 +162,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.zoom(percent);
-				view.updateMapInBB();
+				view.updateMap();
 			}
 		});
 		zoomButton.addKeyListener(this);
@@ -174,7 +174,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.zoom(-percent);
-				view.updateMapInBB();
+				view.updateMap();
 			}
 		});
 		unzoomButton.addKeyListener(this);
@@ -185,8 +185,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		upButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.moveUp(percent);
-				view.updateMapInBB();
+				model.moveVert(percent);
+				view.updateMap();
 			}
 		});
 		upButton.addKeyListener(this);
@@ -197,8 +197,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		downButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.moveDown(percent);
-				view.updateMapInBB();
+				model.moveVert(-percent);
+				view.updateMap();
 			}
 		});
 		downButton.addKeyListener(this);
@@ -209,8 +209,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		rightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.moveRight(percent);
-				view.updateMapInBB();
+				model.moveHoriz(percent);
+				view.updateMap();
 			}
 		});
 		rightButton.addKeyListener(this);
@@ -221,8 +221,8 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 		leftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.moveLeft(percent);
-				view.updateMapInBB();
+				model.moveHoriz(-percent);
+				view.updateMap();
 			}
 		});
 		leftButton.addKeyListener(this);
@@ -312,13 +312,13 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			model.moveUp(percent);
+			model.moveVert(percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			model.moveDown(percent);
+			model.moveVert(-percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			model.moveLeft(percent);
+			model.moveHoriz(-percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			model.moveRight(percent);
+			model.moveHoriz(percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
 			model.zoom(percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_MINUS) {
@@ -330,9 +330,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 				System.out.println("No listeners attached to pause button");
 			}
 		}
-		mapPanel.repaint();
-		updateInfoLabels();
-		view.updateMapInBB();
+		view.updateMap();
 	}
 	
 	@Override
@@ -356,5 +354,47 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener {
 			if (model.currentTime > model.maxTime)
 				updateTimeTimer.stop();
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		currentX = e.getX();
+		currentY = e.getY();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		int difX = - e.getX() + currentX;
+		int difY = e.getY() - currentY;
+		currentX = e.getX();
+		currentY = e.getY();
+		model.moveVertPx(difY);
+		model.moveHorizPx(difX);
+		view.updateMap();
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		
 	}
 }

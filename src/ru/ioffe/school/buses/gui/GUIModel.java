@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
+import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
+import ru.ioffe.school.buses.data.Station;
+import ru.ioffe.school.buses.graphManaging.RoadManager;
+import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 
 public class GUIModel {
 	private ArrayList<Road> roads;
@@ -15,14 +19,16 @@ public class GUIModel {
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
-	TestBus bus;
+	private double globalZoomMin, globalZoomMax;
+	Bus bus;
+	BusGenerator generator;
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
 	
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
 		roadsInBB = new ArrayList<>();
-		currentTime = 0;
+		currentTime = 2;
 		timeSpeed = 1;
 		maxTime = 43200;
 		timePaused = false;
@@ -30,7 +36,14 @@ public class GUIModel {
 		updateWHRatio();
 		getMaxSizes();
 		updateRoadsInBB();
-		bus = new TestBus(1.0 / 3, 0, minX, minY, maxX, maxY);
+		Road[] roadsForManager = new Road[roads.size()];
+		for (int i = 0; i < roads.size(); i++) {
+			roadsForManager[i] = roads.get(i);
+		}
+		RoadManager manager = new RoadManager(roadsForManager);
+		Station[] stations = {new Station(roads.get(10423).from), new Station(roads.get(10423).to)};
+		generator = new BusGenerator(manager, stations);
+		bus = generator.generateBus(2, true, true, 1, maxTime);
 	}
 
 	public void setTime(int time) {
@@ -53,7 +66,7 @@ public class GUIModel {
 		controlPanelHeight = panelHeight;
 	}
 
-	public void moveUp(int percent) {
+	public void moveVert(int percent) {
 		double per = (double) percent / 100;
 		double totalH = up - down;
 		if (up + totalH * per - totalH / 2 > maxY)
@@ -63,17 +76,17 @@ public class GUIModel {
 		updateRoadsInBB();
 	}
 	
-	public void moveDown(int percent) {
-		double per = (double) percent / 100;
+	public void moveVertPx(int px) {
 		double totalH = up - down;
-		if (down - totalH * per + totalH / 2 < minY)
+		double pxSize = totalH / totalGUIHeight;
+		if (up + pxSize * px - totalH / 2 > maxY)
 			return;
-		up -= totalH * per;
-		down -= totalH * per;
+		up += pxSize * px;
+		down += pxSize * px;
 		updateRoadsInBB();
 	}
-
-	public void moveRight(int percent) {
+	
+	public void moveHoriz(int percent) {
 		double per = (double) percent / 100;
 		double totalW = right - left;
 		if (right + totalW * per - totalW / 2 > maxX)
@@ -82,14 +95,14 @@ public class GUIModel {
 		left += totalW * per;
 		updateRoadsInBB();
 	}
-	
-	public void moveLeft(int percent) {
-		double per = (double) percent / 100;
+
+	public void moveHorizPx(int px) {
 		double totalW = right - left;
-		if (left - totalW * per + totalW / 2 < minX)
+		double pxSize = totalW / totalGUIWidth;
+		if (right + pxSize * px - totalW / 2 > maxX)
 			return;
-		right -= totalW * per;
-		left -= totalW * per;
+		right += pxSize * px;
+		left += pxSize * px;
 		updateRoadsInBB();
 	}
 	
@@ -97,10 +110,10 @@ public class GUIModel {
 		double per = (double) percent / 200;
 		double totalW = right - left;
 		double totalH = up - down;
-//		if (roadsInBB.size() < 100 && percent > 0)
-//			return;
-//		if (roadsInBB.size() == roads.size() && percent < 0)
-//			return;
+		if (percent > 0 && Math.min(totalH, totalW) < globalZoomMin)
+			return;
+		if (percent < 0 && Math.max(totalH, totalW) > globalZoomMax)
+			return;
 		right -= totalW * per;
 		left += totalW * per;
 		up -= totalH * per;
@@ -148,24 +161,25 @@ public class GUIModel {
 		minY = down;
 		maxX = right;
 		maxY = up;
+		globalZoomMax = Math.max(3 * (maxX - minX), 3 * (maxY - minY));
+		globalZoomMin = Math.min((maxX - minX) / 50, (maxY - minY) / 50);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void updateRoadsInBB() {
-//		roadsInBB.clear();
-//		for (Road r : roads) {
-//			Point from = r.from;
-//			Point to = r.to;
-//			boolean inside = true;
-//			if (from.getY() < down || from.getY() > up ||
-//					from.getX() < left || from.getX() > right)
-//				inside = false;
-//			if (to.getY() < down || to.getY() > up ||
-//					to.getX() < left || to.getX() > right)
-//				inside = false;
-//			if (inside)
-//				roadsInBB.add(r);
-//		}
-		roadsInBB = (ArrayList<Road>) roads.clone();
+		roadsInBB.clear();
+		for (Road r : roads) {
+			Point from = r.from;
+			Point to = r.to;
+			int cnt = 0;
+			if (from.getY() < down || from.getY() > up ||
+					from.getX() < left || from.getX() > right)
+				cnt++;
+			if (to.getY() < down || to.getY() > up ||
+					to.getX() < left || to.getX() > right)
+				cnt++;
+			if (cnt < 2)
+				roadsInBB.add(r);
+		}
+//		roadsInBB = (ArrayList<Road>) roads.clone();
 	}
 }

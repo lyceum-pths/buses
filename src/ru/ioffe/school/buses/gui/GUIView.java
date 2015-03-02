@@ -3,6 +3,8 @@ package ru.ioffe.school.buses.gui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.PrintWriter;
 
 import javax.swing.JFrame;
 
@@ -18,14 +20,10 @@ public class GUIView extends JFrame {
 		this.model = model;
 		mapInBB = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 	}
-
-	public void updateMapInBB() {
+	
+	public void updateMap() {
 		mapInBB = new BufferedImage(model.totalGUIWidth, model.totalGUIHeight
 				- model.controlPanelHeight, BufferedImage.TYPE_INT_RGB);
-		updateMap();
-	}
-	
-	private void updateMap() {
 		Graphics g = mapInBB.getGraphics();
 		g.fillRect(0, 0, mapInBB.getWidth(), mapInBB.getHeight());
 		g.setColor(Color.black);
@@ -52,11 +50,19 @@ public class GUIView extends JFrame {
 				model.totalGUIHeight - model.controlPanelHeight, null);
 		g.setColor(Color.red);
 		double pxSize = model.totalGUIWidth / (model.right - model.left);
-		Point p = model.bus.getCoord((int) model.currentTime);
-		double difX = p.getX() - model.left;
-		double difY = - p.getY() + model.up;
-		int x = (int) (difX * pxSize);
-		int y = (int) (difY * pxSize);
-		g.fillOval(x, y, 7, 7);
+		Point p = model.bus.getPosition(model.currentTime);
+		try {
+			PrintWriter out = new PrintWriter(new File("log.txt"));
+			if (p != null) {
+				double difX = p.getX() - model.left;
+				double difY = - p.getY() + model.up;
+				int x = (int) (difX * pxSize);
+				int y = (int) (difY * pxSize);
+				g.fillOval(x, y, 7, 7);
+				out.println("time = " + model.currentTime + "; coord = (" + p.getX() + "; " + p.getY() + ")");
+				System.out.println("time = " + model.currentTime + "; coord = (" + p.getX() + "; " + p.getY() + ")");
+			}
+			out.close();
+		} catch (Exception e) {}
 	}
 }

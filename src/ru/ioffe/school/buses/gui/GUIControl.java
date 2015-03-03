@@ -133,7 +133,7 @@ public class GUIControl extends JFrame {
 		busInfoPanel.add(currentBusTimeLabel);
 		
 		busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
-				- controlPanelHeight - busInfoPanelHeigth);
+				- controlPanelHeight - busInfoPanelHeigth - 20);
 		busListPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
 		busListPanel.setLayout(null);
 		busListModel = new DefaultListModel<>();
@@ -145,10 +145,10 @@ public class GUIControl extends JFrame {
 		busList.setLayoutOrientation(JList.VERTICAL);
 		busList.setVisibleRowCount(-1);
 		busList.setFocusable(false);
+		busList.addKeyListener(adapter);
 		busScroller = new JScrollPane(busList);
 		busListPanel.add(busScroller);
 		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
-		
 		
 		this.add(controlPanel);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
@@ -279,9 +279,9 @@ public class GUIControl extends JFrame {
 		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
 				2 * controlPanelHeight, controlPanelHeight);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
-		busListPanel.setBounds(0, 0, busPanelWidth, totalHeight
-				- controlPanelHeight);
-		busScroller.setBounds(0, busInfoPanelHeigth, busPanelWidth, busListPanel.getHeight());
+		busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
+				- controlPanelHeight - busInfoPanelHeigth - 20);
+		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
 		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		model.updateWHRatio();

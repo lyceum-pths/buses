@@ -69,7 +69,9 @@ public class ControlAdapter implements KeyListener, ActionListener,
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
+			c.model.moveVert(c.percent);
+		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			c.model.moveVert(-c.percent);
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			c.model.moveHoriz(-c.percent);

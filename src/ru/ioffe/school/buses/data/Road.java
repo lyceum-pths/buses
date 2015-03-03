@@ -6,7 +6,7 @@ import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
 /**
  * This class contains information about road from point "from" to point "to".
- * The information is presented as a list of points crossed by the road.
+ * The information is presented as two points: the start and the end of the road.
  * It is used for looking for ways in a town.
  */
 
@@ -15,8 +15,9 @@ public class Road implements Serializable {
 	private static final long serialVersionUID = 2284501799222650859L;
 	
 	public final Point from, to;
-	public final double speedBound;// It should appear soon 
+	public final double speedBound;
 	public final double length;
+	public boolean isOneway;
 	
 	public Road(Point from, Point to) {
 		this.from = from;
@@ -46,6 +47,10 @@ public class Road implements Serializable {
 	
 	public double getLength() {
 		return length;
+	}
+	
+	public void setOneway(boolean isOneway) {
+		this.isOneway = isOneway;
 	}
 	
 	public Road invert() {

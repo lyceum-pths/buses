@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Random;
 
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
@@ -14,20 +15,19 @@ import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 
 public class GUIModel {
-	private ArrayList<Road> roads;
-	ArrayList<Road> roadsInBB;
+	ArrayList<Road> roads;
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
 	private double globalZoomMin, globalZoomMax;
-	Bus bus;
+	ArrayList<Bus> buses;
 	BusGenerator generator;
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
 	
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
-		roadsInBB = new ArrayList<>();
+		buses = new ArrayList<>();
 		currentTime = 2;
 		timeSpeed = 1;
 		maxTime = 43200;
@@ -35,15 +35,26 @@ public class GUIModel {
 		getRoads(roadsFile);
 		updateWHRatio();
 		getMaxSizes();
-		updateRoadsInBB();
 		Road[] roadsForManager = new Road[roads.size()];
 		for (int i = 0; i < roads.size(); i++) {
 			roadsForManager[i] = roads.get(i);
 		}
 		RoadManager manager = new RoadManager(roadsForManager);
-		Station[] stations = {new Station(roads.get(10423).from), new Station(roads.get(10423).to)};
+		Random rnd = new Random();
+		ArrayList<Station> stat = new ArrayList<>();
+		int numofst = 10;
+		int stnum = 100;
+		for (int i = 0; i < numofst; i++) {
+			stat.add(new Station(roads.get(stnum + i).to));
+		}
+		Station[] stations = new Station[stat.size()];
+		for (int i = 0; i < stat.size(); i++) {
+			stations[i] = stat.get(i);
+		}
 		generator = new BusGenerator(manager, stations);
-		bus = generator.generateBus(2, true, true, 1, maxTime);
+		for (int i = 0; i < 30; i++) {
+			buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
+		}
 	}
 
 	public void setTime(int time) {
@@ -57,7 +68,6 @@ public class GUIModel {
 	public void updateWHRatio() {
 		double ratio = (double) totalGUIWidth / (double) (totalGUIHeight - controlPanelHeight);
 		up = down + (right - left) / ratio;
-		updateRoadsInBB();
 	}
 	
 	public void updateTotalSizes(int width, int heigth, int panelHeight) {
@@ -73,7 +83,6 @@ public class GUIModel {
 			return;
 		up += totalH * per;
 		down += totalH * per;
-		updateRoadsInBB();
 	}
 	
 	public void moveVertPx(int px) {
@@ -83,7 +92,6 @@ public class GUIModel {
 			return;
 		up += pxSize * px;
 		down += pxSize * px;
-		updateRoadsInBB();
 	}
 	
 	public void moveHoriz(int percent) {
@@ -93,7 +101,6 @@ public class GUIModel {
 			return;
 		right += totalW * per;
 		left += totalW * per;
-		updateRoadsInBB();
 	}
 
 	public void moveHorizPx(int px) {
@@ -103,7 +110,6 @@ public class GUIModel {
 			return;
 		right += pxSize * px;
 		left += pxSize * px;
-		updateRoadsInBB();
 	}
 	
 	public void zoom(int percent) {
@@ -118,7 +124,25 @@ public class GUIModel {
 		left += totalW * per;
 		up -= totalH * per;
 		down += totalH * per;
-		updateRoadsInBB();
+	}
+	
+	public int countRoadsInBB() {
+		int num = 0;
+		for (Road r : roads) {
+			Point from = r.from;
+			Point to = r.to;
+			int cnt = 0;
+			if (from.getY() < down || from.getY() > up ||
+					from.getX() < left || from.getX() > right)
+				cnt++;
+			if (to.getY() < down || to.getY() > up ||
+					to.getX() < left || to.getX() > right)
+				cnt++;
+			if (cnt < 2)
+				num++;
+		}
+		
+		return num;
 	}
 	
 	private void getRoads(File file) throws IOException {
@@ -165,21 +189,4 @@ public class GUIModel {
 		globalZoomMin = Math.min((maxX - minX) / 50, (maxY - minY) / 50);
 	}
 	
-	private void updateRoadsInBB() {
-		roadsInBB.clear();
-		for (Road r : roads) {
-			Point from = r.from;
-			Point to = r.to;
-			int cnt = 0;
-			if (from.getY() < down || from.getY() > up ||
-					from.getX() < left || from.getX() > right)
-				cnt++;
-			if (to.getY() < down || to.getY() > up ||
-					to.getX() < left || to.getX() > right)
-				cnt++;
-			if (cnt < 2)
-				roadsInBB.add(r);
-		}
-//		roadsInBB = (ArrayList<Road>) roads.clone();
-	}
 }

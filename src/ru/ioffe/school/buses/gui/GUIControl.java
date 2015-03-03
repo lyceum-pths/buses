@@ -3,45 +3,49 @@ package ru.ioffe.school.buses.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
+import ru.ioffe.school.buses.data.Bus;
 
 @SuppressWarnings("serial")
-public class GUIControl extends JFrame implements KeyListener, ActionListener, MouseListener, MouseMotionListener {
+public class GUIControl extends JFrame {
 	
 	GUIModel model;
 	GUIView view;
+	ControlAdapter adapter;
+	Bus currentBus;
+	DefaultListModel<String> busListModel;
+	JList<String> busList;
+	JScrollPane busScroller;
 	int totalWidth, totalHeight;
-	int controlPanelHeight;
+	int controlPanelHeight, busPanelWidth, busInfoPanelHeigth;
 	int percent, fps, timeUpdateDelay;
-	JPanel mapPanel, controlPanel;
+	JPanel mapPanel, controlPanel, busPanel;
 	JPanel mapControlPanel, infoPanel, timelinePanel;
+	JPanel busInfoPanel, busListPanel;
 	JButton zoomButton, unzoomButton, upButton, downButton, leftButton, rightButton;
 	JButton pauseButton, updateSpeedButton;
 	JSlider timeSlider, timeSpeedSlider;
 	JTextField speedField;
-	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel;
+	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel, busesAmountLabel, activeBusesAmountLabel;
+	JLabel currentBusNumLabel, currentBusPathLabel, currentBusTimeLabel;
 	Timer updateScreenTimer, updateTimeTimer;
 	int currentX, currentY;
 	
@@ -56,31 +60,31 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 	private void init() throws IOException {
 		model = new GUIModel(new File("roads.txt"));
 		view = new GUIView(model);
+		adapter = new ControlAdapter(this);
 		Dimension d = getToolkit().getScreenSize();
 		percent = 20;
 		fps = 30;
 		timeUpdateDelay = 25;
-		updateScreenTimer = new Timer(1000 / fps, this);
+		updateScreenTimer = new Timer(1000 / fps, adapter);
 		controlPanelHeight = 200;
+		busInfoPanelHeigth = 100;
+		busPanelWidth = 250;
 		totalHeight = d.height * 2 / 3;
 		totalWidth = d.width * 2 / 3;
 		int minimumWidth = Math.max(d.width / 2, 5 * controlPanelHeight);
 		int minimumHeight = 3 * controlPanelHeight;
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		view.updateMap();
-		actualRoadsNumberLabel = new JLabel();
-		fpsLabel = new JLabel();
-		speedLabel = new JLabel();
-		timeLabel = new JLabel();
+		if (model.buses.size() > 0)
+			currentBus = model.buses.get(0);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Map GUI v0.2");
 		this.setPreferredSize(new Dimension(totalWidth, totalHeight));
 		this.setMinimumSize(new Dimension(minimumWidth, minimumHeight));
 		this.pack();
 		this.setLayout(null);
-		updateTimeTimer = new Timer(timeUpdateDelay, this);
+		updateTimeTimer = new Timer(timeUpdateDelay, adapter);
 		setPanels();
-		updateInfoLabels();
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -92,27 +96,6 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 		updateSizes();
 	}
 	
-	private void updateSizes() {
-		totalWidth = this.getWidth();
-		totalHeight = this.getHeight();
-		mapPanel.setBounds(0, controlPanelHeight, totalWidth, totalHeight);
-		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
-				2 * controlPanelHeight, controlPanelHeight);
-		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
-		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
-		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
-		model.updateWHRatio();
-		view.updateMap();
-	}
-	
-	private void updateInfoLabels() {		
-		actualRoadsNumberLabel.setText("Roads on the map: " + model.roadsInBB.size());
-		fpsLabel.setText("fps: " + fps);
-		speedLabel.setText("Time speed: " + model.timeSpeed);
-		timeLabel.setText("Current time: " + (int) model.currentTime + " secs");
-		infoPanel.repaint();
-	}
-	
 	private void setPanels() {
 		mapPanel = new JPanel() {
 			@Override
@@ -121,11 +104,52 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 			}
 		};
 		controlPanel = new JPanel();
+		busPanel = new JPanel();
+		
 		this.add(mapPanel);
-		mapPanel.addMouseListener(this);
-		mapPanel.addMouseMotionListener(this);
-		mapPanel.setBounds(0, controlPanelHeight, totalWidth, totalHeight);
+		mapPanel.addMouseListener(adapter);
+		mapPanel.addMouseMotionListener(adapter);
+		mapPanel.setBounds(0, controlPanelHeight, totalWidth - busPanelWidth, totalHeight);
 		mapPanel.setLayout(null);
+		
+		this.add(busPanel);
+		busPanel.setBounds(totalWidth - busPanelWidth, controlPanelHeight,
+				busPanelWidth, totalHeight);
+		busPanel.setLayout(null);
+		busPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		busInfoPanel = new JPanel();
+		busListPanel = new JPanel();
+		busPanel.add(busInfoPanel);
+		busPanel.add(busListPanel);
+		
+		busInfoPanel.setBounds(0, 0, busPanelWidth, 100);
+		busInfoPanel.setLayout(new BoxLayout(busInfoPanel, BoxLayout.PAGE_AXIS));
+		busInfoPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		currentBusNumLabel = new JLabel();
+		currentBusPathLabel = new JLabel();
+		currentBusTimeLabel = new JLabel();
+		busInfoPanel.add(currentBusNumLabel);
+		busInfoPanel.add(currentBusPathLabel);
+		busInfoPanel.add(currentBusTimeLabel);
+		
+		busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
+				- controlPanelHeight - busInfoPanelHeigth);
+		busListPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		busListPanel.setLayout(null);
+		busListModel = new DefaultListModel<>();
+		for (int i = 0; i < model.buses.size(); i++) {
+			busListModel.addElement("bus " + (i + 1));
+		}
+		busList = new JList<String>(busListModel);
+		busList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		busList.setLayoutOrientation(JList.VERTICAL);
+		busList.setVisibleRowCount(-1);
+		busList.setFocusable(false);
+		busScroller = new JScrollPane(busList);
+		busListPanel.add(busScroller);
+		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
+		
+		
 		this.add(controlPanel);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
 		controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -137,20 +161,32 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 		controlPanel.add(mapControlPanel);
 		controlPanel.add(infoPanel);
 		controlPanel.add(timelinePanel);
+		
 		mapControlPanel.setBounds(0, 0, controlPanelHeight, controlPanelHeight);
 		mapControlPanel.setLayout(null);
 		mapControlPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		
 		infoPanel.setBounds(controlPanelHeight, 0, controlPanelHeight, controlPanelHeight);
 		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
 		infoPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		actualRoadsNumberLabel = new JLabel();
+		fpsLabel = new JLabel();
+		speedLabel = new JLabel();
+		timeLabel = new JLabel();
+		busesAmountLabel = new JLabel();
+		activeBusesAmountLabel = new JLabel();
 		infoPanel.add(actualRoadsNumberLabel);
 		infoPanel.add(fpsLabel);
 		infoPanel.add(speedLabel);
 		infoPanel.add(timeLabel);
+		infoPanel.add(busesAmountLabel);
+		infoPanel.add(activeBusesAmountLabel);
+		
 		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
 				2 * controlPanelHeight, controlPanelHeight);
 		timelinePanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
 		timelinePanel.setLayout(null);
+		
 		setButtons();
 	}
 	
@@ -158,91 +194,43 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 		zoomButton = new JButton("+");
 		mapControlPanel.add(zoomButton);
 		zoomButton.setBounds(10, 10, 50, 50);
-		zoomButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.zoom(percent);
-				view.updateMap();
-			}
-		});
-		zoomButton.addKeyListener(this);
+		zoomButton.addActionListener(adapter);
+		zoomButton.addKeyListener(adapter);
 		
 		unzoomButton = new JButton("-");
 		mapControlPanel.add(unzoomButton);
 		unzoomButton.setBounds(140, 10, 50, 50);
-		unzoomButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.zoom(-percent);
-				view.updateMap();
-			}
-		});
-		unzoomButton.addKeyListener(this);
+		unzoomButton.addActionListener(adapter);
+		unzoomButton.addKeyListener(adapter);
 		
 		upButton = new JButton("Up");
 		mapControlPanel.add(upButton);
 		upButton.setBounds(60, 70, 80, 30);
-		upButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.moveVert(percent);
-				view.updateMap();
-			}
-		});
-		upButton.addKeyListener(this);
+		upButton.addActionListener(adapter);
+		upButton.addKeyListener(adapter);
 		
 		downButton = new JButton("Down");
 		mapControlPanel.add(downButton);
 		downButton.setBounds(60, 150, 80, 30);
-		downButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.moveVert(-percent);
-				view.updateMap();
-			}
-		});
-		downButton.addKeyListener(this);
+		downButton.addActionListener(adapter);
+		downButton.addKeyListener(adapter);
 		
 		rightButton = new JButton("Right");
 		mapControlPanel.add(rightButton);
 		rightButton.setBounds(110, 110, 80, 30);
-		rightButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.moveHoriz(percent);
-				view.updateMap();
-			}
-		});
-		rightButton.addKeyListener(this);
+		rightButton.addActionListener(adapter);
+		rightButton.addKeyListener(adapter);
 		
 		leftButton = new JButton("Left");
 		mapControlPanel.add(leftButton);
 		leftButton.setBounds(10, 110, 80, 30);
-		leftButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.moveHoriz(-percent);
-				view.updateMap();
-			}
-		});
-		leftButton.addKeyListener(this);
+		leftButton.addActionListener(adapter);
+		leftButton.addKeyListener(adapter);
 		
 		pauseButton = new JButton("Pause");
 		pauseButton.setFocusable(false);
 		timelinePanel.add(pauseButton);
-		pauseButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (model.timePaused) {
-					model.timePaused = false;
-					pauseButton.setText("Pause");
-					updateTimeTimer.start();
-				} else {
-					model.timePaused = true;
-					pauseButton.setText("Continue");
-					updateTimeTimer.stop();
-				}
-			}
-		});
+		pauseButton.addActionListener(adapter);
 		pauseButton.setBounds(10, 10, 100, 30);
 		
 		JLabel tssTipLabel = new JLabel("Change time speed:");
@@ -253,12 +241,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 		timeSpeedSlider.setFocusable(false);
 		timelinePanel.add(timeSpeedSlider);
 		timeSpeedSlider.setBounds(10, 80, 2 * controlPanelHeight, 30);
-		timeSpeedSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				model.timeSpeed = timeSpeedSlider.getValue();
-			}
-		});
+		timeSpeedSlider.addChangeListener(adapter);
 		
 		JLabel tsTipLabel = new JLabel("Change time:");
 		timelinePanel.add(tsTipLabel);
@@ -268,14 +251,7 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 		timeSlider.setFocusable(false);
 		timelinePanel.add(timeSlider);
 		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
-		timeSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				model.currentTime = timeSlider.getValue();
-				if (!updateTimeTimer.isRunning())
-					updateTimeTimer.start();
-			}
-		});
+		timeSlider.addChangeListener(adapter);
 		timeSlider.setValue((int) model.currentTime);
 		timeSpeedSlider.setValue((int) model.timeSpeed);
 		
@@ -288,113 +264,96 @@ public class GUIControl extends JFrame implements KeyListener, ActionListener, M
 		speedField.setBounds(280, 10, 50, 30);
 		
 		updateSpeedButton = new JButton("Update");
-		updateSpeedButton.addKeyListener(this);
+		updateSpeedButton.addKeyListener(adapter);
 		timelinePanel.add(updateSpeedButton);
 		updateSpeedButton.setBounds(340, 10, 100, 30);
-		updateSpeedButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String speed = speedField.getText().trim();
-				try {
-					Double sp = Double.parseDouble(speed);
-					if (sp <= 0 || sp >= model.maxTime / 7 || sp.isNaN())
-						return;
-					model.timeSpeed = sp;
-				} catch (NumberFormatException exept) {
-				}
+		updateSpeedButton.addActionListener(adapter);
+	}
+	
+	private void updateSizes() {
+		totalWidth = this.getWidth();
+		totalHeight = this.getHeight();
+		mapPanel.setBounds(0, controlPanelHeight, totalWidth - busPanelWidth, totalHeight);
+		busPanel.setBounds(totalWidth - busPanelWidth, controlPanelHeight,
+				busPanelWidth, totalHeight);
+		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
+				2 * controlPanelHeight, controlPanelHeight);
+		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
+		busListPanel.setBounds(0, 0, busPanelWidth, totalHeight
+				- controlPanelHeight);
+		busScroller.setBounds(0, busInfoPanelHeigth, busPanelWidth, busListPanel.getHeight());
+		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
+		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
+		model.updateWHRatio();
+		view.updateMap();
+	}
+	
+	public void updateInfoLabels() {
+		actualRoadsNumberLabel.setText("Roads on the map: " + model.countRoadsInBB());
+		fpsLabel.setText("fps: " + fps);
+		speedLabel.setText("Time speed: " + model.timeSpeed);
+		timeLabel.setText("Current time: " + (int) model.currentTime + " secs");
+		busesAmountLabel.setText("All buses: " + model.buses.size());
+		activeBusesAmountLabel.setText("Active buses: ");
+		updateBusInfo();
+	}
+	
+	public void updateBusInfo() {
+		if (currentBus == null)
+			return;
+		currentBusNumLabel.setText("Bus number: *will be added*");
+		currentBusPathLabel.setText("Route length: *will be added*");
+		currentBusTimeLabel.setText("Time on the road: *will be added*");
+	}
+	
+	public void updateScreen() {
+		mapPanel.repaint();
+		updateInfoLabels();
+		infoPanel.repaint();
+	}
+
+	public void updateTime() {
+		model.currentTime += model.timeSpeed * timeUpdateDelay / 1000;
+		timeSlider.setValue((int) model.currentTime);
+		timeSpeedSlider.setValue((int) model.timeSpeed);
+		if (model.currentTime > model.maxTime)
+			updateTimeTimer.stop();
+	}
+
+	public void updateSpeed() {
+		String speed = speedField.getText().trim();
+		try {
+			double sp = Double.parseDouble(speed);
+			if (Double.isNaN(sp))
+				return;
+			if (sp <= 0) {
+				model.timeSpeed = 1;
+				pause();
+				return;
 			}
-		});
+			if (sp >= model.maxTime / 7) {
+				model.timeSpeed = model.maxTime;
+				return;
+			}
+			model.timeSpeed = sp;
+		} catch (NumberFormatException exept) {
+		}
+	}
+	
+	public void pause() {
+		if (model.timePaused) {
+			model.timePaused = false;
+			pauseButton.setText("Pause");
+			updateTimeTimer.start();
+		} else {
+			model.timePaused = true;
+			pauseButton.setText("Continue");
+			updateTimeTimer.stop();
+		}
 	}
 	
 	public static void main(String[] args) {
 		new GUIControl().setVisible(true);
 	}
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			model.moveVert(percent);
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			model.moveVert(-percent);
-		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			model.moveHoriz(-percent);
-		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			model.moveHoriz(percent);
-		} else if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
-			model.zoom(percent);
-		} else if (e.getKeyCode() == KeyEvent.VK_MINUS) {
-			model.zoom(-percent);
-		} else if (e.getKeyCode() == KeyEvent.VK_P) {
-			try {
-				pauseButton.getActionListeners()[0].actionPerformed(null);				
-			} catch (ArrayIndexOutOfBoundsException exept) {
-				System.out.println("No listeners attached to pause button");
-			}
-		}
-		view.updateMap();
-	}
-	
-	@Override
-	public void keyTyped(KeyEvent e) {
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {		
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == updateScreenTimer) {
-			mapPanel.repaint();
-			updateInfoLabels();
-			infoPanel.repaint();
-		} else if (e.getSource() == updateTimeTimer) {
-			model.currentTime += model.timeSpeed * timeUpdateDelay / 1000;
-			timeSlider.setValue((int) model.currentTime);
-			timeSpeedSlider.setValue((int) model.timeSpeed);
-			if (model.currentTime > model.maxTime)
-				updateTimeTimer.stop();
-		}
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		currentX = e.getX();
-		currentY = e.getY();
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		int difX = - e.getX() + currentX;
-		int difY = e.getY() - currentY;
-		currentX = e.getX();
-		currentY = e.getY();
-		model.moveVertPx(difY);
-		model.moveHorizPx(difX);
-		view.updateMap();
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		
-	}
 }

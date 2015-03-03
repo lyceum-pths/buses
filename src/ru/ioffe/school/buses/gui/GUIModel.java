@@ -45,15 +45,19 @@ public class GUIModel {
 		int numofst = 10;
 		int stnum = 100;
 		for (int i = 0; i < numofst; i++) {
-			stat.add(new Station(roads.get(stnum + i).to));
+			stat.add(new Station(roads.get(stnum).to));
 		}
 		Station[] stations = new Station[stat.size()];
 		for (int i = 0; i < stat.size(); i++) {
 			stations[i] = stat.get(i);
 		}
 		generator = new BusGenerator(manager, stations);
-		for (int i = 0; i < 30; i++) {
-			buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
+		try {
+			for (int i = 0; i < 30; i++) {
+				buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
+			}
+		} catch (Exception e) {
+			System.out.println("Due to some problems with data graph is not connected");
 		}
 	}
 

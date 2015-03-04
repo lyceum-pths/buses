@@ -35,29 +35,36 @@ public class GUIModel {
 		getRoads(roadsFile);
 		updateWHRatio();
 		getMaxSizes();
-		Road[] roadsForManager = new Road[roads.size()];
-		for (int i = 0; i < roads.size(); i++) {
-			roadsForManager[i] = roads.get(i);
-		}
-		RoadManager manager = new RoadManager(roadsForManager);
-		Random rnd = new Random();
-		ArrayList<Station> stat = new ArrayList<>();
-		int numofst = 10;
-		int stnum = 100;
-		for (int i = 0; i < numofst; i++) {
-			stat.add(new Station(roads.get(stnum).to));
-		}
-		Station[] stations = new Station[stat.size()];
-		for (int i = 0; i < stat.size(); i++) {
-			stations[i] = stat.get(i);
-		}
-		generator = new BusGenerator(manager, stations);
-		try {
-			for (int i = 0; i < 30; i++) {
-				buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
+		{
+			ArrayList<Road> r = new ArrayList<>();
+			for (int i = 0; i < roads.size(); i++) {
+				r.add(roads.get(i));
+//				if (!roads.get(i).isOneway)
+					r.add(roads.get(i).invert());
 			}
-		} catch (Exception e) {
-			System.out.println("Due to some problems with data graph is not connected");
+			Road[] roadsForManager = new Road[r.size()];
+			for (int i = 0; i < r.size(); i++) {
+				roadsForManager[i] = r.get(i);			
+			}
+			RoadManager manager = new RoadManager(roadsForManager);
+			Random rnd = new Random();
+			ArrayList<Station> stat = new ArrayList<>();
+			int numofst = 10;
+			for (int i = 0; i < numofst; i++) {
+				stat.add(new Station(roads.get(rnd.nextInt(roads.size())).to));
+			}
+			Station[] stations = new Station[stat.size()];
+			for (int i = 0; i < stat.size(); i++) {
+				stations[i] = stat.get(i);
+			}
+			generator = new BusGenerator(manager, stations);
+			try {
+				for (int i = 0; i < 50; i++) {
+					buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
+				}
+			} catch (Exception e) {
+				System.out.println("Due to some problems with data graph is not connected");
+			}
 		}
 	}
 

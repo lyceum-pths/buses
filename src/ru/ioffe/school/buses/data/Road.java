@@ -26,6 +26,14 @@ public class Road implements Serializable {
 		this.speedBound = 1;
 	}
 	
+	public Road(Point from, Point to, boolean isOneway) {
+		this.from = from;
+		this.to = to;
+		this.length = GeographyManager.getDistance(from, to);
+		this.speedBound = 1;
+		this.isOneway = isOneway;
+	}
+	
 	private Road(Point from, Point to, double length) {
 		this.from = from;
 		this.to = to;

@@ -30,12 +30,12 @@ public class MapParser {
 	
 	public static void getRoads(File file) throws IOException {
 		String[] text = parseText(file);
-		roadsToFile(new File("roads.txt"), parseRoads(text));
+		roadsToFile(new File("roads.data"), parseRoads(text));
 	}
 	
 	public static void getPoints(File file) throws IOException {
 		String[] text = parseText(file);
-		pointsToFile(new File("points.txt"), parsePoints(text));
+		pointsToFile(new File("points.data"), parsePoints(text));
 	}
 	
 	private static String[] parseText(File file) throws IOException {
@@ -100,6 +100,7 @@ public class MapParser {
 		String highwayTagRegex = "<tag k=\"highway\".*";
 		String highwayTypeRegex = "v=\"[a-z]+\"";
 		String refRegex = "<nd ref=\"\\d+\"/>";
+		String onewayRegex = "<tag k=\"oneway\" v=\"yes\"/>";
 		String[] types = { "secondary", "tertiary", "primary", "residential" };
 		HashSet<String> neededTypes = new HashSet<>();
 		for (int i = 0; i < types.length; i++) {
@@ -112,6 +113,8 @@ public class MapParser {
 			if (text[i].matches(wayRegex)) {
 				last = -1;
 				currentRoads = new ArrayList<>();
+				boolean oneway = false;
+				ArrayList<String> currentTypes = new ArrayList<>();
 				while (i < text.length - 1) {
 					i++;
 					if (text[i].matches(wayCloseRegex))
@@ -131,11 +134,19 @@ public class MapParser {
 						matcher = Pattern.compile(highwayTypeRegex).matcher(text[i]);
 						if (matcher.find()) {
 							String type = text[i].substring(matcher.start() + 3, matcher.end() - 1);
-							if (neededTypes.contains(type)) {
-								roads.addAll(currentRoads);
+							if (!currentTypes.contains(type)) {
+								currentTypes.add(type);
 							}
 						}
+					} else if (text[i].matches(onewayRegex)) {
+						oneway = true;
 					}
+				}
+				if (neededTypes.containsAll(currentTypes) && currentTypes.size() > 0) {
+					for (Road road : currentRoads) {
+						road.setOneway(oneway);
+					}
+					roads.addAll(currentRoads);
 				}
 			}
 		}

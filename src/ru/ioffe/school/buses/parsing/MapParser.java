@@ -30,12 +30,14 @@ public class MapParser {
 	
 	public static void getRoads(File file) throws IOException {
 		String[] text = parseText(file);
-		roadsToFile(new File("roads.data"), parseRoads(text));
+		String outFileName = System.getProperty("user.dir") + "/data/generated/roads.data";
+		roadsToFile(new File(outFileName), parseRoads(text));
 	}
 	
 	public static void getPoints(File file) throws IOException {
 		String[] text = parseText(file);
-		pointsToFile(new File("points.data"), parsePoints(text));
+		String outFileName = System.getProperty("user.dir") + "/data/generated/points.data";
+		pointsToFile(new File(outFileName), parsePoints(text));
 	}
 	
 	private static String[] parseText(File file) throws IOException {

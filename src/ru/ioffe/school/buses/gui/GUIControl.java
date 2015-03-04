@@ -58,7 +58,8 @@ public class GUIControl extends JFrame {
 	}
 	
 	private void init() throws IOException {
-		model = new GUIModel(new File("roads.data"));
+		String inFileName = System.getProperty("user.dir") + "/data/generated/roads.data";
+		model = new GUIModel(new File(inFileName));
 		view = new GUIView(model);
 		adapter = new ControlAdapter(this);
 		Dimension d = getToolkit().getScreenSize();

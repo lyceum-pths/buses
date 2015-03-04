@@ -58,7 +58,7 @@ public class GUIControl extends JFrame {
 	}
 	
 	private void init() throws IOException {
-		String inFileName = System.getProperty("user.dir") + "/data/generated/roads.data";
+		String inFileName = "data/generated/roads.data";
 		model = new GUIModel(new File(inFileName));
 		view = new GUIView(model);
 		adapter = new ControlAdapter(this);

@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Parse {
 	public static void main(String[] args) throws IOException {
-		String filename = System.getProperty("user.dir") + "/data/map.osm";
+		String filename = "data/map.osm";
 		MapParser.getRoads(new File(filename));
 	}
 }

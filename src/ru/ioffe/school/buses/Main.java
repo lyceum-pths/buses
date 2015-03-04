@@ -3,6 +3,7 @@ package ru.ioffe.school.buses;
 import java.io.File;
 import java.io.IOException;
 
+import ru.ioffe.school.buses.gui.GUIControl;
 import ru.ioffe.school.buses.parsing.MapParser;
 
 /*
@@ -13,7 +14,8 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		System.out.println("Hello, buses!");
 		System.out.println("Parsing roads from map.osm file...");
-		MapParser.getRoads(new File(System.getProperty("user.dir") + "/src/ru/ioffe/school/buses/data/map.osm"));
-		System.out.println("Now you can run GUIControl.java to see how does it look like!");
+		MapParser.getRoads(new File("src/ru/ioffe/school/buses/data/map.osm"));
+		System.out.println("Running GUIControl...");
+		GUIControl.main(args);
 	}
 }

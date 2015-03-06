@@ -27,6 +27,7 @@ import ru.ioffe.school.buses.data.Road;
 public class MapParser {
 	
 	private static HashMap<Long, Point> pointsByIds = new HashMap<Long, Point>();
+	private final static double k = 0.7, r = 6800;
 	
 	public static void getRoads(File file) throws IOException {
 		String[] text = parseText(file);
@@ -78,8 +79,8 @@ public class MapParser {
 					long id = Long.parseLong(idStr);
 					lonStr = lonStr.substring(5, lonStr.length() - 1);
 					latStr = latStr.substring(5, latStr.length() - 1);
-					double lon = Double.parseDouble(lonStr);
-					double lat = Double.parseDouble(latStr);
+					double lon = Math.toRadians(k * Double.parseDouble(lonStr)) * r * 3600;
+					double lat = Math.toRadians(Double.parseDouble(latStr)) * r * 3600;
 					Point currPoint = new Point(id, lon, lat);
 					points.add(currPoint);
 					out.println(id);

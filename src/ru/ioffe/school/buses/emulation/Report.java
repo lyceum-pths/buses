@@ -18,6 +18,10 @@ public class Report {
 		this.fitness = average;
 	}
 	
+	public Route[] getRoutes() {
+		return routes;
+	}
+	
 	@Override
 	public String toString() {
 		return Arrays.toString(routes);

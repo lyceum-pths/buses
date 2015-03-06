@@ -8,19 +8,26 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.Night;
+import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
+import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.data.Station;
+import ru.ioffe.school.buses.emulation.Emulator;
+import ru.ioffe.school.buses.emulation.Report;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
+import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class GUIModel {
 	ArrayList<Road> roads;
+	ArrayList<Bus> buses;
+	ArrayList<Route> peopleRoutes;
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
 	private double globalZoomMin, globalZoomMax;
-	ArrayList<Bus> buses;
 	BusGenerator generator;
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
@@ -28,6 +35,7 @@ public class GUIModel {
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
 		buses = new ArrayList<>();
+		peopleRoutes = new ArrayList<>();
 		currentTime = 2;
 		timeSpeed = 1;
 		maxTime = 43200;
@@ -58,12 +66,41 @@ public class GUIModel {
 				stations[i] = stat.get(i);
 			}
 			generator = new BusGenerator(manager, stations);
-			for (int i = 0; i < 50; i++) {
+			int cnt = 0;
+			int busesNumber = 50;
+			for (int i = 0; i < busesNumber; i++) {
 				try {
 					buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
 				} catch (Exception e) {
 					System.out.println("Due to some problems with data graph is not connected");
+					cnt++;
 				}				
+			}
+			System.out.println(cnt + " buses out of " + busesNumber + " failed");
+			ArrayList<Transfer> tr = new ArrayList<>();
+			for (Bus bus : buses) {
+				tr.addAll(bus.getTransfers());
+			}
+			Transfer[] transfer = new Transfer[tr.size()];
+			for (int i = 0; i < tr.size(); i++) {
+				transfer[i] = tr.get(i);
+			}
+			Emulator emul = new Emulator(stations, 0.1, transfer);
+			int personNumber = 2000;
+			Person[] persons = new Person[personNumber];
+			for (int i = 0; i < personNumber; i++) {
+				persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
+						roads.get(rnd.nextInt(roads.size())).to, 1000);
+			}
+			Night night = new Night(persons);
+			System.out.println("Starting emulation");
+			Report rep = emul.startEmulation(night, 10);
+			System.out.println("Ended emulation");
+			Route[] routes = rep.getRoutes();
+			for (int i = 0; i < routes.length; i++) {
+				peopleRoutes.add(routes[i]);
+				if (routes[i].getTotalTime() < 42000)
+					System.out.println("I come home");
 			}
 		}
 	}

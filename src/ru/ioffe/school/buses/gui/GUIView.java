@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
+import ru.ioffe.school.buses.data.Route;
 
 @SuppressWarnings("serial")
 public class GUIView extends JFrame {
@@ -60,5 +61,17 @@ public class GUIView extends JFrame {
 //				System.out.println("time = " + model.currentTime + "; coord = (" + p.getX() + "; " + p.getY() + ")");
 			}			
 		}
+		g.setColor(Color.green);
+		for (Route r : model.peopleRoutes) {
+			Point p = r.getPosition(model.currentTime);
+			if (p != null) {
+				double difX = p.getX() - model.left;
+				double difY = - p.getY() + model.up;
+				int x = (int) (difX * pxSize);
+				int y = (int) (difY * pxSize);
+				g.fillOval(x, y, 5, 5);
+			}
+		}
+		g.setColor(Color.black);
 	}
 }

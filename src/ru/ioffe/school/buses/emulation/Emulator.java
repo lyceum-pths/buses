@@ -161,6 +161,7 @@ public class Emulator {
 					way.add(new StraightSegment(getPoint(person, pred[current]),
 						getPoint(person, current), time[pred[current]], time[current]));
 				} else {
+					System.err.println("I am going by bus!");
 					way.add(new BusSegment(mode[current], time[pred[current]], time[current]));
 				}
 				current = pred[current];

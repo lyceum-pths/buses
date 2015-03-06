@@ -30,7 +30,7 @@ public class Road implements Serializable {
 		this.from = from;
 		this.to = to;
 		this.length = GeographyManager.getDistance(from, to);
-		this.speedBound = 1;
+		this.speedBound = 60;
 		this.isOneway = isOneway;
 	}
 	
@@ -38,7 +38,7 @@ public class Road implements Serializable {
 		this.from = from;
 		this.to = to;
 		this.length = length;
-		this.speedBound = 1;
+		this.speedBound = 60;
 	}
 	
 	/**

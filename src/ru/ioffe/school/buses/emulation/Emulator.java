@@ -22,6 +22,7 @@ public class Emulator {
 	final ArrayList<Transfer>[] transfers; 
 	final HashMap<Point, Integer> indexs;
 	final double speed;
+	int cnt = 0;
 
 	@SuppressWarnings("unchecked")
 	public Emulator(Station[] stations, double speed, Transfer... transfers) {
@@ -57,6 +58,7 @@ public class Emulator {
 				threads[i].join();
 			} catch (InterruptedException e) {}
 		}
+		System.out.println(cnt + " people used a bus");
 		return new Report(routes);
 	}
 
@@ -161,7 +163,7 @@ public class Emulator {
 					way.add(new StraightSegment(getPoint(person, pred[current]),
 						getPoint(person, current), time[pred[current]], time[current]));
 				} else {
-					System.err.println("I am going by bus!");
+					cnt++;
 					way.add(new BusSegment(mode[current], time[pred[current]], time[current]));
 				}
 				current = pred[current];

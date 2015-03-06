@@ -314,11 +314,13 @@ public class GUIControl extends JFrame {
 	}
 
 	public void updateTime() {
+		if (model.currentTime > model.maxTime) {
+			updateTimeTimer.stop();
+			return;
+		}
 		model.currentTime += model.timeSpeed * timeUpdateDelay / 1000;
 		timeSlider.setValue((int) model.currentTime);
 		timeSpeedSlider.setValue((int) model.timeSpeed);
-		if (model.currentTime > model.maxTime)
-			updateTimeTimer.stop();
 	}
 
 	public void updateSpeed() {

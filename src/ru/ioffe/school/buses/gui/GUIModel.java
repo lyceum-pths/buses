@@ -85,7 +85,7 @@ public class GUIModel {
 			for (int i = 0; i < tr.size(); i++) {
 				transfer[i] = tr.get(i);
 			}
-			Emulator emul = new Emulator(stations, 0.1, transfer);
+			Emulator emul = new Emulator(stations, 5 / Math.sqrt(2), transfer);
 			int personNumber = 2000;
 			Person[] persons = new Person[personNumber];
 			for (int i = 0; i < personNumber; i++) {
@@ -94,14 +94,16 @@ public class GUIModel {
 			}
 			Night night = new Night(persons);
 			System.out.println("Starting emulation");
-			Report rep = emul.startEmulation(night, 10);
+			Report rep = emul.startEmulation(night, 1);
 			System.out.println("Ended emulation");
 			Route[] routes = rep.getRoutes();
+			int cnt2 = 0;
 			for (int i = 0; i < routes.length; i++) {
 				peopleRoutes.add(routes[i]);
 				if (routes[i].getTotalTime() < 42000)
-					System.out.println("I come home");
+					cnt2++;
 			}
+			System.out.println(cnt2 + " people finally came home");
 		}
 	}
 

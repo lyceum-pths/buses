@@ -6,7 +6,8 @@ import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 
 /**
- * This class contain information about departures bus which has number "busNumber" from point "from" to point "to".
+ * This class contain information about departures bus which has 
+ * number "busNumber" from point "from" to point "to".
  * It is used for looking for best way for person to go home.
  */
 

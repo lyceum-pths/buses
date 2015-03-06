@@ -58,12 +58,12 @@ public class GUIModel {
 				stations[i] = stat.get(i);
 			}
 			generator = new BusGenerator(manager, stations);
-			try {
-				for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < 50; i++) {
+				try {
 					buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
-				}
-			} catch (Exception e) {
-				System.out.println("Due to some problems with data graph is not connected");
+				} catch (Exception e) {
+					System.out.println("Due to some problems with data graph is not connected");
+				}				
 			}
 		}
 	}

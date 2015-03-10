@@ -10,6 +10,7 @@ import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
+import ru.ioffe.school.buses.data.Segment;
 
 @SuppressWarnings("serial")
 public class GUIView extends JFrame {
@@ -50,18 +51,20 @@ public class GUIView extends JFrame {
 				model.totalGUIHeight - model.controlPanelHeight, null);
 		g.setColor(Color.red);
 		double pxSize = model.totalGUIWidth / (model.right - model.left);
+		int activeBusesCnt = 0;
 		for (Bus bus : model.buses) {
 			Point p = bus.getPosition(model.currentTime);
 			if (p != null) {
+				activeBusesCnt++;
 				double difX = p.getX() - model.left;
 				double difY = - p.getY() + model.up;
 				int x = (int) (difX * pxSize);
 				int y = (int) (difY * pxSize);
-				g.fillOval(x, y, 7, 7);
-//				System.out.println("time = " + model.currentTime + "; coord = (" + p.getX() + "; " + p.getY() + ")");
+				g.fillOval(x - 4, y - 4, 8, 8);
 			}			
 		}
-		g.setColor(Color.green);
+		model.activeBuses = activeBusesCnt;
+		g.setColor(Color.GREEN);
 		for (Route r : model.peopleRoutes) {
 			Point p = r.getPosition(model.currentTime);
 			if (p != null) {
@@ -69,9 +72,25 @@ public class GUIView extends JFrame {
 				double difY = - p.getY() + model.up;
 				int x = (int) (difX * pxSize);
 				int y = (int) (difY * pxSize);
-				g.fillOval(x, y, 5, 5);
+				g.fillOval(x - 2, y - 2, 4, 4);
 			}
 		}
-		g.setColor(Color.black);
+		g.setColor(Color.MAGENTA);
+		Route r = model.currentBus.getRoute();
+		for (Segment s : r.getRoute()) {
+			Point p1 = s.getStart();
+			Point p2 = s.getEnd();
+			double difX = p1.getX() - model.left;
+			double difY = - p1.getY() + model.up;
+			int x1 = (int) (difX * pxSize);
+			int y1 = (int) (difY * pxSize);
+			difX = p2.getX() - model.left;
+			difY = - p2.getY() + model.up;
+			int x2 = (int) (difX * pxSize);
+			int y2 = (int) (difY * pxSize);
+			g.drawLine(x1, y1, x2, y2);
+			g.drawLine(x1, y1 + 1, x2, y2 + 1);
+		}
+		g.setColor(Color.BLACK);
 	}
 }

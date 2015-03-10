@@ -111,7 +111,7 @@ public class ControlAdapter implements KeyListener, ActionListener,
 	
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		
+		c.setCurrentBus();
 	}
 	
 	//not used

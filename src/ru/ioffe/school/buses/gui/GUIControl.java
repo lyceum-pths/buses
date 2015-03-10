@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 
-import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.Segment;
 
 @SuppressWarnings("serial")
 public class GUIControl extends JFrame {
@@ -30,7 +30,6 @@ public class GUIControl extends JFrame {
 	GUIModel model;
 	GUIView view;
 	ControlAdapter adapter;
-	Bus currentBus;
 	DefaultListModel<String> busListModel;
 	JList<String> busList;
 	JScrollPane busScroller;
@@ -77,7 +76,7 @@ public class GUIControl extends JFrame {
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		view.updateMap();
 		if (model.buses.size() > 0)
-			currentBus = model.buses.get(0);
+			model.currentBus = model.buses.get(0);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Map GUI v0.2");
 		this.setPreferredSize(new Dimension(totalWidth, totalHeight));
@@ -146,7 +145,9 @@ public class GUIControl extends JFrame {
 		busList.setLayoutOrientation(JList.VERTICAL);
 		busList.setVisibleRowCount(-1);
 		busList.setFocusable(false);
-		busList.addKeyListener(adapter);
+		busList.addListSelectionListener(adapter);
+		if (model.buses.size() > 0)
+			busList.setSelectedIndex(0);
 		busScroller = new JScrollPane(busList);
 		busListPanel.add(busScroller);
 		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
@@ -295,16 +296,23 @@ public class GUIControl extends JFrame {
 		speedLabel.setText("Time speed: " + model.timeSpeed);
 		timeLabel.setText("Current time: " + (int) model.currentTime + " secs");
 		busesAmountLabel.setText("All buses: " + model.buses.size());
-		activeBusesAmountLabel.setText("Active buses: ");
+		activeBusesAmountLabel.setText("Active buses: " + model.activeBuses);
 		updateBusInfo();
 	}
 	
 	public void updateBusInfo() {
-		if (currentBus == null)
+		if (model.currentBus == null)
 			return;
-		currentBusNumLabel.setText("Bus number: *will be added*");
-		currentBusPathLabel.setText("Route length: *will be added*");
-		currentBusTimeLabel.setText("Time on the road: *will be added*");
+		currentBusNumLabel.setText("Bus number: " + (busList.getSelectedIndex() + 1));
+		double len = 0;
+		double a, b;
+		for (Segment s : model.currentBus.getRoute().getRoute()) {
+			a = Math.abs(s.getStart().getX() - s.getEnd().getX());
+			b = Math.abs(s.getStart().getY() - s.getEnd().getY());
+			len += Math.sqrt(a * a + b * b);
+		}
+		currentBusPathLabel.setText("Route length: " + ((long) len));
+		currentBusTimeLabel.setText("Time on the road: " + ((int) model.currentBus.getRoute().getTotalTime()));
 	}
 	
 	public void updateScreen() {
@@ -341,6 +349,11 @@ public class GUIControl extends JFrame {
 			model.timeSpeed = sp;
 		} catch (NumberFormatException exept) {
 		}
+	}
+	
+	public void setCurrentBus() {
+		model.setCurrentBus(busList.getSelectedIndex());
+		updateBusInfo();
 	}
 	
 	public void pause() {

@@ -29,9 +29,11 @@ public class GUIModel {
 	double minX, minY, maxX, maxY;
 	private double globalZoomMin, globalZoomMax;
 	BusGenerator generator;
+	Bus currentBus;
+	int activeBuses;
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
-	
+
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
 		buses = new ArrayList<>();
@@ -39,6 +41,7 @@ public class GUIModel {
 		currentTime = 2;
 		timeSpeed = 1;
 		maxTime = 43200;
+		activeBuses = 0;
 		timePaused = false;
 		getRoads(roadsFile);
 		updateWHRatio();
@@ -47,8 +50,8 @@ public class GUIModel {
 			ArrayList<Road> r = new ArrayList<>();
 			for (int i = 0; i < roads.size(); i++) {
 				r.add(roads.get(i));
-//				if (!roads.get(i).isOneway)
-					r.add(roads.get(i).invert());
+				//				if (!roads.get(i).isOneway)
+				r.add(roads.get(i).invert());
 			}
 			Road[] roadsForManager = new Road[r.size()];
 			for (int i = 0; i < r.size(); i++) {
@@ -57,7 +60,7 @@ public class GUIModel {
 			RoadManager manager = new RoadManager(roadsForManager);
 			Random rnd = new Random();
 			ArrayList<Station> stat = new ArrayList<>();
-			int numofst = 10;
+			int numofst = 3;
 			for (int i = 0; i < numofst; i++) {
 				stat.add(new Station(roads.get(rnd.nextInt(roads.size())).to));
 			}
@@ -66,17 +69,24 @@ public class GUIModel {
 				stations[i] = stat.get(i);
 			}
 			generator = new BusGenerator(manager, stations);
-			int cnt = 0;
-			int busesNumber = 50;
-			for (int i = 0; i < busesNumber; i++) {
+			int busesNumber = 10;
+			System.out.println("Generating buses...");
+			System.out.print("Already generated: ");
+			boolean shownThatNumber = true;
+			while (buses.size() < busesNumber) {
 				try {
-					buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));			
+					buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));	
+					shownThatNumber = false;
 				} catch (Exception e) {
-					System.out.println("Due to some problems with data graph is not connected");
-					cnt++;
-				}				
+					
+				}
+				if (buses.size() % 5 == 0 && !shownThatNumber) {
+					System.out.print(buses.size() + " ");
+					shownThatNumber = true;
+				}
 			}
-			System.out.println(cnt + " buses out of " + busesNumber + " failed");
+			System.out.println();
+			System.out.println(busesNumber + " buses generated");
 			ArrayList<Transfer> tr = new ArrayList<>();
 			for (Bus bus : buses) {
 				tr.addAll(bus.getTransfers());
@@ -86,7 +96,7 @@ public class GUIModel {
 				transfer[i] = tr.get(i);
 			}
 			Emulator emul = new Emulator(stations, 5 / Math.sqrt(2), transfer);
-			int personNumber = 2000;
+			int personNumber = 10000;
 			Person[] persons = new Person[personNumber];
 			for (int i = 0; i < personNumber; i++) {
 				persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
@@ -97,29 +107,35 @@ public class GUIModel {
 			Report rep = emul.startEmulation(night, 1);
 			System.out.println("Ended emulation");
 			Route[] routes = rep.getRoutes();
-			int cnt2 = 0;
+			int cnt = 0;
 			for (int i = 0; i < routes.length; i++) {
 				peopleRoutes.add(routes[i]);
 				if (routes[i].getTotalTime() < 42000)
-					cnt2++;
+					cnt++;
 			}
-			System.out.println(cnt2 + " people finally came home");
+			System.out.println(cnt + " out of " + personNumber + " people finally came home");
 		}
 	}
 
+	public void setCurrentBus(int number) {
+		if (number >= buses.size())
+			throw new ArrayIndexOutOfBoundsException();
+		currentBus = buses.get(number);
+	}
+	
 	public void setTime(int time) {
 		this.currentTime = time;
 	}
-	
+
 	public void setTimeSpeed(int speed) {
 		this.timeSpeed = speed;
 	}
-	
+
 	public void updateWHRatio() {
 		double ratio = (double) totalGUIWidth / (double) (totalGUIHeight - controlPanelHeight);
 		up = down + (right - left) / ratio;
 	}
-	
+
 	public void updateTotalSizes(int width, int heigth, int panelHeight) {
 		totalGUIWidth = width;
 		totalGUIHeight = heigth;
@@ -134,7 +150,7 @@ public class GUIModel {
 		up += totalH * per;
 		down += totalH * per;
 	}
-	
+
 	public void moveVertPx(int px) {
 		double totalH = up - down;
 		double pxSize = totalH / totalGUIHeight;
@@ -143,7 +159,7 @@ public class GUIModel {
 		up += pxSize * px;
 		down += pxSize * px;
 	}
-	
+
 	public void moveHoriz(int percent) {
 		double per = (double) percent / 100;
 		double totalW = right - left;
@@ -161,7 +177,7 @@ public class GUIModel {
 		right += pxSize * px;
 		left += pxSize * px;
 	}
-	
+
 	public void zoom(int percent) {
 		double per = (double) percent / 200;
 		double totalW = right - left;
@@ -175,7 +191,7 @@ public class GUIModel {
 		up -= totalH * per;
 		down += totalH * per;
 	}
-	
+
 	public int countRoadsInBB() {
 		int num = 0;
 		for (Road r : roads) {
@@ -191,10 +207,10 @@ public class GUIModel {
 			if (cnt < 2)
 				num++;
 		}
-		
+
 		return num;
 	}
-	
+
 	private void getRoads(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
@@ -238,5 +254,5 @@ public class GUIModel {
 		globalZoomMax = Math.max(3 * (maxX - minX), 3 * (maxY - minY));
 		globalZoomMin = Math.min((maxX - minX) / 50, (maxY - minY) / 50);
 	}
-	
+
 }

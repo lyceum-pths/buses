@@ -1,46 +1,45 @@
 package ru.ioffe.school.buses.data;
 
-public class BusSegment implements Segment {
-	final Point start;
-	final Point end;
-	final Bus bus;
+public class WaitingSegment implements Segment {
+	final Point p;
 	final double timeStart, timeEnd;
-	
-	public BusSegment(Bus bus, double timeStart, double timeEnd) {
+
+	public WaitingSegment(Point p, double timeStart, double timeEnd) {
 		if (timeEnd < timeStart)
 			throw new IllegalArgumentException("Time of end of movement mustn't be lowwer than time of start: start = "
 					+ timeStart + ", end = " + timeEnd);
-		this.start = bus.getPosition(timeStart);
-		this.end = bus.getPosition(timeEnd);
+		this.p = p;
 		this.timeStart = timeStart;
 		this.timeEnd = timeEnd;
-		this.bus = bus;
 	}
 
+	@Override
 	public Point getStart() {
-		return start;
+		return p;
 	}
 
+	@Override
 	public Point getEnd() {
-		return end;
+		return p;
 	}
 
+	@Override
 	public double getTimeStart() {
 		return timeStart;
 	}
 
+	@Override
 	public double getTimeEnd() {
 		return timeEnd;
 	}
-	
-	public Point getPosition(double time) {
-		if (time < timeStart || time > timeEnd)
-			return null;
-		return bus.getPosition(time);
-	}
-	
+
 	@Override
-	public String toString() {
-		return "from = " + start + "; to = " + end + "; beginTime = " + timeStart + "; endTime = " + timeEnd + "; by bus";
+	public Point getPosition(double time) {
+		if (time > timeEnd || time < timeStart)
+			return null;
+		return p;
 	}
+
+
+
 }

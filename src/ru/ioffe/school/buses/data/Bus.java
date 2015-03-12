@@ -45,8 +45,8 @@ public class Bus {
 
 	public ArrayList<Transfer> getTransfers() {
 		ArrayList<Transfer> transfers = new ArrayList<>();
-		double[] departures = new double[begins.length];
 		for (int j = 0; j < busStations.length - 1; j++) {
+			double[] departures = new double[begins.length];
 			for (int i = 0; i < departures.length; i++) 
 				departures[i] = begins[i] + time[j];
 			transfers.add(new Transfer(this, busStations[j].getPosition(), 

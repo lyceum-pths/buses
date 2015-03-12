@@ -62,9 +62,11 @@ public class BusGenerator {
 		Point from, to = this.stations[stations[0]].getPosition();
 		double[] time = new double[stations.length + (isCicle? 1 : 0)];
 		double currentTime = 0, dt;
+		System.out.println("bus");
 		for (int i = 0; i < stations.length - (isCicle? 0 : 1); i++) {
 			from = to;
 			to = this.stations[stations[(i + 1) % stations.length]].getPosition();
+			System.out.println(from + " " + to);
 			for (Road road : roadManager.findWay(from, to)) {
 				dt = road.getLength() / road.getSpeedBound();
 				way.add(new StraightSegment(road.getFrom(), road.getTo(), currentTime, currentTime + dt));

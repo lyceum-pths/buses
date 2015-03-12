@@ -12,6 +12,7 @@ import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.data.Segment;
 import ru.ioffe.school.buses.data.Station;
 import ru.ioffe.school.buses.data.StraightSegment;
+import ru.ioffe.school.buses.data.WaitingSegment;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
@@ -110,7 +111,7 @@ public class Emulator {
 			// begin = n; end = n + 1
 			int n = stations.length;
 			int[] pred = new int[n + 2];
-			Bus[] mode = new Bus[n + 2];
+			Mode[] modes = new Mode[n + 2];
 			double[] time = new double[n + 2];
 			boolean[] checked = new boolean[n + 2];
 			for (int i = 0; i < n + 2; i++) {
@@ -139,7 +140,7 @@ public class Emulator {
 						if (time[indexTo] > nextTime + tr.getContinuance()) {
 							time[indexTo] = nextTime + tr.getContinuance();
 							pred[indexTo] = minIndex;
-							mode[indexTo] = tr.getBus(); 
+							modes[indexTo] = new Mode(tr.getBus(), nextTime - time[minIndex]); 
 						}
 					}
 				}
@@ -152,19 +153,21 @@ public class Emulator {
 					if (time[i] > time[minIndex] + dt) {
 						time[i] = time[minIndex] + dt;
 						pred[i] = minIndex;
-						mode[i] = null;
+						modes[i] = null;
 					}
 				}
 			}
 			ArrayList<Segment> way = new ArrayList<>();
 			int current = time.length - 1;
 			while (pred[current] != -1) {
-				if (mode[current] == null) {
+				if (modes[current] == null) {
 					way.add(new StraightSegment(getPoint(person, pred[current]),
-						getPoint(person, current), time[pred[current]], time[current]));
+							getPoint(person, current), time[pred[current]], time[current]));
 				} else {
 					cnt++;
-					way.add(new BusSegment(mode[current], time[pred[current]], time[current]));
+					way.add(new BusSegment(modes[current].bus, time[pred[current]] + modes[current].timeWaiting, time[current]));
+					if (modes[current].timeWaiting != 0)
+						way.add(new WaitingSegment(getPoint(person, current), time[pred[current]], time[pred[current]] + modes[current].timeWaiting));
 				}
 				current = pred[current];
 			}
@@ -175,5 +178,13 @@ public class Emulator {
 		}
 	}
 
-	
+	private class Mode {
+		final Bus bus;
+		final double timeWaiting;
+
+		public Mode(Bus bus, double timeWaiting) {
+			this.bus = bus;
+			this.timeWaiting = timeWaiting;
+		}		
+	}
 }

@@ -2,7 +2,10 @@ package ru.ioffe.school.buses.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
@@ -15,6 +18,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -85,6 +91,7 @@ public class GUIControl extends JFrame {
 		this.setLayout(null);
 		updateTimeTimer = new Timer(timeUpdateDelay, adapter);
 		setPanels();
+		setMenuBar();
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -94,6 +101,260 @@ public class GUIControl extends JFrame {
 		updateScreenTimer.start();
 		updateTimeTimer.start();
 		updateSizes();
+	}
+	
+	private void setMenuBar() {
+        Font font = new Font("Verdana", Font.PLAIN, 13);
+		JMenuBar menuBar = new JMenuBar();
+        
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setFont(font);
+         
+        JMenu settingsMenu = new JMenu("Settings");
+        settingsMenu.setFont(font);
+         
+        JMenu show = new JMenu("Show");
+        show.setFont(font);
+        settingsMenu.add(show);
+        
+        // show menu
+         
+        final JMenuItem showPerson = new JMenuItem((view.isShowPerson()? "Hide" : "Show") +  " persons");
+        showPerson.setFont(font);
+        show.add(showPerson);
+        showPerson.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setShowPerson(!view.isShowPerson());
+				showPerson.setText((view.isShowPerson()? "Hide" : "Show") +  " persons");
+			}
+		});
+        
+        final JMenuItem showBus = new JMenuItem((view.isShowBus()? "Hide" : "Show") +  " buses");
+        showBus.setFont(font);
+        show.add(showBus);
+        showBus.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setShowBus(!view.isShowBus());
+				showBus.setText((view.isShowBus()? "Hide" : "Show") +  " buses");
+			}
+		});
+        
+        final JMenuItem showCrossroads = new JMenuItem((view.isShowCrossroads()? "Hide" : "Show") +  " cross-roads");
+        showCrossroads.setFont(font);
+        show.add(showCrossroads);
+        showCrossroads.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setShowCrossroads(!view.isShowCrossroads());
+				showCrossroads.setText((view.isShowCrossroads()? "Hide" : "Show") +  " cross-roads");
+				view.updateMap();
+			}
+		});
+        
+        final JMenuItem showWay = new JMenuItem((view.isShowWay()? "Hide" : "Show") +  " route");
+        showWay.setFont(font);
+        show.add(showWay);
+        showWay.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setShowWay(!view.isShowWay());
+				showWay.setText((view.isShowWay()? "Hide" : "Show") +  " route");
+			}
+		});
+        
+        // size menu
+        
+        JMenu size = new JMenu("Size");
+        size.setFont(font);
+        settingsMenu.add(size);
+         
+        JMenu busSize = new JMenu("Buses");
+        busSize.setFont(font);
+        size.add(busSize);
+        
+        JMenuItem busVeryBig = new JMenuItem("Very big");
+        busVeryBig.setFont(font);
+        busSize.add(busVeryBig);
+        busVeryBig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setBusSize(GUIView.VERY_BIG_SIZE);
+			}
+		});
+        
+        JMenuItem busBig = new JMenuItem("Big");
+        busBig.setFont(font);
+        busSize.add(busBig);
+        busBig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setBusSize(GUIView.BIG_SIZE);
+			}
+		});
+        
+        JMenuItem busMedium = new JMenuItem("Medium");
+        busMedium.setFont(font);
+        busSize.add(busMedium);
+        busMedium.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setBusSize(GUIView.MEDIUM_SIZE);
+			}
+		});
+        
+        JMenuItem busSmall = new JMenuItem("Small");
+        busSmall.setFont(font);
+        busSize.add(busSmall);
+        busSmall.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setBusSize(GUIView.SMALL_SIZE);
+			}
+		});
+        
+        JMenuItem busTiny = new JMenuItem("Tiny");
+        busTiny.setFont(font);
+        busSize.add(busTiny);
+        busTiny.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setBusSize(GUIView.TINY_SIZE);
+			}
+		});
+        
+        JMenu personSize = new JMenu("Persons");
+        personSize.setFont(font);
+        size.add(personSize);
+        
+        JMenuItem personVeryBig = new JMenuItem("Very big");
+        personVeryBig.setFont(font);
+        personSize.add(personVeryBig);
+        personVeryBig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setPersonSize(GUIView.VERY_BIG_SIZE);
+			}
+		});
+        
+        JMenuItem personBig = new JMenuItem("Big");
+        personBig.setFont(font);
+        personSize.add(personBig);
+        personBig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setPersonSize(GUIView.BIG_SIZE);
+			}
+		});
+        
+        JMenuItem personMedium = new JMenuItem("Medium");
+        personMedium.setFont(font);
+        personSize.add(personMedium);
+        personMedium.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setPersonSize(GUIView.MEDIUM_SIZE);
+			}
+		});
+        
+        JMenuItem personSmall = new JMenuItem("Small");
+        personSmall.setFont(font);
+        personSize.add(personSmall);
+        personSmall.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setPersonSize(GUIView.SMALL_SIZE);
+			}
+		});
+        
+        JMenuItem personTiny = new JMenuItem("Tiny");
+        personTiny.setFont(font);
+        personSize.add(personTiny);
+        personTiny.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setPersonSize(GUIView.TINY_SIZE);
+			}
+		});
+        
+        JMenu crossroadsSize = new JMenu("Crossroads");
+        crossroadsSize.setFont(font);
+        size.add(crossroadsSize);
+        
+        JMenuItem crossroadsVeryBig = new JMenuItem("Very big");
+        crossroadsVeryBig.setFont(font);
+        crossroadsSize.add(crossroadsVeryBig);
+        crossroadsVeryBig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setCrossroadSize(GUIView.VERY_BIG_SIZE);
+				view.updateMap();
+			}
+		});
+        
+        JMenuItem crossroadBig = new JMenuItem("Big");
+        crossroadBig.setFont(font);
+        crossroadsSize.add(crossroadBig);
+        crossroadBig.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setCrossroadSize(GUIView.BIG_SIZE);
+				view.updateMap();
+			}
+		});
+        
+        JMenuItem crossroadMedium = new JMenuItem("Medium");
+        crossroadMedium.setFont(font);
+        crossroadsSize.add(crossroadMedium);
+        crossroadMedium.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setCrossroadSize(GUIView.MEDIUM_SIZE);
+				view.updateMap();
+			}
+		});
+        
+        JMenuItem crossroadSmall = new JMenuItem("Small");
+        crossroadSmall.setFont(font);
+        crossroadsSize.add(crossroadSmall);
+        crossroadSmall.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setCrossroadSize(GUIView.SMALL_SIZE);
+				view.updateMap();
+			}
+		});
+        
+        JMenuItem crossroadTiny = new JMenuItem("Tiny");
+        crossroadTiny.setFont(font);
+        crossroadsSize.add(crossroadTiny);
+        crossroadTiny.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.setCrossroadSize(GUIView.TINY_SIZE);
+				view.updateMap();
+			}
+		});
+         
+        JMenuItem openItem = new JMenuItem("Open");
+        openItem.setFont(font);
+        fileMenu.add(openItem);
+         
+        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.setFont(font);
+        fileMenu.add(exitItem);
+         
+        exitItem.addActionListener(new ActionListener() {           
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);             
+            }           
+        });
+         
+        menuBar.add(fileMenu);
+        menuBar.add(settingsMenu);
+                 
+        this.setJMenuBar(menuBar);
 	}
 	
 	private void setPanels() {

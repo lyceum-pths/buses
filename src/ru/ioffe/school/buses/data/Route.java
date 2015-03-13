@@ -11,7 +11,7 @@ public class Route {
 	final Segment[] route;
 	final double totalTime;
 
-	public Route(Segment[] route) {
+	public Route(Segment... route) {
 		this.route = route;
 		double time = 0;
 		for (Segment s : route)

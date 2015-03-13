@@ -15,6 +15,7 @@ import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.data.Station;
 import ru.ioffe.school.buses.emulation.Emulator;
+import ru.ioffe.school.buses.emulation.PersonalReport;
 import ru.ioffe.school.buses.emulation.Report;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
@@ -60,7 +61,7 @@ public class GUIModel {
 			RoadManager manager = new RoadManager(roadsForManager);
 			Random rnd = new Random();
 			ArrayList<Station> stat = new ArrayList<>();
-			int numofst = 3;
+			int numofst = 50;
 			for (int i = 0; i < numofst; i++) {
 				stat.add(new Station(roads.get(rnd.nextInt(roads.size())).to));
 			}
@@ -75,10 +76,10 @@ public class GUIModel {
 			boolean shownThatNumber = true;
 			while (buses.size() < busesNumber) {
 				try {
-					buses.add(generator.generateBus(rnd.nextInt(numofst - 2) + 2, true, true, 1, maxTime));	
+					buses.add(generator.generateBus(rnd.nextInt((numofst - 2) >> 2) + 2, true, true, 1, maxTime));	
 					shownThatNumber = false;
 				} catch (Exception e) {
-					
+
 				}
 				if (buses.size() % 5 == 0 && !shownThatNumber) {
 					System.out.print(buses.size() + " ");
@@ -95,7 +96,7 @@ public class GUIModel {
 			for (int i = 0; i < tr.size(); i++) {
 				transfer[i] = tr.get(i);
 			}
-			Emulator emul = new Emulator(stations, 5 / Math.sqrt(2), transfer);
+			Emulator emul = new Emulator(5 / Math.sqrt(2), tr, roads);
 			int personNumber = 10000;
 			Person[] persons = new Person[personNumber];
 			for (int i = 0; i < personNumber; i++) {
@@ -104,13 +105,13 @@ public class GUIModel {
 			}
 			Night night = new Night(persons);
 			System.out.println("Starting emulation");
-			Report rep = emul.startEmulation(night, 1);
+			Report rep = emul.startEmulation(night, 100);
 			System.out.println("Ended emulation");
-			Route[] routes = rep.getRoutes();
+			PersonalReport[] routes = rep.getReports();
 			int cnt = 0;
 			for (int i = 0; i < routes.length; i++) {
-				peopleRoutes.add(routes[i]);
-				if (routes[i].getTotalTime() < 42000)
+				peopleRoutes.add(routes[i].getRoute());
+				if (routes[i].getTotalTime() < 42000)//its Wrong!
 					cnt++;
 			}
 			System.out.println(cnt + " out of " + personNumber + " people finally came home");
@@ -122,7 +123,7 @@ public class GUIModel {
 			throw new ArrayIndexOutOfBoundsException();
 		currentBus = buses.get(number);
 	}
-	
+
 	public void setTime(int time) {
 		this.currentTime = time;
 	}

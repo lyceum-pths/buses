@@ -2,28 +2,27 @@ package ru.ioffe.school.buses.emulation;
 
 import java.util.Arrays;
 
-import ru.ioffe.school.buses.data.Route;
-
 public class Report {
-	final Route[] routes;
+	final PersonalReport[] report;
 	//here should be some important information
 	final double fitness;
 	
-	public Report(Route[] routes) {
-		this.routes = routes;
+	public Report(PersonalReport[] reports) {
+		this.report = reports;
 		double average = 0;
-		for (Route route : routes) 
-			average += route.getTotalTime();
-		average /= routes.length;
+		for (PersonalReport report : reports) 
+			if (report != null)
+			average += report.getTotalTime();
+		average /= reports.length;
 		this.fitness = average;
 	}
 	
-	public Route[] getRoutes() {
-		return routes;
+	public PersonalReport[] getReports() {
+		return report;
 	}
 	
 	@Override
 	public String toString() {
-		return Arrays.toString(routes);
+		return Arrays.toString(report);
 	}
 }

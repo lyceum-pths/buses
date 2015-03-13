@@ -82,7 +82,7 @@ public class TableDemo extends JPanel {
          */
         public boolean isCellEditable(int row, int col) {
             //Note that the data/cell address is constant,
-            //no matter where the cell appears onscreen.
+            //no matter where the cell appears on screen.
             if (col < 2) {
                 return false;
             } else {

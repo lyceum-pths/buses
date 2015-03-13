@@ -36,7 +36,7 @@ public class Test {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		int minTime = 1, maxTime = 43200;
+		int /*minTime = 1,*/ maxTime = 43200;
 		roads = new ArrayList<>(); 
 		getRoads(new File("data/generated/roads.data"));
 		buses = new ArrayList<>();
@@ -81,7 +81,7 @@ public class Test {
 		for (int i = 0; i < tr.size(); i++) {
 			transfer[i] = tr.get(i);
 		}
-		Emulator emul = new Emulator(stations, 0.01, transfer);
+		Emulator emul = new Emulator(0.01, tr, roads);
 		Person[] persons = new Person[100];
 		for (int i = 0; i < 100; i++) {
 			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 

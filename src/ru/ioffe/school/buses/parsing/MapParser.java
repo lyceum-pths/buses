@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
+import ru.ioffe.school.buses.graphManaging.GraphBuilder;
 
 /**
  * The class handles an XML file that describes a map.
@@ -33,9 +34,14 @@ public class MapParser {
 		String[] text = parseText(file);
 		String outFileName = "data/generated/roads.data";
 		ArrayList<Road> ans = parseRoads(text);
-		if (oneComponent)
-			ans = CCFinder.separate(ans);
-		roadsToFile(new File(outFileName), parseRoads(text));
+		if (oneComponent) {
+			GraphBuilder build = new GraphBuilder(ans).findMaxComponent();
+			ans.clear();
+			for (Road r : build.getRoads()) {
+				ans.add(r);
+			}
+		}
+		roadsToFile(new File(outFileName), ans);
 	}
 	
 	public static void getPoints(File file) throws IOException {

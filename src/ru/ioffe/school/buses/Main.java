@@ -14,7 +14,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		System.out.println("Hello, buses!");
 		System.out.println("Parsing roads from map.osm file...");
-		MapParser.getRoads(new File("data/map2.osm"));
+		MapParser.getRoads(new File("data/map2.osm"), true);
 		System.out.println("Running GUIControl...");
 		GUIControl.main(args);
 	}

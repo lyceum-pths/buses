@@ -9,6 +9,11 @@ import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 
+/**
+ * This class will help you to do something with graph
+ *
+ */
+
 public class GraphBuilder {
 	HashSet<Road> roads;
 
@@ -29,6 +34,10 @@ public class GraphBuilder {
 	public void addRoad(Road road) {
 		roads.add(road);
 	}
+	
+	/**
+	 * @return number of roads which contained in current graph
+	 */
 	
 	public int size() {
 		return roads.size();
@@ -100,7 +109,12 @@ public class GraphBuilder {
 				(b.getY() - a.getY()) * (point.getX() - a.getX()));
 		return vectorProduct / road.getLength();
 	}
-
+	
+	/**
+	 * This method separate graph on different connected components
+	 * @return array of GraphBuilder which contains components
+	 */
+	
 	public GraphBuilder[] separateGraph() {
 		SNM snm = new SNM();
 		for (Road road : roads) 
@@ -123,6 +137,12 @@ public class GraphBuilder {
 		}
 		return graphs;
 	}
+	
+	/**
+	 * This method separate graph on different connected components and find component 
+	 * which contains more or equal roads than every another
+	 * @return GraphBuilder which contain this biggest component
+	 */
 	
 	public GraphBuilder findMaxComponent() {
 		GraphBuilder[] comps = separateGraph();

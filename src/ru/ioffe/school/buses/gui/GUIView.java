@@ -87,24 +87,24 @@ public class GUIView extends JFrame {
 		g.drawImage(mapInBB, 0, 0, model.totalGUIWidth, 
 				model.totalGUIHeight - model.controlPanelHeight, null);
 		double pxSize = model.totalGUIWidth / (model.right - model.left);
-		if (showWay) {
-			g.setColor(Color.MAGENTA);
-			Route r = model.currentBus.getRoute();
-			for (Segment s : r.getRoute()) {
-				Point p1 = s.getStart();
-				Point p2 = s.getEnd();
-				double difX = p1.getX() - model.left;
-				double difY = - p1.getY() + model.up;
-				int x1 = (int) (difX * pxSize);
-				int y1 = (int) (difY * pxSize);
-				difX = p2.getX() - model.left;
-				difY = - p2.getY() + model.up;
-				int x2 = (int) (difX * pxSize);
-				int y2 = (int) (difY * pxSize);
-				g.drawLine(x1, y1, x2, y2);
-				g.drawLine(x1, y1 + 1, x2, y2 + 1);
-			}
-		}
+//		if (showWay) {
+//			g.setColor(Color.MAGENTA);
+//			Route r = model.currentBus.getRoute();
+//			for (Segment s : r.getRoute()) {
+//				Point p1 = s.getStart();
+//				Point p2 = s.getEnd();
+//				double difX = p1.getX() - model.left;
+//				double difY = - p1.getY() + model.up;
+//				int x1 = (int) (difX * pxSize);
+//				int y1 = (int) (difY * pxSize);
+//				difX = p2.getX() - model.left;
+//				difY = - p2.getY() + model.up;
+//				int x2 = (int) (difX * pxSize);
+//				int y2 = (int) (difY * pxSize);
+//				g.drawLine(x1, y1, x2, y2);
+//				g.drawLine(x1, y1 + 1, x2, y2 + 1);
+//			}
+//		}
 		g.setColor(Color.red);
 		int activeBusesCnt = 0;
 		for (Bus bus : model.buses) {

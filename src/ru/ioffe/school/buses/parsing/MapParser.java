@@ -29,9 +29,12 @@ public class MapParser {
 	private static HashMap<Long, Point> pointsByIds = new HashMap<Long, Point>();
 	private final static double k = 0.7, r = 6800;
 	
-	public static void getRoads(File file) throws IOException {
+	public static void getRoads(File file, boolean oneComponent) throws IOException {
 		String[] text = parseText(file);
 		String outFileName = "data/generated/roads.data";
+		ArrayList<Road> ans = parseRoads(text);
+		if (oneComponent)
+			ans = CCFinder.separate(ans);
 		roadsToFile(new File(outFileName), parseRoads(text));
 	}
 	

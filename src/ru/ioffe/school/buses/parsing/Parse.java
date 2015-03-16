@@ -6,6 +6,6 @@ import java.io.IOException;
 public class Parse {
 	public static void main(String[] args) throws IOException {
 		String filename = "data/map2.osm";
-		MapParser.getRoads(new File(filename));
+		MapParser.getRoads(new File(filename), true);
 	}
 }

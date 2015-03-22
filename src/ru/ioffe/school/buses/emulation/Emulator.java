@@ -3,7 +3,6 @@ package ru.ioffe.school.buses.emulation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.BusSegment;
@@ -16,6 +15,7 @@ import ru.ioffe.school.buses.data.Segment;
 import ru.ioffe.school.buses.data.StraightSegment;
 import ru.ioffe.school.buses.data.WaitingSegment;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
+import ru.ioffe.school.buses.structures.Heap;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class Emulator {
@@ -26,6 +26,7 @@ public class Emulator {
 	final ArrayList<Edge>[] edges;
 	final HashMap<Point, Integer> indexs;
 	final double speed;
+	final int size;
 
 	@SuppressWarnings("unchecked")
 	public Emulator(double speed, Transfer[] transfers, Road[] roads) {
@@ -38,6 +39,7 @@ public class Emulator {
 			addNode(road.getFrom());
 			addNode(road.getTo());
 		}
+		int size = transfers.length + roads.length;
 		this.buses = new ArrayList[nodes.size()];
 		this.edges = new ArrayList[nodes.size()];
 		this.speed = speed;
@@ -53,9 +55,12 @@ public class Emulator {
 			from = indexs.get(road.getFrom());
 			to = indexs.get(road.getTo());
 			this.edges[from].add(new Edge(from, to, road.getLength()));
-			//			if (!road.isOneway)
+			//			if (!road.isOneway) {
 			this.edges[to].add(new Edge(to, from, road.getLength()));
+			size++;
+			//		}
 		}
+		this.size = size;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -73,6 +78,7 @@ public class Emulator {
 		this.buses = new ArrayList[nodes.size()];
 		this.edges = new ArrayList[nodes.size()];
 		this.speed = speed;
+		int size = transfers.size() + roads.size();
 		for (int i = 0; i < nodes.size(); i++) {
 			this.buses[i] = new ArrayList<>();
 			this.edges[i] = new ArrayList<>();
@@ -84,9 +90,12 @@ public class Emulator {
 			from = indexs.get(road.getFrom());
 			to = indexs.get(road.getTo());
 			this.edges[from].add(new Edge(from, to, road.getLength()));
-			//			if (!road.isOneway)
+			//			if (!road.isOneway) {
 			this.edges[to].add(new Edge(to, from, road.getLength()));
+			size++;
+			//			}
 		}
+		this.size = size;
 	}
 
 	private void addNode(Point point) {
@@ -97,6 +106,7 @@ public class Emulator {
 	}
 
 	public Report startEmulation(Night nigth, int threadsNumber) {
+		long time = System.currentTimeMillis();
 		if (threadsNumber < 1) 
 			throw new IllegalArgumentException("Bad idea");
 		threadsNumber = Math.min(threadsNumber, nodes.size());
@@ -114,12 +124,12 @@ public class Emulator {
 				threads[i].join();
 			} catch (InterruptedException e) {}
 		}
-		//		System.out.println(cnt + " people used a bus");
+		System.out.println("Time for emulating: " + (System.currentTimeMillis() - time));
 		return new Report(routes);
 	}
 
 
-	public class Module implements Runnable {
+	private class Module implements Runnable {
 		// input
 		Person[] persons;
 		int begin;
@@ -142,6 +152,7 @@ public class Emulator {
 				try {
 					routes[i] = findRoute(persons[i]);
 				} catch (Exception e) {
+					e.printStackTrace();
 					System.err.println("Way wasn't found");
 				}
 			}
@@ -213,19 +224,53 @@ public class Emulator {
 			}
 			time[from] = person.getTime();
 			double nextTime;
-			TreeSet<Step> heap = new TreeSet<>();
+			//			TreeSet<Step> heap = new TreeSet<>();
+			//			heap.add(new Step(person.getTime(), from));
+			//			int current;
+			//			int next;
+			//			while (!heap.isEmpty() && !checked[to]) {
+			//				current = heap.pollFirst().getTo();
+			//				checked[current] = true;
+			//				for (Edge edge : edges[current]) {
+			//					next = edge.getEnd();
+			//					if (checked[next])
+			//						continue;
+			//					if (time[current] + edge.getTime() < time[next]) {
+			//						heap.remove(new Step(time[next], next));
+			//						time[next] = time[current] + edge.getTime();
+			//						heap.add(new Step(time[next], next));
+			//						pred[next] = current;
+			//						modes[next] = null;
+			//					}
+			//				}
+			//				for (BusEdge bus : buses[current]) {
+			//					next = bus.getEnd();
+			//					if (checked[next])
+			//						continue;
+			//					nextTime = bus.nextDeparture(time[current]);
+			//					if (nextTime + bus.getContinuance() < time[next]) {
+			//						heap.remove(new Step(time[next], next));
+			//						time[next] = nextTime + bus.getContinuance();
+			//						heap.add(new Step(time[next], next));
+			//						pred[next] = current;
+			//						modes[next] = new Mode(bus.getTransfer(), nextTime - time[current]);
+			//					}
+			//				}
+			//			}
+			Heap<Step> heap = new Heap<>(new Step[size]);
 			heap.add(new Step(person.getTime(), from));
 			int current;
 			int next;
 			while (!heap.isEmpty() && !checked[to]) {
-				current = heap.pollFirst().getTo();
+				current = heap.poll().getTo();
+				if (checked[current])
+					continue;
 				checked[current] = true;
 				for (Edge edge : edges[current]) {
 					next = edge.getEnd();
 					if (checked[next])
 						continue;
 					if (time[current] + edge.getTime() < time[next]) {
-						heap.remove(new Step(time[next], next));
 						time[next] = time[current] + edge.getTime();
 						heap.add(new Step(time[next], next));
 						pred[next] = current;
@@ -238,11 +283,10 @@ public class Emulator {
 						continue;
 					nextTime = bus.nextDeparture(time[current]);
 					if (nextTime + bus.getContinuance() < time[next]) {
-						heap.remove(new Step(time[next], next));
 						time[next] = nextTime + bus.getContinuance();
 						heap.add(new Step(time[next], next));
 						pred[next] = current;
-						modes[next] = new Mode(bus.getBus(), nextTime - time[current]);
+						modes[next] = new Mode(bus.getTransfer(), nextTime - time[current]);
 					}
 				}
 			}
@@ -256,9 +300,10 @@ public class Emulator {
 					way.add(new StraightSegment(nodes.get(pred[current]),
 							nodes.get(current), time[pred[current]], time[current]));
 				} else {
-					way.add(new BusSegment(modes[current].getBus(), time[pred[current]] + modes[current].getWaitingTime(), time[current]));
+					way.add(new BusSegment(modes[current].getBus(), modes[current].getTime(), time[pred[current]] + modes[current].getWaitingTime(), 
+							time[current], nodes.get(pred[current]), nodes.get(current)));
 					if (modes[current].timeWaiting != 0)
-						way.add(new WaitingSegment(nodes.get(current), time[pred[current]], time[pred[current]] + modes[current].timeWaiting));
+						way.add(new WaitingSegment(nodes.get(pred[current]), time[pred[current]], time[pred[current]] + modes[current].timeWaiting));
 				}
 				current = pred[current];
 			}
@@ -270,16 +315,20 @@ public class Emulator {
 	}
 
 	private class Mode {
-		final Bus bus;
+		final Transfer transfer;
 		final double timeWaiting;
 
-		public Mode(Bus bus, double timeWaiting) {
-			this.bus = bus;
+		public Mode(Transfer transfer, double timeWaiting) {
+			this.transfer = transfer;
 			this.timeWaiting = timeWaiting;
 		}		
 
 		public Bus getBus() {
-			return bus;
+			return transfer.getBus();
+		}
+
+		public double getTime() {
+			return transfer.getTime();
 		}
 
 		public double getWaitingTime() {
@@ -287,18 +336,12 @@ public class Emulator {
 		}
 	}
 
-	class Edge {
+	private class Edge {
 		final double time;
-		final int from, to;
+		final int to;
 
-		public Edge(Road road) {
-			from = indexs.get(road.from);
-			to = indexs.get(road.to);
-			this.time = road.getLength() / speed;
-		}
 
 		public Edge(int from, int to, double length) {
-			this.from = from;
 			this.to = to;
 			this.time = length / speed;
 		}
@@ -307,35 +350,26 @@ public class Emulator {
 			return time;
 		}
 
-		public int getStart() {
-			return from;
-		}
-
 		public int getEnd() {
 			return to;
 		}
 	}
 
-	class BusEdge {
+	private class BusEdge {
 		final Transfer transfer;
-		final int from, to;
+		final int to;
 
 		public BusEdge(Transfer transfer) {
 			this.transfer = transfer;
-			this.from = indexs.get(transfer.getFrom());
 			this.to = indexs.get(transfer.getTo());
-		}
-
-		public int getStart() {
-			return from;
 		}
 
 		public int getEnd() {
 			return to;
 		}
 
-		public Bus getBus() {
-			return transfer.getBus();
+		public Transfer getTransfer() {
+			return transfer;
 		}
 
 		public double getContinuance() {
@@ -347,17 +381,13 @@ public class Emulator {
 		}
 	}
 
-	class Step implements Comparable<Step> {
+	private class Step implements Comparable<Step> {
 		double time;
 		int to;
 
 		public Step(double time, int to) {
 			this.time = time;
 			this.to = to;
-		}
-
-		public double getTime() {
-			return time;
 		}
 
 		public int getTo() {

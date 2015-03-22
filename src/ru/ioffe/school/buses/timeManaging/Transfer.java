@@ -14,12 +14,14 @@ import ru.ioffe.school.buses.data.Point;
 public class Transfer {
 	final double[] departure;
 	final double continuance; 
+	final double time; // time between bus started moving and it came to point from
 	final Point to;
 	final Point from;
 	final Bus bus;
 	
-	public Transfer(Bus bus, Point from, Point to, double continuance, double... departure) {
+	public Transfer(Bus bus, Point from, Point to, double continuance, double time, double... departure) {
 		this.bus = bus;
+		this.time = time;
 		this.from = from;
 		this.to = to;
 		this.continuance = continuance;
@@ -50,6 +52,10 @@ public class Transfer {
 		return continuance;
 	}
 	
+	public double getTime() {
+		return time;
+	}
+	
 	public Point getFrom() {
 		return from;
 	}
@@ -60,5 +66,10 @@ public class Transfer {
 
 	public Bus getBus() {
 		return bus;
+	}
+	
+	@Override
+	public String toString() {
+		return "(from = " + from + "; to = " + to + "; time = " + time + "; continuance = " + continuance + ")";
 	}
 }

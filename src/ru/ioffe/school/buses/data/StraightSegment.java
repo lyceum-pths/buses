@@ -23,6 +23,10 @@ public class StraightSegment implements Segment {
 		this.timeStart = timeStart;
 		this.timeEnd = timeEnd;
 	}
+	
+	public StraightSegment(Road road, double currentTime) {
+		this(road.from, road.to, currentTime, currentTime + road.getLength() / road.getSpeedBound());
+	}
 
 	public Point getStart() {
 		return start;

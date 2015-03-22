@@ -56,20 +56,6 @@ public class GUIView extends JFrame {
 		for (Road road : model.roads) {
 			Point p1 = road.from;
 			Point p2 = road.to;
-			if (showCrossroads) {
-				g.setColor(Color.BLUE);
-				double difX = p1.getX() - model.left;
-				double difY = - p1.getY() + model.up;
-				int x = (int) (difX * pxSize);
-				int y = (int) (difY * pxSize);
-				g.fillOval(x - crossroadSize / 2, y - crossroadSize / 2, crossroadSize, crossroadSize);
-				difX = p1.getX() - model.left;
-				difY = - p1.getY() + model.up;
-				x = (int) (difX * pxSize);
-				y = (int) (difY * pxSize);
-				g.fillOval(x - crossroadSize / 2, y - crossroadSize / 2, crossroadSize, crossroadSize);
-				g.setColor(Color.BLACK);
-			}
 			double difX = p1.getX() - model.left;
 			double difY = - p1.getY() + model.up;
 			int x1 = (int) (difX * pxSize);
@@ -79,6 +65,12 @@ public class GUIView extends JFrame {
 			int x2 = (int) (difX * pxSize);
 			int y2 = (int) (difY * pxSize);
 			g.drawLine(x1, y1, x2, y2);
+			if (showCrossroads) {
+				g.setColor(Color.BLUE);
+				g.fillOval(x1 - crossroadSize / 2, y1 - crossroadSize / 2, crossroadSize, crossroadSize);
+				g.fillOval(x2 - crossroadSize / 2, y2 - crossroadSize / 2, crossroadSize, crossroadSize);
+				g.setColor(Color.BLACK);
+			}
 		}
 	}
 
@@ -108,8 +100,7 @@ public class GUIView extends JFrame {
 		g.setColor(Color.RED);
 		int activeBusesCnt = 0;
 		for (Bus bus : model.buses) {
-			Point p = bus.getPosition(model.currentTime);
-			if (p != null) {
+			for (Point p : bus.getPosition(model.currentTime)) {
 				activeBusesCnt++;
 				if (showBus) {
 					double difX = p.getX() - model.left;

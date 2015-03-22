@@ -8,9 +8,7 @@ import ru.ioffe.school.buses.data.House;
 import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
-import ru.ioffe.school.buses.data.Station;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
-import ru.ioffe.school.buses.randomGeneration.RandomIndexGenerator;
 
 public class RandomTownGenerator {
 
@@ -19,8 +17,8 @@ public class RandomTownGenerator {
 	 * Generate town which has "size" cross-roads, "houses" houses, "interestingPoints" interesting points. 
 	 * Parameter "roads" is number of roads, you want. Real number of roads will be between "size" - 1 and "roads".   
 	 */
-	public static Town generateTown(int size, int houses, int interestingPoints, int stations, int roads, double boundX, double boundY) {
-		if (size < 2 || houses < 0 || interestingPoints < 0 || roads < size - 1 || size < stations) 
+	public static Town generateTown(int size, int houses, int interestingPoints, int roads, double boundX, double boundY) {
+		if (size < 2 || houses < 0 || interestingPoints < 0 || roads < size - 1) 
 			throw new IllegalArgumentException("Wrong input");
 		Point[] points = new Point[size];
 		for (int i = 0; i < size; i++)
@@ -42,14 +40,7 @@ public class RandomTownGenerator {
 		InterestingPoint[] interestingpointsArray = new InterestingPoint[interestingPoints];
 		for (int i = 0; i < interestingPoints; i++)
 			interestingpointsArray[i] = new InterestingPoint(nextDouble(boundX), nextDouble(boundY), random.nextInt(maxSize));
-		Station[] stationsArray = new Station[stations];
-		RandomIndexGenerator generator = new RandomIndexGenerator(stations);
-		for (int i = 0; i < stations; i++) {
-			pos = generator.getRandomIndex();
-			stationsArray[i] = new Station(points[pos]);
-			generator.setAbility(pos, false);
-		}
-		return new Town(roadsArray, stationsArray, housesArray, interestingpointsArray);
+		return new Town(roadsArray, housesArray, interestingpointsArray);
 	}
 
 	private static double nextDouble(double bound) {

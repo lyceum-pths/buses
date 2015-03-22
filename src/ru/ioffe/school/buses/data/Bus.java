@@ -11,28 +11,27 @@ public class Bus {
 	final Route route;
 	//int number;  just like id. Do we need for it?
 	final double[] begins;
-	final Station[] busStations;
-	final double[] time;
+	final Transfer[] transfers;
 
-	public Bus(Route route, Station[] stations, double[] time, double[] begins) {
+	public Bus(Route route, double[] begins) {
 		this.route = route;
 		this.begins = begins;
-		this.busStations = stations;
-		this.time = time;
+		this.transfers = generateTransfers();
 	}
 
-	public Point getPosition(double time) {
+	public ArrayList<Point> getPosition(double time) {
 		int L = -1, R = begins.length, M;
 		while (R - L > 1) {
 			M = (R + L) >> 1;
-			if (begins[M] > time) 
+			if (begins[M] + route.totalTime >= time) 
 				R = M;
 			else 
 				L = M;
 		}
-		if (L == -1) 
-			return null;
-		return route.getPosition(time - begins[L]);
+		ArrayList<Point> points = new ArrayList<>();
+		for (int i = R; i < begins.length && begins[i] <= time; i++)
+			points.add(route.getPosition(time - begins[i]));
+		return points;
 	}
 
 	public Route getRoute() {
@@ -42,16 +41,20 @@ public class Bus {
 	public double[] getDepartures() {
 		return begins;
 	}
-
-	public ArrayList<Transfer> getTransfers() {
+	
+	private Transfer[] generateTransfers() {
 		ArrayList<Transfer> transfers = new ArrayList<>();
-		for (int j = 0; j < busStations.length - 1; j++) {
-			double[] departures = new double[begins.length];
-			for (int i = 0; i < departures.length; i++) 
-				departures[i] = begins[i] + time[j];
-			transfers.add(new Transfer(this, busStations[j].getPosition(), 
-					busStations[j + 1].getPosition(), time[j + 1] - time[j], departures));
+		double[] departures = begins.clone();
+		for(Segment segment : route.getRoute()) {
+			transfers.add(new Transfer(this, segment.getStart(), 
+					segment.getEnd(), segment.getTimeEnd() - segment.getTimeStart(), segment.getTimeStart(), departures.clone()));
+			for (int i = 0; i < departures.length; i++)
+				departures[i] += segment.getTimeEnd() - segment.getTimeStart();
 		}
+		return transfers.toArray(new Transfer[transfers.size()]);
+	}
+
+	public Transfer[] getTransfers() {
 		return transfers;
 	}
 	
@@ -116,11 +119,14 @@ public class Bus {
 	
 	@Override
 	public String toString() {
-		return "Bus: " + System.lineSeparator() +
+		StringBuilder builder = new StringBuilder();
+		builder.append("Bus: " + System.lineSeparator() +
 				"   Route: " + route + System.lineSeparator() +
 				"   Departure:  " + Arrays.toString(begins) + System.lineSeparator() + 
-				"   Time for one cicle: " + route.getTotalTime() + System.lineSeparator() + 
-				"   Stations: " + Arrays.deepToString(busStations) + System.lineSeparator() + 
-				"   at times: " + Arrays.toString(time);
+				"   Time for one cicle: " + route.getTotalTime() + System.lineSeparator() +
+				"   Transfers: " + System.lineSeparator());
+		for (Transfer transfer : transfers)
+			builder.append("      " + transfer + System.lineSeparator());
+		return builder.toString(); 
 	}
 }

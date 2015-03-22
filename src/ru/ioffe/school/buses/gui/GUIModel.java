@@ -13,7 +13,6 @@ import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
-import ru.ioffe.school.buses.data.Station;
 import ru.ioffe.school.buses.emulation.Emulator;
 import ru.ioffe.school.buses.emulation.PersonalReport;
 import ru.ioffe.school.buses.emulation.Report;
@@ -60,28 +59,20 @@ public class GUIModel {
 			}
 			RoadManager manager = new RoadManager(roadsForManager);
 			Random rnd = new Random();
-			ArrayList<Station> stat = new ArrayList<>();
-			int numofst = 50;
-			for (int i = 0; i < numofst; i++) {
-				stat.add(new Station(roads.get(rnd.nextInt(roads.size())).to));
-			}
-			Station[] stations = new Station[stat.size()];
-			for (int i = 0; i < stat.size(); i++) {
-				stations[i] = stat.get(i);
-			}
-			generator = new BusGenerator(manager, stations);
+			generator = new BusGenerator(manager);
 			int busesNumber = 10;
 			System.out.println("Generating buses...");
 			while (buses.size() < busesNumber) {
 				try {
-					buses.add(generator.generateBus(rnd.nextInt((numofst - 2) >> 2) + 2, true, true, 1, maxTime));	
+					buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
 				} catch (Exception e) {
 				}
 			}
 			System.out.println(busesNumber + " buses generated");
 			ArrayList<Transfer> tr = new ArrayList<>();
 			for (Bus bus : buses) {
-				tr.addAll(bus.getTransfers());
+				for (Transfer transfer : bus.getTransfers())
+					tr.add(transfer);
 			}
 			Transfer[] transfer = new Transfer[tr.size()];
 			for (int i = 0; i < tr.size(); i++) {

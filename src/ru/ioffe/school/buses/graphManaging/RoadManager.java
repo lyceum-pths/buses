@@ -2,16 +2,17 @@ package ru.ioffe.school.buses.graphManaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
+import ru.ioffe.school.buses.structures.Heap;
 
 public class RoadManager {
 	final ArrayList<Point> nodes;
 	final HashMap<Point, Integer> indexs;
 	final ArrayList<Edge>[] roads;
+	final int size;
 
 	private void addNode(Point point) {
 		if (indexs.containsKey(point))
@@ -24,6 +25,7 @@ public class RoadManager {
 	public RoadManager(Road... roads) {
 		this.indexs = new HashMap<>();
 		this.nodes = new ArrayList<>();
+		this.size = roads.length;
 		for (Road road : roads) {
 			addNode(road.getFrom());
 			addNode(road.getTo());
@@ -34,7 +36,7 @@ public class RoadManager {
 		for (Road road : roads)
 			this.roads[indexs.get(road.getFrom())].add(new Edge(road));
 	}
-	
+
 	private int tryFindNearestPoint(Point input) {
 		double minDist = Double.POSITIVE_INFINITY;
 		double dist;
@@ -68,7 +70,31 @@ public class RoadManager {
 			System.err.println("For the finish will be used the nearest point: " + nodes.get(to) + 
 					" (distance between = " + GeographyManager.getDistance(finish, nodes.get(to)));
 		}
-		TreeSet<Step> heap = new TreeSet<>();
+//		TreeSet<Step> heap = new TreeSet<>();
+//		boolean[] checked = new boolean[nodes.size()];
+//		double[] distance = new double[nodes.size()];
+//		Edge[] lastEdge = new Edge[nodes.size()];
+//		for (int i = 0; i < nodes.size(); i++)
+//			distance[i] = Double.POSITIVE_INFINITY;
+//		distance[from] = 0;
+//		heap.add(new Step(0, from));
+//		int current;
+//		int next;
+//		while (!heap.isEmpty() && !checked[to]) {
+//			current = heap.pollFirst().getTo();
+//			checked[current] = true;
+//			for (Edge edge : roads[current]) {
+//				next = edge.getEnd();
+//				if (!checked[next]
+//						&& distance[current] + edge.getLength() < distance[next]) {
+//					heap.remove(new Step(distance[next], next));
+//					distance[next] = distance[current] + edge.getLength();
+//					heap.add(new Step(distance[next], next));
+//					lastEdge[next] = edge;
+//				}
+//			}
+//		}
+		Heap<Step> heap = new Heap<>(new Step[size]);
 		boolean[] checked = new boolean[nodes.size()];
 		double[] distance = new double[nodes.size()];
 		Edge[] lastEdge = new Edge[nodes.size()];
@@ -79,13 +105,14 @@ public class RoadManager {
 		int current;
 		int next;
 		while (!heap.isEmpty() && !checked[to]) {
-			current = heap.pollFirst().getTo();
+			current = heap.poll().getTo();
+			if (checked[current])
+				continue;
 			checked[current] = true;
 			for (Edge edge : roads[current]) {
 				next = edge.getEnd();
 				if (!checked[next]
 						&& distance[current] + edge.getLength() < distance[next]) {
-					heap.remove(new Step(distance[next], next));
 					distance[next] = distance[current] + edge.getLength();
 					heap.add(new Step(distance[next], next));
 					lastEdge[next] = edge;
@@ -106,18 +133,18 @@ public class RoadManager {
 			way[i] = invertedWay.get(way.length - 1 - i);
 		return way;
 	}
+	
+	public Point[] getCrossroads() { 
+		return nodes.toArray(new Point[nodes.size()]);
+	}
 
-	class Step implements Comparable<Step> {
+	private class Step implements Comparable<Step> {
 		double length;
 		int to;
 
 		public Step(double length, int to) {
 			this.length = length;
 			this.to = to;
-		}
-
-		public double getLength() {
-			return length;
 		}
 
 		public int getTo() {
@@ -132,19 +159,13 @@ public class RoadManager {
 		}
 	}
 
-	class Edge {
+	private class Edge {
 		Road road;
 		int from, to;
 
 		public Edge(Road road) {
 			from = indexs.get(road.from);
 			to = indexs.get(road.to);
-			this.road = road;
-		}
-
-		public Edge(Road road, int from, int to) {
-			this.from = from;
-			this.to = to;
 			this.road = road;
 		}
 

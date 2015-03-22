@@ -12,21 +12,22 @@ public class TimeTable {
 		this.buses = buses;
 	}
 
-	public Point getPosition(int bus, double time) {
+	public ArrayList<Point> getPosition(int bus, double time) {
 		return buses[bus].getPosition(time);
 	}
 	
-	public Point[] getBusesPositions(double time) {
-		Point[] ans = new Point[buses.length];
+	public ArrayList<Point> getBusesPositions(double time) {
+		ArrayList<Point> ans = new ArrayList<>();
 		for (int i = 0; i < buses.length; i++) 
-			ans[i] = buses[i].getPosition(time);
+			ans.addAll(buses[i].getPosition(time));
 		return ans;
 	}
 	
 	public ArrayList<Transfer> getTransfers() {
 		ArrayList<Transfer> transfers = new ArrayList<>();
 		for (Bus bus : buses) 
-			transfers.addAll(bus.getTransfers());
+			for (Transfer transfer : bus.getTransfers())
+				transfers.add(transfer);
 		return transfers;
 	}
 }

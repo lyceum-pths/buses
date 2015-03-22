@@ -51,7 +51,7 @@ public class Tester {
 //			System.out.println(bus.getPosition(in.nextDouble()));
 //		}
 //		in.close();
-		Town t = RandomTownGenerator.generateTown(50, 5, 5, 5, 70, 100, 50);
+		Town t = RandomTownGenerator.generateTown(50, 5, 5, 70, 100, 50);
 		// copy-paste 
 		FileOutputStream fos = new FileOutputStream(new File("roads.txt"));
 		ObjectOutputStream oos = new ObjectOutputStream(fos);

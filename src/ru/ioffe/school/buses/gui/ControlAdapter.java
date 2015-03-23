@@ -13,6 +13,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.Point;
+
 public class ControlAdapter implements KeyListener, ActionListener, 
 		MouseListener, MouseMotionListener, ListSelectionListener, ChangeListener {
 
@@ -50,6 +53,56 @@ public class ControlAdapter implements KeyListener, ActionListener,
 			c.pause();
 		} else if (e.getSource() == c.updateSpeedButton) {
 			c.updateSpeed();
+		} else if (e.getSource() == c.showPerson) {
+			c.view.setShowPerson(!c.view.isShowPerson());
+			c.showPerson.setText((c.view.isShowPerson()? "Hide" : "Show") +  " persons");
+		} else if (e.getSource() == c.showBus) {
+			c.view.setShowBus(!c.view.isShowBus());
+			c.showBus.setText((c.view.isShowBus()? "Hide" : "Show") +  " buses");
+		} else if (e.getSource() == c.showCrossroads) {
+			c.view.setShowCrossroads(!c.view.isShowCrossroads());
+			c.showCrossroads.setText((c.view.isShowCrossroads()? "Hide" : "Show") +  " cross-roads");
+			c.view.updateMap();
+		} else if (e.getSource() == c.showWay) {
+			c.view.setShowWay(!c.view.isShowWay());
+			c.showWay.setText((c.view.isShowWay()? "Hide" : "Show") +  " route");
+		} else if (e.getSource() == c.busVeryBig) {
+			c.view.setBusSize(GUIView.VERY_BIG_SIZE);
+		} else if (e.getSource() == c.busBig) {
+			c.view.setBusSize(GUIView.BIG_SIZE);
+		} else if (e.getSource() == c.busMedium) {
+			c.view.setBusSize(GUIView.MEDIUM_SIZE);
+		} else if (e.getSource() == c.busSmall) {
+			c.view.setBusSize(GUIView.SMALL_SIZE);
+		} else if (e.getSource() == c.busTiny) {
+			c.view.setBusSize(GUIView.TINY_SIZE);
+		} else if (e.getSource() == c.personVeryBig) {
+			c.view.setPersonSize(GUIView.VERY_BIG_SIZE);
+		} else if (e.getSource() == c.personBig) {
+			c.view.setPersonSize(GUIView.BIG_SIZE);
+		} else if (e.getSource() == c.personMedium) {
+			c.view.setPersonSize(GUIView.MEDIUM_SIZE);
+		} else if (e.getSource() == c.personSmall) {
+			c.view.setPersonSize(GUIView.SMALL_SIZE);
+		} else if (e.getSource() == c.personTiny) {
+			c.view.setPersonSize(GUIView.TINY_SIZE);
+		} else if (e.getSource() == c.crossroadVeryBig) {
+			c.view.setCrossroadSize(GUIView.VERY_BIG_SIZE);
+			c.view.updateMap();
+		} else if (e.getSource() == c.crossroadBig) {
+			c.view.setCrossroadSize(GUIView.BIG_SIZE);
+			c.view.updateMap();
+		} else if (e.getSource() == c.crossroadMedium) {
+			c.view.setCrossroadSize(GUIView.MEDIUM_SIZE);
+			c.view.updateMap();
+		} else if (e.getSource() == c.crossroadSmall) {
+			c.view.setCrossroadSize(GUIView.SMALL_SIZE);
+			c.view.updateMap();
+		} else if (e.getSource() == c.crossroadTiny) {
+			c.view.setCrossroadSize(GUIView.TINY_SIZE);
+			c.view.updateMap();
+		} else if (e.getSource() == c.exitItem) {
+			System.exit(0);
 		}
 	}
 	
@@ -113,6 +166,32 @@ public class ControlAdapter implements KeyListener, ActionListener,
 	public void valueChanged(ListSelectionEvent e) {
 		c.setCurrentBus();
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		int delta = c.view.busSize + 5;
+		double pxSize = c.model.totalGUIWidth /
+				(c.model.right - c.model.left);
+		int clx = e.getX();
+		int cly = e.getY();
+		for (int i = 0; i < c.model.buses.size(); i++) {
+			Bus bus = c.model.buses.get(i);
+			for (Point p : bus.getPosition(c.model.currentTime)) {
+				if (p == null)
+					continue;
+				double difX = p.getX() - c.model.left;
+				double difY = - p.getY() + c.model.up;
+				int x = (int) (difX * pxSize);
+				int y = (int) (difY * pxSize);
+				if (clx > x - delta && clx < x + delta && cly > y - delta && cly < y + delta) {
+					c.busList.setSelectedIndex(i + 1);
+					c.model.currentBus = bus;
+					c.updateBusInfo();
+					break;
+				}
+			}
+		}
+	}
 	
 	//not used
 	
@@ -122,10 +201,6 @@ public class ControlAdapter implements KeyListener, ActionListener,
 
 	@Override
 	public void keyReleased(KeyEvent e) {		
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
 	}
 
 	@Override

@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
@@ -36,23 +34,35 @@ public class GUIControl extends JFrame {
 	GUIModel model;
 	GUIView view;
 	ControlAdapter adapter;
+	
 	DefaultListModel<String> busListModel;
 	JList<String> busList;
 	JScrollPane busScroller;
+	
 	int totalWidth, totalHeight;
 	int controlPanelHeight, busPanelWidth, busInfoPanelHeigth;
 	int percent, fps, timeUpdateDelay;
+	int currentX, currentY;
+	
 	JPanel mapPanel, controlPanel, busPanel;
 	JPanel mapControlPanel, infoPanel, timelinePanel;
 	JPanel busInfoPanel, busListPanel;
+	
 	JButton zoomButton, unzoomButton, upButton, downButton, leftButton, rightButton;
 	JButton pauseButton, updateSpeedButton;
 	JSlider timeSlider, timeSpeedSlider;
 	JTextField speedField;
-	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel, busesAmountLabel, activeBusesAmountLabel;
+	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel, routesAmountLabel, activeBusesAmountLabel;
 	JLabel currentBusNumLabel, currentBusPathLabel, currentBusTimeLabel;
 	Timer updateScreenTimer, updateTimeTimer;
-	int currentX, currentY;
+	
+	JMenuBar menuBar;
+	JMenu fileMenu, settingsMenu, showMenu, sizeMenu, busSizeMenu, personSize, crossroadsSize;
+	JMenuItem showPerson, showBus, showCrossroads, showWay;
+	JMenuItem busVeryBig, busBig, busMedium, busSmall, busTiny;
+	JMenuItem personVeryBig, personBig, personMedium, personSmall, personTiny;
+	JMenuItem crossroadVeryBig, crossroadBig, crossroadMedium, crossroadSmall, crossroadTiny;
+	JMenuItem openItem, exitItem;
 	
 	{
 		try {
@@ -84,7 +94,7 @@ public class GUIControl extends JFrame {
 		if (model.buses.size() > 0)
 			model.currentBus = model.buses.get(0);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Map GUI v0.2");
+		this.setTitle("Map GUI");
 		this.setPreferredSize(new Dimension(totalWidth, totalHeight));
 		this.setMinimumSize(new Dimension(minimumWidth, minimumHeight));
 		this.pack();
@@ -105,251 +115,142 @@ public class GUIControl extends JFrame {
 	
 	private void setMenuBar() {
         Font font = new Font("Verdana", Font.PLAIN, 13);
-		JMenuBar menuBar = new JMenuBar();
+		menuBar = new JMenuBar();
         
-        JMenu fileMenu = new JMenu("File");
+        fileMenu = new JMenu("File");
         fileMenu.setFont(font);
          
-        JMenu settingsMenu = new JMenu("Settings");
+        settingsMenu = new JMenu("Settings");
         settingsMenu.setFont(font);
          
-        JMenu show = new JMenu("Show");
-        show.setFont(font);
-        settingsMenu.add(show);
+        showMenu = new JMenu("Show");
+        showMenu.setFont(font);
+        settingsMenu.add(showMenu);
         
         // show menu
          
-        final JMenuItem showPerson = new JMenuItem((view.isShowPerson()? "Hide" : "Show") +  " persons");
+        showPerson = new JMenuItem((view.isShowPerson()? "Hide" : "Show") +  " persons");
         showPerson.setFont(font);
-        show.add(showPerson);
-        showPerson.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setShowPerson(!view.isShowPerson());
-				showPerson.setText((view.isShowPerson()? "Hide" : "Show") +  " persons");
-			}
-		});
+        showMenu.add(showPerson);
+        showPerson.addActionListener(adapter);
         
-        final JMenuItem showBus = new JMenuItem((view.isShowBus()? "Hide" : "Show") +  " buses");
+        showBus = new JMenuItem((view.isShowBus()? "Hide" : "Show") +  " buses");
         showBus.setFont(font);
-        show.add(showBus);
-        showBus.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setShowBus(!view.isShowBus());
-				showBus.setText((view.isShowBus()? "Hide" : "Show") +  " buses");
-			}
-		});
+        showMenu.add(showBus);
+        showBus.addActionListener(adapter);
         
-        final JMenuItem showCrossroads = new JMenuItem((view.isShowCrossroads()? "Hide" : "Show") +  " cross-roads");
+        showCrossroads = new JMenuItem((view.isShowCrossroads()? "Hide" : "Show") +  " cross-roads");
         showCrossroads.setFont(font);
-        show.add(showCrossroads);
-        showCrossroads.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setShowCrossroads(!view.isShowCrossroads());
-				showCrossroads.setText((view.isShowCrossroads()? "Hide" : "Show") +  " cross-roads");
-				view.updateMap();
-			}
-		});
+        showMenu.add(showCrossroads);
+        showCrossroads.addActionListener(adapter);
         
-        final JMenuItem showWay = new JMenuItem((view.isShowWay()? "Hide" : "Show") +  " route");
+        showWay = new JMenuItem((view.isShowWay()? "Hide" : "Show") +  " route");
         showWay.setFont(font);
-        show.add(showWay);
-        showWay.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setShowWay(!view.isShowWay());
-				showWay.setText((view.isShowWay()? "Hide" : "Show") +  " route");
-			}
-		});
+        showMenu.add(showWay);
+        showWay.addActionListener(adapter);
         
         // size menu
         
-        JMenu size = new JMenu("Size");
-        size.setFont(font);
-        settingsMenu.add(size);
+        sizeMenu = new JMenu("Size");
+        sizeMenu.setFont(font);
+        settingsMenu.add(sizeMenu);
          
-        JMenu busSize = new JMenu("Buses");
-        busSize.setFont(font);
-        size.add(busSize);
+        busSizeMenu = new JMenu("Buses");
+        busSizeMenu.setFont(font);
+        sizeMenu.add(busSizeMenu);
         
-        JMenuItem busVeryBig = new JMenuItem("Very big");
+        busVeryBig = new JMenuItem("Very big");
         busVeryBig.setFont(font);
-        busSize.add(busVeryBig);
-        busVeryBig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setBusSize(GUIView.VERY_BIG_SIZE);
-			}
-		});
+        busSizeMenu.add(busVeryBig);
+        busVeryBig.addActionListener(adapter);
         
-        JMenuItem busBig = new JMenuItem("Big");
+        busBig = new JMenuItem("Big");
         busBig.setFont(font);
-        busSize.add(busBig);
-        busBig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setBusSize(GUIView.BIG_SIZE);
-			}
-		});
+        busSizeMenu.add(busBig);
+        busBig.addActionListener(adapter);
         
-        JMenuItem busMedium = new JMenuItem("Medium");
+        busMedium = new JMenuItem("Medium");
         busMedium.setFont(font);
-        busSize.add(busMedium);
-        busMedium.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setBusSize(GUIView.MEDIUM_SIZE);
-			}
-		});
+        busSizeMenu.add(busMedium);
+        busMedium.addActionListener(adapter);
         
-        JMenuItem busSmall = new JMenuItem("Small");
+        busSmall = new JMenuItem("Small");
         busSmall.setFont(font);
-        busSize.add(busSmall);
-        busSmall.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setBusSize(GUIView.SMALL_SIZE);
-			}
-		});
+        busSizeMenu.add(busSmall);
+        busSmall.addActionListener(adapter);
         
-        JMenuItem busTiny = new JMenuItem("Tiny");
+        busTiny = new JMenuItem("Tiny");
         busTiny.setFont(font);
-        busSize.add(busTiny);
-        busTiny.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setBusSize(GUIView.TINY_SIZE);
-			}
-		});
+        busSizeMenu.add(busTiny);
+        busTiny.addActionListener(adapter);
         
-        JMenu personSize = new JMenu("Persons");
+        personSize = new JMenu("Persons");
         personSize.setFont(font);
-        size.add(personSize);
+        sizeMenu.add(personSize);
         
-        JMenuItem personVeryBig = new JMenuItem("Very big");
+        personVeryBig = new JMenuItem("Very big");
         personVeryBig.setFont(font);
         personSize.add(personVeryBig);
-        personVeryBig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setPersonSize(GUIView.VERY_BIG_SIZE);
-			}
-		});
+        personVeryBig.addActionListener(adapter);
         
-        JMenuItem personBig = new JMenuItem("Big");
+        personBig = new JMenuItem("Big");
         personBig.setFont(font);
         personSize.add(personBig);
-        personBig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setPersonSize(GUIView.BIG_SIZE);
-			}
-		});
+        personBig.addActionListener(adapter);
         
-        JMenuItem personMedium = new JMenuItem("Medium");
+        personMedium = new JMenuItem("Medium");
         personMedium.setFont(font);
         personSize.add(personMedium);
-        personMedium.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setPersonSize(GUIView.MEDIUM_SIZE);
-			}
-		});
+        personMedium.addActionListener(adapter);
         
-        JMenuItem personSmall = new JMenuItem("Small");
+        personSmall = new JMenuItem("Small");
         personSmall.setFont(font);
         personSize.add(personSmall);
-        personSmall.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setPersonSize(GUIView.SMALL_SIZE);
-			}
-		});
+        personSmall.addActionListener(adapter);
         
-        JMenuItem personTiny = new JMenuItem("Tiny");
+        personTiny = new JMenuItem("Tiny");
         personTiny.setFont(font);
         personSize.add(personTiny);
-        personTiny.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setPersonSize(GUIView.TINY_SIZE);
-			}
-		});
+        personTiny.addActionListener(adapter);
         
-        JMenu crossroadsSize = new JMenu("Crossroads");
+        crossroadsSize = new JMenu("Crossroads");
         crossroadsSize.setFont(font);
-        size.add(crossroadsSize);
+        sizeMenu.add(crossroadsSize);
         
-        JMenuItem crossroadsVeryBig = new JMenuItem("Very big");
-        crossroadsVeryBig.setFont(font);
-        crossroadsSize.add(crossroadsVeryBig);
-        crossroadsVeryBig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setCrossroadSize(GUIView.VERY_BIG_SIZE);
-				view.updateMap();
-			}
-		});
+        crossroadVeryBig = new JMenuItem("Very big");
+        crossroadVeryBig.setFont(font);
+        crossroadsSize.add(crossroadVeryBig);
+        crossroadVeryBig.addActionListener(adapter);
         
-        JMenuItem crossroadBig = new JMenuItem("Big");
+        crossroadBig = new JMenuItem("Big");
         crossroadBig.setFont(font);
         crossroadsSize.add(crossroadBig);
-        crossroadBig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setCrossroadSize(GUIView.BIG_SIZE);
-				view.updateMap();
-			}
-		});
+        crossroadBig.addActionListener(adapter);
         
-        JMenuItem crossroadMedium = new JMenuItem("Medium");
+        crossroadMedium = new JMenuItem("Medium");
         crossroadMedium.setFont(font);
         crossroadsSize.add(crossroadMedium);
-        crossroadMedium.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setCrossroadSize(GUIView.MEDIUM_SIZE);
-				view.updateMap();
-			}
-		});
+        crossroadMedium.addActionListener(adapter);
         
-        JMenuItem crossroadSmall = new JMenuItem("Small");
+        crossroadSmall = new JMenuItem("Small");
         crossroadSmall.setFont(font);
         crossroadsSize.add(crossroadSmall);
-        crossroadSmall.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setCrossroadSize(GUIView.SMALL_SIZE);
-				view.updateMap();
-			}
-		});
+        crossroadSmall.addActionListener(adapter);
         
-        JMenuItem crossroadTiny = new JMenuItem("Tiny");
+        crossroadTiny = new JMenuItem("Tiny");
         crossroadTiny.setFont(font);
         crossroadsSize.add(crossroadTiny);
-        crossroadTiny.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.setCrossroadSize(GUIView.TINY_SIZE);
-				view.updateMap();
-			}
-		});
+        crossroadTiny.addActionListener(adapter);
          
-        JMenuItem openItem = new JMenuItem("Open");
+        openItem = new JMenuItem("Open");
         openItem.setFont(font);
         fileMenu.add(openItem);
          
-        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem = new JMenuItem("Exit");
         exitItem.setFont(font);
         fileMenu.add(exitItem);
          
-        exitItem.addActionListener(new ActionListener() {           
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);             
-            }           
-        });
+        exitItem.addActionListener(adapter);
          
         menuBar.add(fileMenu);
         menuBar.add(settingsMenu);
@@ -436,13 +337,13 @@ public class GUIControl extends JFrame {
 		fpsLabel = new JLabel();
 		speedLabel = new JLabel();
 		timeLabel = new JLabel();
-		busesAmountLabel = new JLabel();
+		routesAmountLabel = new JLabel();
 		activeBusesAmountLabel = new JLabel();
 		infoPanel.add(actualRoadsNumberLabel);
 		infoPanel.add(fpsLabel);
 		infoPanel.add(speedLabel);
 		infoPanel.add(timeLabel);
-		infoPanel.add(busesAmountLabel);
+		infoPanel.add(routesAmountLabel);
 		infoPanel.add(activeBusesAmountLabel);
 		
 		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
@@ -556,7 +457,7 @@ public class GUIControl extends JFrame {
 		fpsLabel.setText("fps: " + fps);
 		speedLabel.setText("Time speed: " + model.timeSpeed);
 		timeLabel.setText("Current time: " + (int) model.currentTime + " secs");
-		busesAmountLabel.setText("All buses: " + model.buses.size());
+		routesAmountLabel.setText("Bus routes: " + model.buses.size());
 		activeBusesAmountLabel.setText("Active buses: " + model.activeBuses);
 		updateBusInfo();
 	}
@@ -572,8 +473,8 @@ public class GUIControl extends JFrame {
 			b = Math.abs(s.getStart().getY() - s.getEnd().getY());
 			len += Math.sqrt(a * a + b * b);
 		}
-		currentBusPathLabel.setText("Route length: " + ((long) len));
-		currentBusTimeLabel.setText("Time on the road: " + ((int) model.currentBus.getRoute().getTotalTime()));
+		currentBusPathLabel.setText("Route length: " + ((long) len / 3600) + " km");
+		currentBusTimeLabel.setText("Time on the road: " + ((int) model.currentBus.getRoute().getTotalTime()) + " s");
 	}
 	
 	public void updateScreen() {

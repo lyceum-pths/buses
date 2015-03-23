@@ -25,7 +25,7 @@ public class Bus {
 			M = (R + L) >> 1;
 			if (begins[M] + route.totalTime >= time) 
 				R = M;
-			else 
+			else
 				L = M;
 		}
 		ArrayList<Point> points = new ArrayList<>();

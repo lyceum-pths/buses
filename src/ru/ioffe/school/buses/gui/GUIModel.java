@@ -33,71 +33,81 @@ public class GUIModel {
 	int activeBuses;
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
+	int numOfStations, numOfBuses, numOfPeople;
 
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
 		buses = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
-		currentTime = 2;
-		timeSpeed = 1;
-		maxTime = 43200;
-		activeBuses = 0;
+		setConstants();
 		timePaused = false;
 		getRoads(roadsFile);
 		updateWHRatio();
 		getMaxSizes();
-		{
-			ArrayList<Road> r = new ArrayList<>();
-			for (int i = 0; i < roads.size(); i++) {
-				r.add(roads.get(i));
-				//				if (!roads.get(i).isOneway)
-				r.add(roads.get(i).invert());
-			}
-			Road[] roadsForManager = new Road[r.size()];
-			for (int i = 0; i < r.size(); i++) {
-				roadsForManager[i] = r.get(i);			
-			}
-			RoadManager manager = new RoadManager(roadsForManager);
-			Random rnd = new Random();
-			generator = new BusGenerator(manager);
-			int busesNumber = 10;
-			System.out.println("Generating buses...");
-			while (buses.size() < busesNumber) {
-				try {
-					buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
-				} catch (Exception e) {
-				}
-			}
-			System.out.println(busesNumber + " buses generated");
-			ArrayList<Transfer> tr = new ArrayList<>();
-			for (Bus bus : buses) {
-				for (Transfer transfer : bus.getTransfers())
-					tr.add(transfer);
-			}
-			Transfer[] transfer = new Transfer[tr.size()];
-			for (int i = 0; i < tr.size(); i++) {
-				transfer[i] = tr.get(i);
-			}
-			Emulator emul = new Emulator(5, tr, roads);
-			int personNumber = 10000;
-			Person[] persons = new Person[personNumber];
-			for (int i = 0; i < personNumber; i++) {
-				persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
-						roads.get(rnd.nextInt(roads.size())).to, 1000);
-			}
-			Night night = new Night(persons);
-			System.out.println("Starting emulation");
-			Report rep = emul.startEmulation(night, 100);
-			System.out.println("Ended emulation");
-			PersonalReport[] routes = rep.getReports();
-			int cnt = 0;
-			for (int i = 0; i < routes.length; i++) {
-				peopleRoutes.add(routes[i].getRoute());
-				if (routes[i].getTotalTime() < 42000) //its Wrong!
-					cnt++;
-			}
-			System.out.println(cnt + " out of " + personNumber + " people finally came home");
+		emulate();
+	}
+	
+	public void emulate() {
+		ArrayList<Road> r = new ArrayList<>();
+		for (int i = 0; i < roads.size(); i++) {
+			r.add(roads.get(i));
+			//				if (!roads.get(i).isOneway)
+			r.add(roads.get(i).invert());
 		}
+		Road[] roadsForManager = new Road[r.size()];
+		for (int i = 0; i < r.size(); i++) {
+			roadsForManager[i] = r.get(i);			
+		}
+		RoadManager manager = new RoadManager(roadsForManager);
+		Random rnd = new Random();
+		generator = new BusGenerator(manager);
+		int busesNumber = 10;
+		System.out.println("Generating buses...");
+		while (buses.size() < busesNumber) {
+			try {
+				buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
+			} catch (Exception e) {
+			}
+		}
+		System.out.println(busesNumber + " buses generated");
+		ArrayList<Transfer> tr = new ArrayList<>();
+		for (Bus bus : buses) {
+			for (Transfer transfer : bus.getTransfers())
+				tr.add(transfer);
+		}
+		Transfer[] transfer = new Transfer[tr.size()];
+		for (int i = 0; i < tr.size(); i++) {
+			transfer[i] = tr.get(i);
+		}
+		Emulator emul = new Emulator(5, tr, roads);
+		int personNumber = 10000;
+		Person[] persons = new Person[personNumber];
+		for (int i = 0; i < personNumber; i++) {
+			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
+					roads.get(rnd.nextInt(roads.size())).to, 1000);
+		}
+		Night night = new Night(persons);
+		System.out.println("Starting emulation");
+		Report rep = emul.startEmulation(night, 100);
+		System.out.println("Ended emulation");
+		PersonalReport[] routes = rep.getReports();
+		int cnt = 0;
+		for (int i = 0; i < routes.length; i++) {
+			peopleRoutes.add(routes[i].getRoute());
+			if (routes[i].getTotalTime() < maxTime) //its Wrong!
+				cnt++;
+		}
+		System.out.println(cnt + " out of " + personNumber + " people came home");
+	}
+	
+	public void setConstants() {
+		currentTime = 2;
+		timeSpeed = 1;
+		maxTime = 43200;
+		activeBuses = 0;
+		numOfStations = 50;
+		numOfBuses = 10;
+		numOfPeople = 100;
 	}
 
 	public void setCurrentBus(int number) {

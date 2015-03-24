@@ -95,7 +95,8 @@ public class MapParser {
 					out.println(id);
 					pointsByIds.put(id, currPoint);
 				} else {
-					System.out.println("Error: one of the nodes doesn't have info about it's id, lat or lon");
+					System.out.println("Error: one of the nodes doesn't have info about it's id, lat or lon; line " + (i + 1));
+					System.out.println(text[i]);
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 package ru.ioffe.school.buses.emulation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -67,7 +68,7 @@ public class Emulator {
 		for (ArrayList<Edge> list : edges)
 			list.trimToSize();
 	}
-	
+
 	public Emulator(double speed, TimeTable timeTable, Collection<Road> roads) {
 		this(speed, timeTable, roads.toArray(new Road[roads.size()]));
 	}
@@ -102,6 +103,28 @@ public class Emulator {
 		return new Report(routes, timeTable);
 	}
 
+	public ShortReport startFastEmulation(Night nigth, int threadsNumber) {
+		long time = System.currentTimeMillis();
+		if (threadsNumber < 1) 
+			throw new IllegalArgumentException("Bad idea");
+		threadsNumber = Math.min(threadsNumber, nodes.size());
+		Thread[] threads = new Thread[threadsNumber];
+		int n = nigth.getPersons().length;
+		double[] times = new double[n];
+		int d = (n - 1) / threadsNumber + 1;  // rounding up
+		for (int i = 0; i < threadsNumber; i++) {
+			threads[i] = new Thread(
+					new Module(nigth.getPersons(), i * d, Math.min((i + 1) * d, n), times));
+			threads[i].start();
+		}
+		for (int i = 0; i < threadsNumber; i++) {
+			try {
+				threads[i].join();
+			} catch (InterruptedException e) {}
+		}
+		System.out.println("Time for fast emulating: " + (System.currentTimeMillis() - time));
+		return new ShortReport(nigth.getPersons(), times, timeTable);
+	}
 
 	private class Module implements Runnable {
 		// input
@@ -111,6 +134,7 @@ public class Emulator {
 
 		// output
 		PersonalReport[] routes;
+		double[] times;
 
 
 		public Module(Person[] persons, int begin, int end, PersonalReport[] routes) {
@@ -120,37 +144,35 @@ public class Emulator {
 			this.routes = routes;
 		}
 
+		public Module(Person[] persons, int begin, int end, double[] times) {
+			this.begin = begin;
+			this.end = end;
+			this.persons = persons;
+			this.times = times;
+		}
+
 		@Override
 		public void run() {
-			for (int i = begin; i < end; i++) {
-				try {
-					routes[i] = findRoute(persons[i]);
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.err.println("Way wasn't found");
+			if (routes == null) { // fast emulation
+				for (int i = begin; i < end; i++) {
+					try {
+						times[i] = findTime(persons[i]);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.err.println("Way wasn't found");
+					}
+				}
+			} else {
+				for (int i = begin; i < end; i++) {
+					try {
+						routes[i] = findRoute(persons[i]);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.err.println("Way wasn't found");
+					}
 				}
 			}
 		}
-		//
-		//		public Point getPoint(Person person, int index) {
-		//			if (index == nodes.size()) 
-		//				return person.getFrom();
-		//			if (index == nodes.size() + 1)
-		//				return person.getTo();
-		//			return nodes.get(index);
-		//		}
-		//
-		//		public int getIndex(Person person, Point point) {
-		//			if (point == person.getFrom())
-		//				return nodes.index.;
-		//			if (point == person.getTo())
-		//				return nodes.length + 1;
-		//			return indexs.get(point);
-		//		}
-
-		//		public ArrayList<Transfer> getRoads(int index) {
-		//			return index < transfers.length? transfers[index] : null;
-		//		}
 
 		private int tryFindNearestPoint(Point input) {
 			double minDist = Double.POSITIVE_INFINITY;
@@ -252,6 +274,69 @@ public class Emulator {
 			for (int i = 0; i < rigthWay.length; i++) 
 				rigthWay[i] = way.get(rigthWay.length - i - 1);
 			return new PersonalReport(person, new Route(rigthWay));
+		}
+		
+		// find only time which person must spend to come home
+		private double findTime(Person person) {
+			int from;
+			int to;
+			// looking for points
+			try {
+				from = indexs.get(person.getFrom());
+			} catch (NullPointerException e) {
+				from = tryFindNearestPoint(person.getFrom());
+				System.err.println("There isn't such point:" + person.getFrom());
+				System.err.println("For the start will be used the nearest point: " + nodes.get(from) + 
+						" (distance between = " + GeographyManager.getDistance(person.getFrom(), nodes.get(from)));
+			}
+			try {
+				to = indexs.get(person.getTo());
+			} catch (NullPointerException e) {
+				to = tryFindNearestPoint(person.getTo());
+				System.err.println("There isn't such point:" + person.getTo());
+				System.err.println("For the finish will be used the nearest point: " + nodes.get(to) + 
+						" (distance between = " + GeographyManager.getDistance(person.getTo(), nodes.get(to)));
+			}
+
+			int n = nodes.size();
+			double[] time = new double[n];
+			boolean[] checked = new boolean[n];
+			Arrays.fill(time, Double.POSITIVE_INFINITY);
+			time[from] = person.getTime();
+			double nextTime;
+			Heap<Step> heap = new Heap<>();
+			heap.add(new Step(0, from));
+			int current;
+			int next;
+			while (!heap.isEmpty() && !checked[to]) {
+				current = heap.poll().getTo();
+				if (checked[current])
+					continue;
+				checked[current] = true;
+				for (Edge edge : edges[current]) {
+					next = edge.getEnd();
+					if (checked[next])
+						continue;
+					if (time[current] + edge.getTime() < time[next]) {
+						time[next] = time[current] + edge.getTime();
+						heap.add(new Step(time[next], next));
+					}
+				}
+				for (BusEdge bus : buses[current]) {
+					next = bus.getEnd();
+					if (checked[next])
+						continue;
+					nextTime = bus.nextDeparture(time[current]);
+					if (nextTime + bus.getContinuance() < time[next]) {
+						time[next] = nextTime + bus.getContinuance();
+						heap.add(new Step(time[next], next));
+					}
+				}
+			}
+			if (time[to] == Double.POSITIVE_INFINITY)
+				throw new IllegalArgumentException(
+						"Person cant come home: " + person);		
+			return time[to] - person.getTime();
 		}
 	}
 

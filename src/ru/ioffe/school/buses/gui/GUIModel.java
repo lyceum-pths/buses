@@ -19,7 +19,6 @@ import ru.ioffe.school.buses.emulation.Report;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
-import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class GUIModel {
 	ArrayList<Road> roads;
@@ -75,7 +74,7 @@ public class GUIModel {
 		int personNumber = 10000;
 		Person[] persons = new Person[personNumber];
 		for (int i = 0; i < personNumber; i++) {
-			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
+		persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
 					roads.get(rnd.nextInt(roads.size())).to, 1000);
 		}
 		Night night = new Night(persons);

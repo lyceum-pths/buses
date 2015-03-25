@@ -1,5 +1,7 @@
 package ru.ioffe.school.buses.data;
 
+import ru.ioffe.school.buses.timeManaging.PositionReport;
+
 
 /**
  * This class mean, that object go straight from point "start" to point "end".
@@ -52,6 +54,11 @@ public class StraightSegment implements Segment {
 			return start;
 		double k = (time - timeStart) / (timeEnd - timeStart);
 		return new Point(-1, start.getX() + dx * k, start.getY() + dy * k); // which id should this point have?
+	}
+	
+	@Override
+	public PositionReport getPositionReport(double time) {
+		return new PositionReport(getPosition(time), null, -1);
 	}
 
 	@Override

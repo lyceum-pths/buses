@@ -18,6 +18,7 @@ import ru.ioffe.school.buses.emulation.PersonalReport;
 import ru.ioffe.school.buses.emulation.Report;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
+import ru.ioffe.school.buses.timeManaging.TimeTable;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class GUIModel {
@@ -70,16 +71,7 @@ public class GUIModel {
 			}
 		}
 		System.out.println(busesNumber + " buses generated");
-		ArrayList<Transfer> tr = new ArrayList<>();
-		for (Bus bus : buses) {
-			for (Transfer transfer : bus.getTransfers())
-				tr.add(transfer);
-		}
-		Transfer[] transfer = new Transfer[tr.size()];
-		for (int i = 0; i < tr.size(); i++) {
-			transfer[i] = tr.get(i);
-		}
-		Emulator emul = new Emulator(5, tr, roads);
+		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
 		int personNumber = 10000;
 		Person[] persons = new Person[personNumber];
 		for (int i = 0; i < personNumber; i++) {

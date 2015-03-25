@@ -3,6 +3,7 @@ package ru.ioffe.school.buses.data;
 import java.util.Arrays;
 
 import ru.ioffe.school.buses.timeManaging.PositionIndicator;
+import ru.ioffe.school.buses.timeManaging.PositionReport;
 /**
  * This class contain information about position of object in every moment.
  * It should be used in GUI for showing object's movements.
@@ -40,6 +41,21 @@ public class Route {
 		if (L == -1) 
 			return null;
 		return route[L].getPosition(time);
+	}
+	
+	public PositionReport getPositionReport(double time) {
+		int L = -1, R = route.length, M;
+		while (R - L > 1) {
+			M = (R + L) >> 1;
+			if (route[M].getTimeStart() > time) {
+				R = M;
+			} else {
+				L = M;
+			}
+		}
+		if (L == -1) 
+			return null;
+		return route[L].getPositionReport (time);
 	}
 
 	@Override

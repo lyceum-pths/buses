@@ -16,6 +16,7 @@ import ru.ioffe.school.buses.data.StraightSegment;
 import ru.ioffe.school.buses.data.WaitingSegment;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
 import ru.ioffe.school.buses.structures.Heap;
+import ru.ioffe.school.buses.timeManaging.TimeTable;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class Emulator {
@@ -25,12 +26,16 @@ public class Emulator {
 	final ArrayList<BusEdge>[] buses; 
 	final ArrayList<Edge>[] edges;
 	final HashMap<Point, Integer> indexs;
+	final TimeTable timeTable;
 	final double speed;
-	final int size;
 
 	@SuppressWarnings("unchecked")
-	public Emulator(double speed, Transfer[] transfers, Road[] roads) {
+	public Emulator(double speed, TimeTable timeTable, Road[] roads) {
 		this.nodes = new ArrayList<>();
+		this.timeTable = timeTable;
+		this.indexs = new HashMap<>();
+		this.speed = speed;
+		ArrayList<Transfer> transfers = timeTable.getTransfers();
 		for (Transfer transfer : transfers) { 
 			addNode(transfer.getFrom());
 			addNode(transfer.getTo());
@@ -39,11 +44,9 @@ public class Emulator {
 			addNode(road.getFrom());
 			addNode(road.getTo());
 		}
-		int size = transfers.length + roads.length;
+		nodes.trimToSize();
 		this.buses = new ArrayList[nodes.size()];
 		this.edges = new ArrayList[nodes.size()];
-		this.speed = speed;
-		this.indexs = new HashMap<>();
 		for (int i = 0; i < nodes.size(); i++) {
 			this.buses[i] = new ArrayList<>();
 			this.edges[i] = new ArrayList<>();
@@ -57,45 +60,16 @@ public class Emulator {
 			this.edges[from].add(new Edge(from, to, road.getLength()));
 			//			if (!road.isOneway) {
 			this.edges[to].add(new Edge(to, from, road.getLength()));
-			size++;
 			//		}
 		}
-		this.size = size;
+		for (ArrayList<BusEdge> list : buses)
+			list.trimToSize();
+		for (ArrayList<Edge> list : edges)
+			list.trimToSize();
 	}
-
-	@SuppressWarnings("unchecked")
-	public Emulator(double speed, Collection<Transfer> transfers, Collection<Road> roads) {
-		this.nodes = new ArrayList<>();
-		this.indexs = new HashMap<>();
-		for (Transfer transfer : transfers) { 
-			addNode(transfer.getFrom());
-			addNode(transfer.getTo());
-		}
-		for (Road road : roads) {
-			addNode(road.getFrom());
-			addNode(road.getTo());
-		}
-		this.buses = new ArrayList[nodes.size()];
-		this.edges = new ArrayList[nodes.size()];
-		this.speed = speed;
-		int size = transfers.size() + roads.size();
-		for (int i = 0; i < nodes.size(); i++) {
-			this.buses[i] = new ArrayList<>();
-			this.edges[i] = new ArrayList<>();
-		}
-		for (Transfer tr : transfers)
-			this.buses[indexs.get(tr.getFrom())].add(new BusEdge(tr));
-		int from, to;
-		for (Road road : roads) {
-			from = indexs.get(road.getFrom());
-			to = indexs.get(road.getTo());
-			this.edges[from].add(new Edge(from, to, road.getLength()));
-			//			if (!road.isOneway) {
-			this.edges[to].add(new Edge(to, from, road.getLength()));
-			size++;
-			//			}
-		}
-		this.size = size;
+	
+	public Emulator(double speed, TimeTable timeTable, Collection<Road> roads) {
+		this(speed, timeTable, roads.toArray(new Road[roads.size()]));
 	}
 
 	private void addNode(Point point) {
@@ -125,7 +99,7 @@ public class Emulator {
 			} catch (InterruptedException e) {}
 		}
 		System.out.println("Time for emulating: " + (System.currentTimeMillis() - time));
-		return new Report(routes);
+		return new Report(routes, timeTable);
 	}
 
 
@@ -192,7 +166,7 @@ public class Emulator {
 			return ans;
 		}
 
-		public PersonalReport findRoute(Person person) {
+		private PersonalReport findRoute(Person person) {
 			int from;
 			int to;
 			// looking for points
@@ -224,40 +198,7 @@ public class Emulator {
 			}
 			time[from] = person.getTime();
 			double nextTime;
-			//			TreeSet<Step> heap = new TreeSet<>();
-			//			heap.add(new Step(person.getTime(), from));
-			//			int current;
-			//			int next;
-			//			while (!heap.isEmpty() && !checked[to]) {
-			//				current = heap.pollFirst().getTo();
-			//				checked[current] = true;
-			//				for (Edge edge : edges[current]) {
-			//					next = edge.getEnd();
-			//					if (checked[next])
-			//						continue;
-			//					if (time[current] + edge.getTime() < time[next]) {
-			//						heap.remove(new Step(time[next], next));
-			//						time[next] = time[current] + edge.getTime();
-			//						heap.add(new Step(time[next], next));
-			//						pred[next] = current;
-			//						modes[next] = null;
-			//					}
-			//				}
-			//				for (BusEdge bus : buses[current]) {
-			//					next = bus.getEnd();
-			//					if (checked[next])
-			//						continue;
-			//					nextTime = bus.nextDeparture(time[current]);
-			//					if (nextTime + bus.getContinuance() < time[next]) {
-			//						heap.remove(new Step(time[next], next));
-			//						time[next] = nextTime + bus.getContinuance();
-			//						heap.add(new Step(time[next], next));
-			//						pred[next] = current;
-			//						modes[next] = new Mode(bus.getTransfer(), nextTime - time[current]);
-			//					}
-			//				}
-			//			}
-			Heap<Step> heap = new Heap<>(new Step[size]);
+			Heap<Step> heap = new Heap<>();
 			heap.add(new Step(person.getTime(), from));
 			int current;
 			int next;

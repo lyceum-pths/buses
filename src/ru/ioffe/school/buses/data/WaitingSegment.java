@@ -1,5 +1,7 @@
 package ru.ioffe.school.buses.data;
 
+import ru.ioffe.school.buses.timeManaging.PositionReport;
+
 public class WaitingSegment implements Segment {
 	final Point p;
 	final double timeStart, timeEnd;
@@ -40,6 +42,8 @@ public class WaitingSegment implements Segment {
 		return p;
 	}
 
-
-
+	@Override
+	public PositionReport getPositionReport(double time) {
+		return new PositionReport(p, null, -1);
+	}
 }

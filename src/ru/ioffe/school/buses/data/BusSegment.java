@@ -1,11 +1,14 @@
 package ru.ioffe.school.buses.data;
 
+import ru.ioffe.school.buses.timeManaging.PositionReport;
+
 
 // WHERE ARE A LOT OF BUGS
 public class BusSegment implements Segment {
 	final Point start;
 	final Point end;
 	final Bus bus;
+	final int voyageNumber; 
 	final double time, timeStart, timeEnd;
 	
 	public BusSegment(Bus bus, double time, double timeStart, double timeEnd, Point from, Point to) {
@@ -18,6 +21,7 @@ public class BusSegment implements Segment {
 		this.timeStart = timeStart;
 		this.timeEnd = timeEnd;
 		this.bus = bus;
+		this.voyageNumber = bus.findNearestVoyage(timeStart - time);
 	}
 
 	public Point getStart() {
@@ -40,6 +44,11 @@ public class BusSegment implements Segment {
 		if (time < timeStart || time > timeEnd)
 			return null;
 		return bus.getRoute().getPosition(time - timeStart + this.time);
+	}
+
+	@Override
+	public PositionReport getPositionReport(double time) {
+		return new PositionReport(getPosition(time), bus, voyageNumber);
 	}
 	
 	@Override

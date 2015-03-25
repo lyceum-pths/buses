@@ -3,6 +3,7 @@ package ru.ioffe.school.buses.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ru.ioffe.school.buses.timeManaging.PositionReport;
 import ru.ioffe.school.buses.timeManaging.PositionIndicator;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
@@ -18,8 +19,35 @@ public class Bus {
 		this.begins = begins;
 		this.transfers = generateTransfers();
 	}
-
-	public ArrayList<Point> getPosition(double time) {
+	
+	/**
+	 * Find (later or before) voyage which begins closest to {@time}
+	 * @param time
+	 * @return number of nearest voyage
+	 */
+	
+	public int findNearestVoyage(double time) {
+		int L = -1, R = begins.length, M;
+		while (R - L > 1) {
+			M = (R + L) >> 1;
+			if (begins[M] > time) 
+				R = M;
+			else
+				L = M;
+		}
+		double minDist = Double.POSITIVE_INFINITY, dT;
+		int bestVoyage = -1;
+		for (int i = Math.max(0, L); i <= Math.min(R, begins.length - 1); i++) {
+			dT = Math.abs(begins[i] - time);
+			if (dT < minDist) {
+				minDist = dT;
+				bestVoyage = i;
+			}
+		}
+		return bestVoyage;
+	}
+	
+	private int findVoyage(double time) {
 		int L = -1, R = begins.length, M;
 		while (R - L > 1) {
 			M = (R + L) >> 1;
@@ -28,10 +56,32 @@ public class Bus {
 			else
 				L = M;
 		}
+		return R;
+	}
+
+	public ArrayList<Point> getPosition(double time) {
 		ArrayList<Point> points = new ArrayList<>();
-		for (int i = R; i < begins.length && begins[i] <= time; i++)
+		for (int i = findVoyage(time); i < begins.length && begins[i] <= time; i++)
 			points.add(route.getPosition(time - begins[i]));
 		return points;
+	}
+	
+	/** This method tell you information about positions of active buses at {@time}. 
+	 * 	Report also contains number of active voyage and link on this bus. 
+	 * 
+	 * @param time
+	 * @return info about positions of active voyages and its numbers
+	 */
+	
+	public ArrayList<PositionReport> getPositionReports(double time) {
+		ArrayList<PositionReport> points = new ArrayList<>();
+		for (int i = findVoyage(time); i < begins.length && begins[i] <= time; i++)
+			points.add(new PositionReport(route.getPosition(time - begins[i]), this, i));
+		return points;
+	}
+	
+	public Point getPosition(double time, int voyage) {
+		return route.getPosition(time - begins[voyage]);
 	}
 
 	public Route getRoute() {

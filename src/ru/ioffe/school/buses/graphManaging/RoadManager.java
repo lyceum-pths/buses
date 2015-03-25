@@ -12,7 +12,6 @@ public class RoadManager {
 	final ArrayList<Point> nodes;
 	final HashMap<Point, Integer> indexs;
 	final ArrayList<Edge>[] roads;
-	final int size;
 
 	private void addNode(Point point) {
 		if (indexs.containsKey(point))
@@ -25,16 +24,18 @@ public class RoadManager {
 	public RoadManager(Road... roads) {
 		this.indexs = new HashMap<>();
 		this.nodes = new ArrayList<>();
-		this.size = roads.length;
 		for (Road road : roads) {
 			addNode(road.getFrom());
 			addNode(road.getTo());
 		}
+		nodes.trimToSize();
 		this.roads = new ArrayList[nodes.size()];
 		for (int i = 0; i < nodes.size(); i++)
 			this.roads[i] = new ArrayList<>();
 		for (Road road : roads)
 			this.roads[indexs.get(road.getFrom())].add(new Edge(road));
+		for (ArrayList<Edge> list : this.roads)
+			list.trimToSize();
 	}
 
 	private int tryFindNearestPoint(Point input) {
@@ -94,7 +95,7 @@ public class RoadManager {
 //				}
 //			}
 //		}
-		Heap<Step> heap = new Heap<>(new Step[size]);
+		Heap<Step> heap = new Heap<>();
 		boolean[] checked = new boolean[nodes.size()];
 		double[] distance = new double[nodes.size()];
 		Edge[] lastEdge = new Edge[nodes.size()];

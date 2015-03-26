@@ -101,9 +101,9 @@ public class Annealing {
 		peopleRoutes = new ArrayList<>();
 		maxTime = 43200;
 		numOfBuses = 15;
-		numOfPeople = 100;
+		numOfPeople = 5000;
 		iter = 0;
-		iterations = 50;
+		iterations = 25;
 		T = Integer.MAX_VALUE;
 		File roadsFile = new File("data/generated/roads.data");
 		try {

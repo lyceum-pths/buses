@@ -79,17 +79,10 @@ public class GUIModel {
 		for (int i = 0; i < tr.size(); i++) {
 			transfer[i] = tr.get(i);
 		}
-<<<<<<< Updated upstream
 		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
 		Person[] persons = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
-=======
-		Emulator emul = new Emulator(5, tr, roads);
-		Person[] persons = new Person[numOfPeople];
-		for (int i = 0; i < numOfPeople; i++) {
-			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
->>>>>>> Stashed changes
 					roads.get(rnd.nextInt(roads.size())).to, 1000);
 		}
 		Night night = new Night(persons);

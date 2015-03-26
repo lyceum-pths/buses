@@ -1,10 +1,13 @@
 package ru.ioffe.school.buses.emulation;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ru.ioffe.school.buses.timeManaging.TimeTable;
 
-public class Report {
+public class Report implements Serializable {
+	
+	private static final long serialVersionUID = 8933468347233520920L;
 	final PersonalReport[] report;
 	final TimeTable timeTable;
 	//here should be some important information
@@ -23,6 +26,10 @@ public class Report {
 	
 	public PersonalReport[] getReports() {
 		return report;
+	}
+	
+	public double getFitness() {
+		return fitness;
 	}
 	
 	@Override

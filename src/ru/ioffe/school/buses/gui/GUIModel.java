@@ -19,6 +19,7 @@ import ru.ioffe.school.buses.emulation.Report;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
+import ru.ioffe.school.buses.timeManaging.Transfer;
 
 public class GUIModel {
 	ArrayList<Road> roads;
@@ -33,7 +34,7 @@ public class GUIModel {
 	int activeBuses;
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
-	int numOfStations, numOfBuses, numOfPeople;
+	int numOfBuses, numOfPeople;
 
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
@@ -61,20 +62,34 @@ public class GUIModel {
 		RoadManager manager = new RoadManager(roadsForManager);
 		Random rnd = new Random();
 		generator = new BusGenerator(manager);
-		int busesNumber = 10;
 		System.out.println("Generating buses...");
-		while (buses.size() < busesNumber) {
+		while (buses.size() < numOfBuses) {
 			try {
 				buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
 			} catch (Exception e) {
 			}
 		}
-		System.out.println(busesNumber + " buses generated");
+		System.out.println(numOfBuses + " buses generated");
+		ArrayList<Transfer> tr = new ArrayList<>();
+		for (Bus bus : buses) {
+			for (Transfer transfer : bus.getTransfers())
+				tr.add(transfer);
+		}
+		Transfer[] transfer = new Transfer[tr.size()];
+		for (int i = 0; i < tr.size(); i++) {
+			transfer[i] = tr.get(i);
+		}
+<<<<<<< Updated upstream
 		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
-		int personNumber = 10000;
-		Person[] persons = new Person[personNumber];
-		for (int i = 0; i < personNumber; i++) {
-		persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
+		Person[] persons = new Person[numOfPeople];
+		for (int i = 0; i < numOfPeople; i++) {
+			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
+=======
+		Emulator emul = new Emulator(5, tr, roads);
+		Person[] persons = new Person[numOfPeople];
+		for (int i = 0; i < numOfPeople; i++) {
+			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to, 
+>>>>>>> Stashed changes
 					roads.get(rnd.nextInt(roads.size())).to, 1000);
 		}
 		Night night = new Night(persons);
@@ -88,7 +103,7 @@ public class GUIModel {
 			if (routes[i].getTotalTime() < maxTime) //its Wrong!
 				cnt++;
 		}
-		System.out.println(cnt + " out of " + personNumber + " people came home");
+		System.out.println(cnt + " out of " + numOfPeople + " people came home");
 	}
 	
 	public void setConstants() {
@@ -96,9 +111,8 @@ public class GUIModel {
 		timeSpeed = 1;
 		maxTime = 43200;
 		activeBuses = 0;
-		numOfStations = 50;
 		numOfBuses = 10;
-		numOfPeople = 100;
+		numOfPeople = 5000;
 	}
 
 	public void setCurrentBus(int number) {

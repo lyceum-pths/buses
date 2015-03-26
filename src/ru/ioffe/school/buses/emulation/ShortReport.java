@@ -7,17 +7,26 @@ public class ShortReport {
 	final Person[] persons;
 	final double[] time;
 	final TimeTable timeTable;
+	final double fitness;
 	
 	public ShortReport(Person[] persons, double[] time, TimeTable timeTable) {
 		this.persons = persons;
 		this.time = time;
 		this.timeTable = timeTable;
+		double averageTime = 0;
+		for (double d : time)
+			averageTime += d;
+		fitness = averageTime / persons.length;
 	}
 
 	public Person[] getPersons() {
 		return persons;
 	}
-
+	
+	public double getFitness() {
+		return fitness;
+	}
+	
 	public double[] getTime() {
 		return time;
 	}

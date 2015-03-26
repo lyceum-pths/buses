@@ -7,14 +7,22 @@ import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.randomGeneration.RandomObjectGenerator;
 
 public class NightGenerator {
-	double timeStart;
-	RandomObjectGenerator<InterestingPoint> interestingPointsGenerator;
-	RandomObjectGenerator<House> housesGenerator;
-	TimeGenerator timeGenerator;
+	final double timeStart;
+	final RandomObjectGenerator<InterestingPoint> interestingPointsGenerator;
+	final RandomObjectGenerator<House> housesGenerator;
+	final TimeGenerator timeGenerator;
 
 	public NightGenerator(double timeStart, RandomObjectGenerator<InterestingPoint> interestingPointsGenerator,
 			RandomObjectGenerator<House> housesGenerator, TimeGenerator timeGenerator) {
 		this.timeStart = timeStart;
+		this.interestingPointsGenerator = interestingPointsGenerator;
+		this.housesGenerator = housesGenerator;
+		this.timeGenerator = timeGenerator;
+	}
+	
+	public NightGenerator(RandomObjectGenerator<InterestingPoint> interestingPointsGenerator,
+			RandomObjectGenerator<House> housesGenerator, TimeGenerator timeGenerator) {
+		this.timeStart = 0;
 		this.interestingPointsGenerator = interestingPointsGenerator;
 		this.housesGenerator = housesGenerator;
 		this.timeGenerator = timeGenerator;

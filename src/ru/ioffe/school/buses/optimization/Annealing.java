@@ -31,7 +31,7 @@ public class Annealing {
 	
 	void optimize() {
 		init();
-		Bus[] buses = new Bus[numOfBuses];
+		Bus[] buses = new Bus[numOfBuses]; // numOfBuses should not be constant, i think
 		for (int i = 0; i < numOfBuses; i++)
 			buses[i] = generateBus();
 		Night night = generateNight();
@@ -47,24 +47,24 @@ public class Annealing {
 					startEmulation(night, thrNum);
 			double diff = lastRep.getFitness() - currRep.getFitness();
 			if (diff > T) {
-				System.out.println("diff > T");
+				System.out.println("diff > T"); // why? 
 				continue;
 			}
 			if (T < 100){
-				System.out.println("warming up");
+				System.out.println("warming up"); // maybe you should save current answer
 				T = Integer.MAX_VALUE;					
 			}
-			if (diff > 0) {
+			if (diff > 0) { // It is very strange
 				double p = Math.pow(Math.E, diff / T);
 				double rand = rnd.nextDouble();
 				if (rand > p)
 					buses[ind] = prev;
 				else
-					lastRep = currRep;
+					lastRep = currRep; // it is very very strange
 			} else {
 				buses[ind] = prev;
 			}
-			decrease();
+			decrease(); // do you really need to do it like that?
 		}
 		double end = lastRep.getFitness();
 		System.out.println("Ended annealing after " + iterations + " iterations, "
@@ -76,7 +76,7 @@ public class Annealing {
 		T /= iter;
 	}
 	
-	Night generateNight() {
+	Night generateNight() { // WHY DO YOU NOT USE NIGTH GENERATOR I WROTE?
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			people[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
@@ -89,7 +89,7 @@ public class Annealing {
 		Bus bus = null;
 		while (bus == null) {
 			try {
-				bus = gen.generateBus(1, maxTime, 20, 0);
+				bus = gen.generateBus(1, maxTime, 20, 0); // we should change count of buses on route
 			} catch (Exception e) {}
 		}
 		return bus;

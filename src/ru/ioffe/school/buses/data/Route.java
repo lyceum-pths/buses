@@ -14,10 +14,7 @@ public class Route {
 
 	public Route(Segment... route) {
 		this.route = route;
-		double time = 0;
-		for (Segment s : route)
-			time += s.getTimeEnd() - s.getTimeStart();
-		this.totalTime = time;
+		this.totalTime = route.length == 0? 0 : route[route.length - 1].getTimeEnd() - route[0].getTimeStart();
 	}
 
 	public Segment[] getRoute() {

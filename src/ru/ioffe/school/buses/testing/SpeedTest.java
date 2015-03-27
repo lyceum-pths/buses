@@ -30,7 +30,7 @@ public class SpeedTest {
 		peopleRoutes = new ArrayList<>();
 		rnd = new Random();
 		numOfBuses = 20;
-		numOfPeople = 100;
+		numOfPeople = 10000;
 		maxTime = 43200;
 		File roadsFile;
 		try {

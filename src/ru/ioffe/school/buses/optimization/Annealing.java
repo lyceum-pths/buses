@@ -13,7 +13,7 @@ import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.emulation.Emulator;
-import ru.ioffe.school.buses.emulation.Report;
+import ru.ioffe.school.buses.emulation.ShortReport;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
@@ -26,7 +26,8 @@ public class Annealing {
 	int numOfBuses, numOfPeople;
 	Random rnd;
 	BusGenerator gen;
-	int iter, T;
+	double speedOfConvergence;
+	double T;
 	int iterations;
 	
 	void optimize() {
@@ -36,35 +37,28 @@ public class Annealing {
 			buses[i] = generateBus();
 		Night night = generateNight();
 		int thrNum = 100;
-		Report lastRep = new Emulator(5, new TimeTable(buses), roads).
-				startEmulation(night, thrNum);
+		ShortReport lastRep = new Emulator(5, new TimeTable(buses), roads).
+				startFastEmulation(night, thrNum);
 		double start = lastRep.getFitness();
 		for (int i = 0; i < iterations; i++) {
 			int ind = rnd.nextInt(numOfBuses);
 			Bus prev = buses[ind];
 			buses[ind] = generateBus();
-			Report currRep = new Emulator(5, new TimeTable(buses), roads).
-					startEmulation(night, thrNum);
-			double diff = lastRep.getFitness() - currRep.getFitness();
-			if (diff > T) {
-				System.out.println("diff > T"); // why? 
-				continue;
-			}
-			if (T < 100){
-				System.out.println("warming up"); // maybe you should save current answer
-				T = Integer.MAX_VALUE;					
-			}
-			if (diff > 0) { // It is very strange
-				double p = Math.pow(Math.E, diff / T);
+			ShortReport currRep = new Emulator(5, new TimeTable(buses), roads).
+					startFastEmulation(night, thrNum);
+			double diff = currRep.getFitness() - lastRep.getFitness();
+			if (diff > 0) {
+				double p = Math.exp(-diff / T);
 				double rand = rnd.nextDouble();
-				if (rand > p)
+				if (rand < p)
 					buses[ind] = prev;
 				else
-					lastRep = currRep; // it is very very strange
+					lastRep = currRep;
 			} else {
-				buses[ind] = prev;
+				lastRep = currRep;
 			}
-			decrease(); // do you really need to do it like that?
+			System.out.println("T = " + T + " currRep = " + currRep.getFitness());
+			decrease();
 		}
 		double end = lastRep.getFitness();
 		System.out.println("Ended annealing after " + iterations + " iterations, "
@@ -72,8 +66,7 @@ public class Annealing {
 	}
 	
 	void decrease() {
-		iter++;
-		T /= iter;
+		T /= speedOfConvergence;
 	}
 	
 	Night generateNight() { // WHY DO YOU NOT USE NIGTH GENERATOR I WROTE?
@@ -101,10 +94,10 @@ public class Annealing {
 		peopleRoutes = new ArrayList<>();
 		maxTime = 43200;
 		numOfBuses = 15;
-		numOfPeople = 5000;
-		iter = 0;
-		iterations = 25;
-		T = Integer.MAX_VALUE;
+		numOfPeople = 500;
+		speedOfConvergence = 1.5;
+		iterations = 100;
+		T = 1000;
 		File roadsFile = new File("data/generated/roads.data");
 		try {
 			getRoads(roadsFile);

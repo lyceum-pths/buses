@@ -1,12 +1,15 @@
 package ru.ioffe.school.buses.timeManaging;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
 
-public class TimeTable {
+public class TimeTable implements Serializable {
+	
+	private static final long serialVersionUID = -3851338432955982359L;
 	final Bus[] buses;
 
 	public TimeTable(Bus[] buses) {

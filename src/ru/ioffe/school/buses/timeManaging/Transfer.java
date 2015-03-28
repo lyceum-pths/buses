@@ -1,5 +1,6 @@
 package ru.ioffe.school.buses.timeManaging;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ru.ioffe.school.buses.data.Bus;
@@ -11,7 +12,9 @@ import ru.ioffe.school.buses.data.Point;
  * It is used for looking for best way for person to go home.
  */
 
-public class Transfer {
+public class Transfer implements Serializable {
+
+	private static final long serialVersionUID = 6322276115251647118L;
 	final double[] departure;
 	final double continuance; 
 	final double time; // time between bus started moving and it came to point from

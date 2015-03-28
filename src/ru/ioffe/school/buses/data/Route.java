@@ -1,5 +1,6 @@
 package ru.ioffe.school.buses.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ru.ioffe.school.buses.timeManaging.PositionIndicator;
@@ -8,7 +9,9 @@ import ru.ioffe.school.buses.timeManaging.PositionReport;
  * This class contain information about position of object in every moment.
  * It should be used in GUI for showing object's movements.
  */
-public class Route {
+public class Route implements Serializable {
+	
+	private static final long serialVersionUID = -530500033605674036L;
 	final Segment[] route;
 	final double totalTime;
 

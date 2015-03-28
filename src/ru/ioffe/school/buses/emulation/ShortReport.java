@@ -1,9 +1,13 @@
 package ru.ioffe.school.buses.emulation;
 
+import java.io.Serializable;
+
 import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
 
-public class ShortReport {
+public class ShortReport implements Serializable {
+
+	private static final long serialVersionUID = 1666009997974973284L;
 	final Person[] persons;
 	final double[] time;
 	final TimeTable timeTable;
@@ -33,5 +37,10 @@ public class ShortReport {
 
 	public TimeTable getTimeTable() {
 		return timeTable;
+	}
+	
+	@Override
+	public ShortReport clone() {
+		return new ShortReport(persons, time, timeTable);
 	}
 }

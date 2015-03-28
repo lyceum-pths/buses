@@ -1,5 +1,6 @@
 package ru.ioffe.school.buses.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -8,7 +9,9 @@ import ru.ioffe.school.buses.timeManaging.PositionIndicator;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
 
-public class Bus {
+public class Bus implements Serializable {
+	
+	private static final long serialVersionUID = 699402716610762006L;
 	final Route route;
 	//int number;  just like id. Do we need for it?
 	final double[] begins;

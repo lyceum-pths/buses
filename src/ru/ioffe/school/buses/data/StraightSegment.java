@@ -1,5 +1,7 @@
 package ru.ioffe.school.buses.data;
 
+import java.io.Serializable;
+
 import ru.ioffe.school.buses.timeManaging.PositionReport;
 
 
@@ -8,7 +10,9 @@ import ru.ioffe.school.buses.timeManaging.PositionReport;
  * It should be used in GUI for showing object's movements and, maybe, for calculating fitness-function.
  */
 
-public class StraightSegment implements Segment {
+public class StraightSegment implements Segment, Serializable {
+	
+	private static final long serialVersionUID = -2743436898136354624L;
 	final Point start;
 	final Point end;
 	final double dx, dy;

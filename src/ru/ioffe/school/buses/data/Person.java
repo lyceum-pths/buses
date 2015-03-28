@@ -1,8 +1,10 @@
 package ru.ioffe.school.buses.data;
 
+import java.io.Serializable;
 
-
-public class Person {
+public class Person implements Serializable {
+	
+	private static final long serialVersionUID = -2850356644438815411L;
 	final Point from;
 	final Point to;
 	final double time;

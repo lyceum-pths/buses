@@ -9,7 +9,7 @@ public class BusSegment implements Segment {
 	final Point end;
 	final Bus bus;
 	final int voyageNumber; 
-	final double time, timeStart, timeEnd;
+	final double timeStart, timeEnd;
 	
 	public BusSegment(Bus bus, double time, double timeStart, double timeEnd, Point from, Point to) {
 		if (timeEnd < timeStart)
@@ -17,7 +17,6 @@ public class BusSegment implements Segment {
 					+ timeStart + ", end = " + timeEnd);
 		this.start = from;
 		this.end = to;
-		this.time = time;
 		this.timeStart = timeStart;
 		this.timeEnd = timeEnd;
 		this.bus = bus;
@@ -43,7 +42,7 @@ public class BusSegment implements Segment {
 	public Point getPosition(double time) {
 		if (time < timeStart || time > timeEnd)
 			return null;
-		return bus.getRoute().getPosition(time - timeStart + this.time);
+		return bus.getPosition(time, voyageNumber);
 	}
 
 	@Override

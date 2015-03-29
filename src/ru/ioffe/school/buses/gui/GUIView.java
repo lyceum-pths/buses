@@ -86,7 +86,7 @@ public class GUIView extends JFrame {
 		if (showWay && model.currentBus != null) {
 			g.setColor(Color.ORANGE);
 			Route r = model.currentBus.getRoute();
-			for (Segment s : r.getRoute()) {
+			for (Segment s : r.getSegments()) {
 				Point p1 = s.getStart();
 				Point p2 = s.getEnd();
 				double difX = p1.getX() - model.left;

@@ -32,8 +32,12 @@ public class RoadManager {
 		this.roads = new ArrayList[nodes.size()];
 		for (int i = 0; i < nodes.size(); i++)
 			this.roads[i] = new ArrayList<>();
-		for (Road road : roads)
-			this.roads[indexs.get(road.getFrom())].add(new Edge(road));
+		int from, to;
+		for (Road road : roads) {
+			from = indexs.get(road.getFrom());
+			to = indexs.get(road.getTo());
+			this.roads[from].add(new Edge(road, from, to));
+		}
 		for (ArrayList<Edge> list : this.roads)
 			list.trimToSize();
 	}
@@ -97,11 +101,11 @@ public class RoadManager {
 //		}
 		Heap<Step> heap = new Heap<>();
 		boolean[] checked = new boolean[nodes.size()];
-		double[] distance = new double[nodes.size()];
+		double[] time = new double[nodes.size()];
 		Edge[] lastEdge = new Edge[nodes.size()];
 		for (int i = 0; i < nodes.size(); i++)
-			distance[i] = Double.POSITIVE_INFINITY;
-		distance[from] = 0;
+			time[i] = Double.POSITIVE_INFINITY;
+		time[from] = 0;
 		heap.add(new Step(0, from));
 		int current;
 		int next;
@@ -113,14 +117,14 @@ public class RoadManager {
 			for (Edge edge : roads[current]) {
 				next = edge.getEnd();
 				if (!checked[next]
-						&& distance[current] + edge.getLength() < distance[next]) {
-					distance[next] = distance[current] + edge.getLength();
-					heap.add(new Step(distance[next], next));
+						&& time[current] + edge.getTime() < time[next]) {
+					time[next] = time[current] + edge.getTime();
+					heap.add(new Step(time[next], next));
 					lastEdge[next] = edge;
 				}
 			}
 		}
-		if (distance[to] == Double.POSITIVE_INFINITY)
+		if (time[to] == Double.POSITIVE_INFINITY)
 			throw new IllegalArgumentException(
 					"There is no way between these points.");
 		ArrayList<Road> invertedWay = new ArrayList<>();
@@ -140,11 +144,11 @@ public class RoadManager {
 	}
 
 	private class Step implements Comparable<Step> {
-		double length;
+		double time;
 		int to;
 
 		public Step(double length, int to) {
-			this.length = length;
+			this.time = length;
 			this.to = to;
 		}
 
@@ -154,36 +158,9 @@ public class RoadManager {
 
 		@Override
 		public int compareTo(Step o) {
-			if (length == o.length)
+			if (time == o.time)
 				return to - o.to;
-			return length > o.length ? 1 : -1;
-		}
-	}
-
-	private class Edge {
-		Road road;
-		int from, to;
-
-		public Edge(Road road) {
-			from = indexs.get(road.from);
-			to = indexs.get(road.to);
-			this.road = road;
-		}
-
-		public double getLength() {
-			return road.getLength();
-		}
-
-		public int getStart() {
-			return from;
-		}
-
-		public int getEnd() {
-			return to;
-		}
-
-		public Road getRoad() {
-			return road;
+			return time > o.time ? 1 : -1;
 		}
 	}
 }

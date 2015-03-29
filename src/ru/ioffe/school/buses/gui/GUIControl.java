@@ -468,7 +468,7 @@ public class GUIControl extends JFrame {
 		currentBusNumLabel.setText("Bus number: " + (busList.getSelectedIndex() + 1));
 		double len = 0;
 		double a, b;
-		for (Segment s : model.currentBus.getRoute().getRoute()) {
+		for (Segment s : model.currentBus.getRoute().getSegments()) {
 			a = Math.abs(s.getStart().getX() - s.getEnd().getX());
 			b = Math.abs(s.getStart().getY() - s.getEnd().getY());
 			len += Math.sqrt(a * a + b * b);

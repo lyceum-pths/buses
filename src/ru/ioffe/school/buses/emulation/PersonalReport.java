@@ -20,7 +20,7 @@ public class PersonalReport {
 		double busTime = 0;
 		double walkTime = 0;
 		double timeWaiting = 0;
-		for (Segment segment : route.getRoute()) {
+		for (Segment segment : route.getSegments()) {
 			if (segment instanceof BusSegment) {
 				busTime += segment.getTimeEnd() - segment.getTimeStart();
 			} else if (segment instanceof StraightSegment) {

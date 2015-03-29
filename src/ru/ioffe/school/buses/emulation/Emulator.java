@@ -16,6 +16,8 @@ import ru.ioffe.school.buses.data.Segment;
 import ru.ioffe.school.buses.data.StraightSegment;
 import ru.ioffe.school.buses.data.WaitingSegment;
 import ru.ioffe.school.buses.geographyManaging.GeographyManager;
+import ru.ioffe.school.buses.graphManaging.Edge;
+import ru.ioffe.school.buses.graphManaging.Graph;
 import ru.ioffe.school.buses.structures.Heap;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
 import ru.ioffe.school.buses.timeManaging.Transfer;
@@ -28,19 +30,12 @@ public class Emulator {
 	final ArrayList<Edge>[] edges;
 	final HashMap<Point, Integer> indexs;
 	final TimeTable timeTable;
-	final double speed;
 
 	@SuppressWarnings("unchecked")
 	public Emulator(double speed, TimeTable timeTable, Road[] roads) {
 		this.nodes = new ArrayList<>();
 		this.timeTable = timeTable;
 		this.indexs = new HashMap<>();
-		this.speed = speed;
-		ArrayList<Transfer> transfers = timeTable.getTransfers();
-		for (Transfer transfer : transfers) { 
-			addNode(transfer.getFrom());
-			addNode(transfer.getTo());
-		}
 		for (Road road : roads) {
 			addNode(road.getFrom());
 			addNode(road.getTo());
@@ -52,16 +47,14 @@ public class Emulator {
 			this.buses[i] = new ArrayList<>();
 			this.edges[i] = new ArrayList<>();
 		}
-		for (Transfer tr : transfers)
+		for (Transfer tr : timeTable.getTransfers())
 			this.buses[indexs.get(tr.getFrom())].add(new BusEdge(tr));
 		int from, to;
 		for (Road road : roads) {
 			from = indexs.get(road.getFrom());
 			to = indexs.get(road.getTo());
-			this.edges[from].add(new Edge(from, to, road.getLength()));
-			//			if (!road.isOneway) {
-			this.edges[to].add(new Edge(to, from, road.getLength()));
-			//		}
+			this.edges[from].add(new Edge(road, speed, from, to));
+			this.edges[to].add(new Edge(road, speed, to, from));
 		}
 		for (ArrayList<BusEdge> list : buses)
 			list.trimToSize();
@@ -71,6 +64,29 @@ public class Emulator {
 
 	public Emulator(double speed, TimeTable timeTable, Collection<Road> roads) {
 		this(speed, timeTable, roads.toArray(new Road[roads.size()]));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Emulator(TimeTable timeTable, Graph graph) {
+		this.nodes = graph.getNodes();
+		this.edges = graph.getEdges();
+		this.indexs = graph.getIndexs();
+		this.timeTable = timeTable;
+		this.buses = new ArrayList[nodes.size()];
+		for (int i = 0; i < buses.length; i++)
+			buses[i] = new ArrayList<>();
+		for (Transfer tr : timeTable.getTransfers())
+			this.buses[indexs.get(tr.getFrom())].add(new BusEdge(tr));
+		for (ArrayList<BusEdge> list : buses)
+			list.trimToSize();
+	}
+	
+	public Graph getGraph() {
+		return new Graph(nodes, edges, indexs);
+	}
+	
+	public TimeTable getTimeTable() {
+		return timeTable;
 	}
 
 	private void addNode(Point point) {
@@ -359,25 +375,6 @@ public class Emulator {
 
 		public double getWaitingTime() {
 			return timeWaiting;
-		}
-	}
-
-	private class Edge {
-		final double time;
-		final int to;
-
-
-		public Edge(int from, int to, double length) {
-			this.to = to;
-			this.time = length / speed;
-		}
-
-		public double getTime() {
-			return time;
-		}
-
-		public int getEnd() {
-			return to;
 		}
 	}
 

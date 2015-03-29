@@ -98,7 +98,7 @@ public class Bus implements Serializable {
 	private Transfer[] generateTransfers() {
 		ArrayList<Transfer> transfers = new ArrayList<>();
 		double[] departures = begins.clone();
-		for(Segment segment : route.getRoute()) {
+		for(Segment segment : route.getSegments()) {
 			transfers.add(new Transfer(this, segment.getStart(), 
 					segment.getEnd(), segment.getTimeEnd() - segment.getTimeStart(), segment.getTimeStart(), departures.clone()));
 			for (int i = 0; i < departures.length; i++)

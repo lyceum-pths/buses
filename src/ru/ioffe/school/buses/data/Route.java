@@ -10,29 +10,29 @@ import ru.ioffe.school.buses.timeManaging.PositionReport;
  * It should be used in GUI for showing object's movements.
  */
 public class Route implements Serializable {
-	
+
 	private static final long serialVersionUID = -530500033605674036L;
-	final Segment[] route;
+	final Segment[] segments;
 	final double totalTime;
 
 	public Route(Segment... route) {
-		this.route = route;
+		this.segments = route;
 		this.totalTime = route.length == 0? 0 : route[route.length - 1].getTimeEnd() - route[0].getTimeStart();
 	}
 
-	public Segment[] getRoute() {
-		return route;
+	public Segment[] getSegments() {
+		return segments;
 	}
 
 	public double getTotalTime() {
 		return totalTime;
 	}
-	
+
 	public Point getPosition(double time) {
-		int L = -1, R = route.length, M;
+		int L = -1, R = segments.length, M;
 		while (R - L > 1) {
 			M = (R + L) >> 1;
-			if (route[M].getTimeStart() > time) {
+			if (segments[M].getTimeStart() > time) {
 				R = M;
 			} else {
 				L = M;
@@ -40,14 +40,14 @@ public class Route implements Serializable {
 		}
 		if (L == -1) 
 			return null;
-		return route[L].getPosition(time);
+		return segments[L].getPosition(time);
 	}
-	
+
 	public PositionReport getPositionReport(double time) {
-		int L = -1, R = route.length, M;
+		int L = -1, R = segments.length, M;
 		while (R - L > 1) {
 			M = (R + L) >> 1;
-			if (route[M].getTimeStart() > time) {
+			if (segments[M].getTimeStart() > time) {
 				R = M;
 			} else {
 				L = M;
@@ -55,12 +55,12 @@ public class Route implements Serializable {
 		}
 		if (L == -1) 
 			return null;
-		return route[L].getPositionReport (time);
+		return segments[L].getPositionReport (time);
 	}
 
 	@Override
 	public String toString() {
-		return Arrays.toString(route);
+		return Arrays.toString(segments);
 	}
 
 	public PositionIndicator getPositionIndicator(double startTime) {
@@ -73,10 +73,10 @@ public class Route implements Serializable {
 
 		public RouteIndicator(double startTime) {
 			currentTime = startTime;
-			int L = 0, R = route.length, M;
+			int L = 0, R = segments.length, M;
 			while (R - L > 1) {
 				M = (R + L) >> 1;
-				if (route[M].getTimeStart() > currentTime) {
+				if (segments[M].getTimeStart() > currentTime) {
 					R = M;
 				} else {
 					L = M;
@@ -87,13 +87,13 @@ public class Route implements Serializable {
 
 		@Override
 		public Point getPosition() {
-			if (currentSegment == -1 || currentSegment == route.length)
+			if (currentSegment == -1 || currentSegment == segments.length)
 				return null;
-			return route[currentSegment].getPosition(currentTime);
+			return segments[currentSegment].getPosition(currentTime);
 		}
-		
+
 		private boolean isReady() {
-			return currentSegment == route.length || route[currentSegment].getTimeEnd() >= currentTime;
+			return currentSegment == segments.length || segments[currentSegment].getTimeEnd() >= currentTime;
 		}
 
 		@Override
@@ -109,14 +109,14 @@ public class Route implements Serializable {
 		public double getCurrentTime() {
 			return currentTime;
 		}
-		
+
 		@Override
 		public void setTime(double time) {
 			currentTime = time;
-			int L = 0, R = route.length, M;
+			int L = 0, R = segments.length, M;
 			while (R - L > 1) {
 				M = (R + L) >> 1;
-				if (route[M].getTimeStart() > currentTime) {
+				if (segments[M].getTimeStart() > currentTime) {
 					R = M;
 				} else {
 					L = M;

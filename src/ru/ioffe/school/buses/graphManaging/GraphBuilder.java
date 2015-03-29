@@ -30,15 +30,80 @@ public class GraphBuilder {
 	public Road[] getRoads() {
 		return roads.toArray(new Road[roads.size()]);
 	}
+
+	@SuppressWarnings("unchecked")
+	public Graph getGraph(boolean ignoreRestrictions) {
+		ArrayList<Point> nodes = new ArrayList<>();
+		HashMap<Point, Integer> indexs = new HashMap<>();
+		for (Road road : roads) {
+			addPoint(indexs, nodes, road.getFrom());
+			addPoint(indexs, nodes, road.getTo());
+		}
+		nodes.trimToSize();
+		ArrayList<Edge>[] edges = new ArrayList[nodes.size()];
+		for (int i = 0; i < nodes.size(); i++)
+			edges[i] = new ArrayList<>();
+		int from, to;
+		for (Road road : roads) {
+			from = indexs.get(road.getFrom());
+			to = indexs.get(road.getTo());
+			edges[from].add(new Edge(road, from, to));
+			if (ignoreRestrictions) 
+				edges[to].add(new Edge(road, to, from));
+		}
+		for (ArrayList<Edge> list : edges)
+			list.trimToSize();
+		return new Graph(nodes, edges, indexs);
+	}
 	
+	public Graph getGraph() {
+		return getGraph(false);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Graph getGraph(double speedBound, boolean ignoreRestrictions) {
+		ArrayList<Point> nodes = new ArrayList<>();
+		HashMap<Point, Integer> indexs = new HashMap<>();
+		for (Road road : roads) {
+			addPoint(indexs, nodes, road.getFrom());
+			addPoint(indexs, nodes, road.getTo());
+		}
+		nodes.trimToSize();
+		ArrayList<Edge>[] edges = new ArrayList[nodes.size()];
+		for (int i = 0; i < nodes.size(); i++)
+			edges[i] = new ArrayList<>();
+		int from, to;
+		for (Road road : roads) {
+			from = indexs.get(road.getFrom());
+			to = indexs.get(road.getTo());
+			edges[from].add(new Edge(road, speedBound, from, to));
+			if (ignoreRestrictions)
+				edges[to].add(new Edge(road, speedBound, to, from));
+		}
+		for (ArrayList<Edge> list : edges)
+			list.trimToSize();
+		return new Graph(nodes, edges, indexs);
+	}
+
+	public Graph getGraph(double speedBound) {
+		return getGraph(speedBound, false);
+	}
+
+	private void addPoint(HashMap<Point, Integer> indexs, ArrayList<Point> nodes, Point node) {
+		if (indexs.containsKey(node))
+			return;
+		indexs.put(node, nodes.size());
+		nodes.add(node);
+	}
+
 	public void addRoad(Road road) {
 		roads.add(road);
 	}
-	
+
 	/**
 	 * @return number of roads which contained in current graph
 	 */
-	
+
 	public int size() {
 		return roads.size();
 	}
@@ -109,12 +174,12 @@ public class GraphBuilder {
 				(b.getY() - a.getY()) * (point.getX() - a.getX()));
 		return vectorProduct / road.getLength();
 	}
-	
+
 	/**
 	 * This method separate graph on different connected components
 	 * @return array of GraphBuilder which contains components
 	 */
-	
+
 	public GraphBuilder[] separateGraph() {
 		SNM snm = new SNM();
 		for (Road road : roads) 
@@ -137,13 +202,13 @@ public class GraphBuilder {
 		}
 		return graphs;
 	}
-	
+
 	/**
 	 * This method separate graph on different connected components and find component 
 	 * which contains more or equal roads than every another
 	 * @return GraphBuilder which contain this biggest component
 	 */
-	
+
 	public GraphBuilder findMaxComponent() {
 		GraphBuilder[] comps = separateGraph();
 		int maxIndex = 0;

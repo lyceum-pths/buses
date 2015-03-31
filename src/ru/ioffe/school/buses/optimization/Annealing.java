@@ -37,6 +37,7 @@ public class Annealing {
 	int iterations;
 	String logpath;
 	PrintWriter log;
+	Scanner in;
 
 	void optimize() {
 		init();
@@ -49,33 +50,31 @@ public class Annealing {
 		ShortReport lastRep = null;
 		double start = Double.MAX_VALUE;
 		double lastFit = Double.MAX_VALUE;
-//		Scanner sc = new Scanner(System.in);
-//		while (sc.hasNext()) {
-//			String line = sc.next();
-//			if (line.equals("0")) {
-//				System.out.println("Starting emulation...");
-//				lastRep = new Emulator(5, new TimeTable(buses), roads).
-//						startFastEmulation(night, thrNum);
-//				start = lastRep.getFitness();
-//				lastFit = lastRep.getFitness();
-//				break;
-//			} else {
-//				File f = new File(line);
-//				if (f.exists() && f.isFile()) {
-//					try {
-//						ShortReport rep = readRep(f);
-//						lastRep = rep;
-//						start = lastRep.getFitness();
-//						lastFit = lastRep.getFitness();
-//						break;
-//					} catch (ClassNotFoundException ce) {
-//					} catch (IOException ioe) {						
-//					}
-//					System.err.println("File is corrupted");
-//				}
-//			}
-//		}
-//		sc.close();
+		while (in.hasNext()) {
+			String line = in.next();
+			if (line.equals("0")) {
+				System.out.println("Starting emulation...");
+				lastRep = new Emulator(5, new TimeTable(buses), roads).
+						startFastEmulation(night, thrNum);
+				start = lastRep.getFitness();
+				lastFit = lastRep.getFitness();
+				break;
+			} else {
+				File f = new File(line);
+				if (f.exists() && f.isFile()) {
+					try {
+						ShortReport rep = readRep(f);
+						lastRep = rep;
+						start = lastRep.getFitness();
+						lastFit = lastRep.getFitness();
+						break;
+					} catch (ClassNotFoundException ce) {
+					} catch (IOException ioe) {						
+					}
+					System.err.println("File is corrupted");
+				}
+			}
+		}
 		double bestFit = start;
 		int repeats = 5;
 		for (int i = 0; i < iterations; i++) {
@@ -93,13 +92,13 @@ public class Annealing {
 			if (fit > bestFit) {
 				bestFit = fit;
 				try {
-					writeRep(currRep, "bestReport.rep", logpath);
+					writeRep(currRep, "bestReport.srep", logpath);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 			double diff = fit - lastFit;
-			if (diff < 0) {
+			if (diff > 0) {
 				double p = Math.exp(-diff / T);
 				double rand = rnd.nextDouble();
 				if (rand < p)
@@ -108,11 +107,6 @@ public class Annealing {
 					buses[ind] = prev;
 			} else {
 				lastRep = currRep;
-			}
-			try {
-				writeRep(currRep, "report" + (i + 1) + ".rep", logpath);
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 			System.out.println("Iteration " + (i + 1) + "; T = " + T + "; curr fitness = " + fit);
 			log.println("Iteration " + (i + 1) + "; T = " + T + "; curr fitness = " + fit);
@@ -125,6 +119,7 @@ public class Annealing {
 		log.println("Ended annealing after " + iterations + " iterations, "
 				+ "fitness at start = " + start + "; fitness in the end = " + end);
 		log.close();
+		in.close();
 	}
 
 	void decrease() {
@@ -173,27 +168,26 @@ public class Annealing {
 		rnd = new Random();
 		roads = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
+		in = new Scanner(System.in);
 		maxTime = 43200;
 		numOfBuses = 20;
-		numOfPeople = 2000;
+		numOfPeople = 100;
 		speedOfConvergence = 1.25;
 		iterations = 2500;
 		T = 2000;
 		thrNum = 100;
+		logpath = "annlogs/reports/";
+		File dir = new File(logpath);
+		dir.mkdirs();
 		try {
 			log = new PrintWriter(new File("annlogs/log.txt"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		logpath = "annlogs/reports/";
-		File dir = new File(logpath);
-		dir.mkdirs();
 		if (dir.listFiles().length != 0) {
 			System.out.println("You already have some report logs is annlogs/reports/ directory");
 			System.out.println("Insert 0 to delete them or path to write logs in annlogs/reports/your_path");
-			Scanner in = new Scanner(System.in);
 			String s = in.next();
-			in.close();
 			if (s.equals("0")) {
 				for (File f : dir.listFiles())
 					f.delete();

@@ -32,6 +32,10 @@ public class Report implements Serializable {
 		return fitness;
 	}
 	
+	public TimeTable getTimeTable() {
+		return timeTable;
+	}
+	
 	@Override
 	public String toString() {
 		return Arrays.toString(report);

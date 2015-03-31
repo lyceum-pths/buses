@@ -16,6 +16,7 @@ import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.emulation.Emulator;
 import ru.ioffe.school.buses.emulation.PersonalReport;
 import ru.ioffe.school.buses.emulation.Report;
+import ru.ioffe.school.buses.emulation.ShortReport;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
@@ -45,14 +46,14 @@ public class GUIModel {
 		getRoads(roadsFile);
 		updateWHRatio();
 		getMaxSizes();
-		emulate();
 	}
 	
 	public void emulate() {
+		buses.clear();
+		peopleRoutes.clear();
 		ArrayList<Road> r = new ArrayList<>();
 		for (int i = 0; i < roads.size(); i++) {
 			r.add(roads.get(i));
-			//				if (!roads.get(i).isOneway)
 			r.add(roads.get(i).invert());
 		}
 		Road[] roadsForManager = new Road[r.size()];
@@ -97,6 +98,24 @@ public class GUIModel {
 				cnt++;
 		}
 		System.out.println(cnt + " out of " + numOfPeople + " people came home");
+	}
+
+	public void emulate(Report rep) {
+		buses.clear();
+		peopleRoutes.clear();
+		TimeTable t = rep.getTimeTable();
+		for (Bus bus : t.getBuses())
+			buses.add(bus);
+		for (PersonalReport r : rep.getReports())
+			peopleRoutes.add(r.getRoute());
+	}
+	
+	public void emulate(ShortReport rep) {
+		peopleRoutes.clear();
+		buses.clear();
+		TimeTable t = rep.getTimeTable();
+		for (Bus bus : t.getBuses())
+			buses.add(bus);
 	}
 	
 	public void setConstants() {
@@ -211,6 +230,33 @@ public class GUIModel {
 			}
 		} catch (Exception e) {}
 		oin.close();
+	}
+	
+	public Report getReport(File file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream oin = new ObjectInputStream(fis);
+		Report rep = null;
+		try {
+			rep = (Report) oin.readObject();
+		} catch (Exception e) {
+			oin.close();
+			throw new IOException();
+		}
+		oin.close();
+		return rep;
+	}
+	
+	public ShortReport getShortReport(File file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream oin = new ObjectInputStream(fis);
+		ShortReport rep = null;
+		try {
+			rep = (ShortReport) oin.readObject();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		oin.close();
+		return rep;
 	}
 
 	private void getMaxSizes() {

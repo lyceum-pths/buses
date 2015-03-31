@@ -7,7 +7,10 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
 
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -15,6 +18,8 @@ import javax.swing.event.ListSelectionListener;
 
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
+import ru.ioffe.school.buses.emulation.Report;
+import ru.ioffe.school.buses.emulation.ShortReport;
 
 public class ControlAdapter implements KeyListener, ActionListener, 
 		MouseListener, MouseMotionListener, ListSelectionListener, ChangeListener {
@@ -103,6 +108,39 @@ public class ControlAdapter implements KeyListener, ActionListener,
 			c.view.updateMap();
 		} else if (e.getSource() == c.exitItem) {
 			System.exit(0);
+		} else if (e.getSource() == c.openReport) {
+			c.selectingRep = true;
+			c.chooser.showOpenDialog(c);
+		} else if (e.getSource() == c.openShortReport) {
+			c.selectingRep = false;
+			c.chooser.showOpenDialog(c);
+		} else if (e.getSource() == c.emulateItem) {
+			c.model.emulate();
+			c.initBusPanel();
+			c.busesInited = true;
+		} else if (e.getSource() == c.chooser) {
+			File file = c.chooser.getSelectedFile();
+			if (c.selectingRep) {
+				try {
+					Report rep = c.model.getReport(file);
+					c.model.emulate(rep);
+				} catch (Exception ex) {
+					JOptionPane.showConfirmDialog(c, new JLabel("An error occured while reading from file"), 
+							"Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			} else {
+				try {
+					ShortReport rep = c.model.getShortReport(file);
+					c.model.emulate(rep);
+				} catch (Exception ex) {
+					JOptionPane.showConfirmDialog(c, new JLabel("An error occured while reading from file"), 
+							"Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+			c.initBusPanel();
+			c.busesInited = true;
 		}
 	}
 	

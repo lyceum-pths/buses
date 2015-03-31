@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -44,6 +45,8 @@ public class GUIControl extends JFrame {
 	int percent, fps, timeUpdateDelay;
 	int currentX, currentY;
 	
+	boolean busesInited, selectingRep;
+	
 	JPanel mapPanel, controlPanel, busPanel;
 	JPanel mapControlPanel, infoPanel, timelinePanel;
 	JPanel busInfoPanel, busListPanel;
@@ -57,12 +60,16 @@ public class GUIControl extends JFrame {
 	Timer updateScreenTimer, updateTimeTimer;
 	
 	JMenuBar menuBar;
-	JMenu fileMenu, settingsMenu, showMenu, sizeMenu, busSizeMenu, personSize, crossroadsSize;
+	JMenu fileMenu, settingsMenu, showMenu;
+	JMenu sizeMenu, busSizeMenu, personSize, crossroadsSize, openMenu;
+	JMenuItem openReport, openShortReport;
 	JMenuItem showPerson, showBus, showCrossroads, showWay;
 	JMenuItem busVeryBig, busBig, busMedium, busSmall, busTiny;
 	JMenuItem personVeryBig, personBig, personMedium, personSmall, personTiny;
 	JMenuItem crossroadVeryBig, crossroadBig, crossroadMedium, crossroadSmall, crossroadTiny;
-	JMenuItem openItem, exitItem;
+	JMenuItem exitItem, emulateItem;
+	
+	JFileChooser chooser;
 	
 	{
 		try {
@@ -119,6 +126,11 @@ public class GUIControl extends JFrame {
         
         fileMenu = new JMenu("File");
         fileMenu.setFont(font);
+        
+        emulateItem = new JMenuItem("Emulate random");
+        emulateItem.setFont(font);
+        fileMenu.add(emulateItem);
+        emulateItem.addActionListener(adapter);
          
         settingsMenu = new JMenu("Settings");
         settingsMenu.setFont(font);
@@ -241,15 +253,24 @@ public class GUIControl extends JFrame {
         crossroadTiny.setFont(font);
         crossroadsSize.add(crossroadTiny);
         crossroadTiny.addActionListener(adapter);
-         
-        openItem = new JMenuItem("Open");
-        openItem.setFont(font);
-        fileMenu.add(openItem);
+        
+        openMenu = new JMenu("Open");
+        openMenu.setFont(font);
+        fileMenu.add(openMenu);
+        
+        openReport = new JMenuItem("Report");
+        openReport.setFont(font);
+        openMenu.add(openReport);
+        openReport.addActionListener(adapter);
+        
+        openShortReport = new JMenuItem("Short report");
+        openShortReport.setFont(font);
+        openMenu.add(openShortReport);
+        openShortReport.addActionListener(adapter);
          
         exitItem = new JMenuItem("Exit");
         exitItem.setFont(font);
         fileMenu.add(exitItem);
-         
         exitItem.addActionListener(adapter);
          
         menuBar.add(fileMenu);
@@ -259,6 +280,8 @@ public class GUIControl extends JFrame {
 	}
 	
 	private void setPanels() {
+		chooser = new JFileChooser();
+		chooser.addActionListener(adapter);
 		mapPanel = new JPanel() {
 			@Override
 			public void paint(Graphics g) {
@@ -290,29 +313,6 @@ public class GUIControl extends JFrame {
 		currentBusNumLabel = new JLabel();
 		currentBusPathLabel = new JLabel();
 		currentBusTimeLabel = new JLabel();
-		busInfoPanel.add(currentBusNumLabel);
-		busInfoPanel.add(currentBusPathLabel);
-		busInfoPanel.add(currentBusTimeLabel);
-		
-		busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
-				- controlPanelHeight - busInfoPanelHeigth - 20);
-		busListPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-		busListPanel.setLayout(null);
-		busListModel = new DefaultListModel<>();
-		for (int i = 0; i < model.buses.size(); i++) {
-			busListModel.addElement("bus " + (i + 1));
-		}
-		busList = new JList<String>(busListModel);
-		busList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		busList.setLayoutOrientation(JList.VERTICAL);
-		busList.setVisibleRowCount(-1);
-		busList.setFocusable(false);
-		busList.addListSelectionListener(adapter);
-		if (model.buses.size() > 0)
-			busList.setSelectedIndex(0);
-		busScroller = new JScrollPane(busList);
-		busListPanel.add(busScroller);
-		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
 		
 		this.add(controlPanel);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
@@ -352,6 +352,32 @@ public class GUIControl extends JFrame {
 		timelinePanel.setLayout(null);
 		
 		setButtons();
+	}
+	
+	public void initBusPanel() {
+		busInfoPanel.add(currentBusNumLabel);
+		busInfoPanel.add(currentBusPathLabel);
+		busInfoPanel.add(currentBusTimeLabel);
+		
+		busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
+				- controlPanelHeight - busInfoPanelHeigth - 20);
+		busListPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		busListPanel.setLayout(null);
+		busListModel = new DefaultListModel<>();
+		for (int i = 0; i < model.buses.size(); i++) {
+			busListModel.addElement("bus " + (i + 1));
+		}
+		busList = new JList<String>(busListModel);
+		busList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		busList.setLayoutOrientation(JList.VERTICAL);
+		busList.setVisibleRowCount(-1);
+		busList.setFocusable(false);
+		busList.addListSelectionListener(adapter);
+		if (model.buses.size() > 0)
+			busList.setSelectedIndex(0);
+		busScroller = new JScrollPane(busList);
+		busListPanel.add(busScroller);
+		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
 	}
 	
 	private void setButtons() {
@@ -443,9 +469,11 @@ public class GUIControl extends JFrame {
 		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
 				2 * controlPanelHeight, controlPanelHeight);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
-		busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
-				- controlPanelHeight - busInfoPanelHeigth - 20);
-		busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());
+		if (busesInited) {
+			busListPanel.setBounds(0, busInfoPanelHeigth, busPanelWidth, totalHeight
+					- controlPanelHeight - busInfoPanelHeigth - 20);
+			busScroller.setBounds(0, 0, busPanelWidth, busListPanel.getHeight());			
+		}
 		timeSlider.setBounds(10, 150, totalWidth - 2 * controlPanelHeight - 20, 30);
 		model.updateTotalSizes(totalWidth, totalHeight, controlPanelHeight);
 		model.updateWHRatio();

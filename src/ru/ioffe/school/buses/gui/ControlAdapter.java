@@ -9,8 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -18,8 +17,6 @@ import javax.swing.event.ListSelectionListener;
 
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
-import ru.ioffe.school.buses.emulation.Report;
-import ru.ioffe.school.buses.emulation.ShortReport;
 
 public class ControlAdapter implements KeyListener, ActionListener, 
 		MouseListener, MouseMotionListener, ListSelectionListener, ChangeListener {
@@ -115,32 +112,16 @@ public class ControlAdapter implements KeyListener, ActionListener,
 			c.selectingRep = false;
 			c.chooser.showOpenDialog(c);
 		} else if (e.getSource() == c.emulateItem) {
-			c.model.emulate();
+			c.model.emulate(null);
 			c.initBusPanel();
 			c.busesInited = true;
 		} else if (e.getSource() == c.chooser) {
+			if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION))
+				return;
 			File file = c.chooser.getSelectedFile();
-			if (c.selectingRep) {
-				try {
-					Report rep = c.model.getReport(file);
-					c.model.emulate(rep);
-				} catch (Exception ex) {
-					JOptionPane.showConfirmDialog(c, new JLabel("An error occured while reading from file"), 
-							"Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-			} else {
-				try {
-					ShortReport rep = c.model.getShortReport(file);
-					c.model.emulate(rep);
-				} catch (Exception ex) {
-					JOptionPane.showConfirmDialog(c, new JLabel("An error occured while reading from file"), 
-							"Error", JOptionPane.CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-			}
-			c.initBusPanel();
-			c.busesInited = true;
+			c.chooseFile(file);
+		} else if (e.getSource() == c.confirmParamsButton) {
+			c.setParams();
 		}
 	}
 	
@@ -155,6 +136,8 @@ public class ControlAdapter implements KeyListener, ActionListener,
 				c.pauseButton.setText("Pause");
 				c.model.timePaused = false;
 			}
+		} else if (e.getSource() == c.peopleSlider) {
+			c.peopleParamSelected.setText("" + c.peopleSlider.getValue());
 		}
 	}
 	

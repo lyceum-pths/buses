@@ -20,6 +20,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -28,6 +29,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 
 import ru.ioffe.school.buses.data.Segment;
+import ru.ioffe.school.buses.emulation.Report;
+import ru.ioffe.school.buses.emulation.ShortReport;
 
 @SuppressWarnings("serial")
 public class GUIControl extends JFrame {
@@ -40,23 +43,31 @@ public class GUIControl extends JFrame {
 	JList<String> busList;
 	JScrollPane busScroller;
 	
+	ShortReport currSRep;
+	
 	int totalWidth, totalHeight;
 	int controlPanelHeight, busPanelWidth, busInfoPanelHeigth;
 	int percent, fps, timeUpdateDelay;
 	int currentX, currentY;
+	int paramWidth, paramHeight;
+	int minPeople, maxPeople;
 	
 	boolean busesInited, selectingRep;
 	
 	JPanel mapPanel, controlPanel, busPanel;
 	JPanel mapControlPanel, infoPanel, timelinePanel;
 	JPanel busInfoPanel, busListPanel;
+	JPanel paramPanel;
 	
 	JButton zoomButton, unzoomButton, upButton, downButton, leftButton, rightButton;
 	JButton pauseButton, updateSpeedButton;
+	JButton confirmParamsButton;
 	JSlider timeSlider, timeSpeedSlider;
+	JSlider peopleSlider;
 	JTextField speedField;
 	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel, routesAmountLabel, activeBusesAmountLabel;
 	JLabel currentBusNumLabel, currentBusPathLabel, currentBusTimeLabel;
+	JLabel peopleParamSelected;
 	Timer updateScreenTimer, updateTimeTimer;
 	
 	JMenuBar menuBar;
@@ -88,10 +99,14 @@ public class GUIControl extends JFrame {
 		percent = 20;
 		fps = 30;
 		timeUpdateDelay = 25;
+		minPeople = 200;
+		maxPeople = 20000;
 		updateScreenTimer = new Timer(1000 / fps, adapter);
 		controlPanelHeight = 200;
 		busInfoPanelHeigth = 100;
 		busPanelWidth = 250;
+		paramWidth = 250;
+		paramHeight = 150;
 		totalHeight = d.height * 2 / 3;
 		totalWidth = d.width * 2 / 3;
 		int minimumWidth = Math.max(d.width / 2, 5 * controlPanelHeight);
@@ -301,7 +316,7 @@ public class GUIControl extends JFrame {
 		busPanel.setBounds(totalWidth - busPanelWidth, controlPanelHeight,
 				busPanelWidth, totalHeight);
 		busPanel.setLayout(null);
-		busPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		busPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		busInfoPanel = new JPanel();
 		busListPanel = new JPanel();
 		busPanel.add(busInfoPanel);
@@ -309,15 +324,15 @@ public class GUIControl extends JFrame {
 		
 		busInfoPanel.setBounds(0, 0, busPanelWidth, 100);
 		busInfoPanel.setLayout(new BoxLayout(busInfoPanel, BoxLayout.PAGE_AXIS));
-		busInfoPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		busInfoPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		currentBusNumLabel = new JLabel();
 		currentBusPathLabel = new JLabel();
 		currentBusTimeLabel = new JLabel();
 		
 		this.add(controlPanel);
 		controlPanel.setBounds(0, 0, totalWidth, controlPanelHeight);
-		controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-		controlPanel.setBackground(Color.white);
+		controlPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		controlPanel.setBackground(Color.WHITE);
 		controlPanel.setLayout(null);
 		mapControlPanel = new JPanel();
 		infoPanel = new JPanel();
@@ -328,11 +343,11 @@ public class GUIControl extends JFrame {
 		
 		mapControlPanel.setBounds(0, 0, controlPanelHeight, controlPanelHeight);
 		mapControlPanel.setLayout(null);
-		mapControlPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		mapControlPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
 		infoPanel.setBounds(controlPanelHeight, 0, controlPanelHeight, controlPanelHeight);
 		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.PAGE_AXIS));
-		infoPanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		infoPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		actualRoadsNumberLabel = new JLabel();
 		fpsLabel = new JLabel();
 		speedLabel = new JLabel();
@@ -348,8 +363,16 @@ public class GUIControl extends JFrame {
 		
 		timelinePanel.setBounds(2 * controlPanelHeight, 0, totalWidth - 
 				2 * controlPanelHeight, controlPanelHeight);
-		timelinePanel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
+		timelinePanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		timelinePanel.setLayout(null);
+		
+		paramPanel = new JPanel();
+		this.add(paramPanel);
+		paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
+		paramPanel.setBounds(totalWidth / 2 - paramWidth / 2, totalHeight / 2 - paramHeight / 2,
+				paramWidth, paramHeight);
+		paramPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		paramPanel.setVisible(false);
 		
 		setButtons();
 	}
@@ -458,11 +481,25 @@ public class GUIControl extends JFrame {
 		timelinePanel.add(updateSpeedButton);
 		updateSpeedButton.setBounds(340, 10, 100, 30);
 		updateSpeedButton.addActionListener(adapter);
+		
+		peopleSlider = new JSlider(minPeople, maxPeople);
+		paramPanel.add(peopleSlider);
+		peopleSlider.addChangeListener(adapter);
+		peopleParamSelected = new JLabel("" + peopleSlider.getValue());
+		paramPanel.add(peopleParamSelected);
+		confirmParamsButton = new JButton("Confirm");
+		paramPanel.add(confirmParamsButton);
+		confirmParamsButton.addActionListener(adapter);
+		paramHeight = (int) paramPanel.getPreferredSize().getHeight();
+		updateSizes();
+		
 	}
 	
 	private void updateSizes() {
 		totalWidth = this.getWidth();
 		totalHeight = this.getHeight();
+		paramPanel.setBounds(totalWidth / 2 - paramWidth / 2, totalHeight / 2 - paramHeight / 2,
+				paramWidth, paramHeight);
 		mapPanel.setBounds(0, controlPanelHeight, totalWidth - busPanelWidth, totalHeight);
 		busPanel.setBounds(totalWidth - busPanelWidth, controlPanelHeight,
 				busPanelWidth, totalHeight);
@@ -555,6 +592,62 @@ public class GUIControl extends JFrame {
 			model.timePaused = true;
 			pauseButton.setText("Continue");
 			updateTimeTimer.stop();
+		}
+	}
+	
+	public void chooseFile(File file) {
+		if (selectingRep) {
+			try {
+				Report rep = model.getReport(file);
+				model.emulateReport(rep);
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(this, "An error occured while reading from file",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		} else {
+			try {
+				ShortReport rep = model.getShortReport(file);
+				int answer = JOptionPane.showConfirmDialog(this, new JLabel("Emulate people?"), "Emulation",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (answer == JOptionPane.YES_OPTION) {
+					currSRep = rep;
+					showParamPanel();
+				} else {
+					model.emulateShortReport(rep, false);					
+				}
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(this, "An error occured while reading from file",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+		initBusPanel();
+		busesInited = true;
+	}
+	
+	public void showParamPanel() {
+		mapPanel.setVisible(false);
+		busPanel.setVisible(false);
+		controlPanel.setVisible(false);
+		paramPanel.setVisible(true);
+	}
+	
+	public void hideParamPanel() {
+		mapPanel.setVisible(true);
+		busPanel.setVisible(true);
+		controlPanel.setVisible(true);
+		paramPanel.setVisible(false);
+	}
+	
+	public void setParams() {
+		model.numOfPeople = peopleSlider.getValue();
+		hideParamPanel();
+		if (currSRep != null) {
+			int answer = JOptionPane.showConfirmDialog(this, new JLabel("Emulate?"), "Emulation",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if (answer == JOptionPane.YES_OPTION)
+				model.emulateShortReport(currSRep, true);			
 		}
 	}
 	

@@ -36,6 +36,7 @@ public class GUIModel {
 	double currentTime, timeSpeed, maxTime;
 	boolean timePaused;
 	int numOfBuses, numOfPeople;
+	Random rnd;
 
 	public GUIModel(File roadsFile) throws IOException {
 		roads = new ArrayList<>();
@@ -48,7 +49,7 @@ public class GUIModel {
 		getMaxSizes();
 	}
 	
-	public void emulate() {
+	public void emulate(ShortReport srep) {
 		buses.clear();
 		peopleRoutes.clear();
 		ArrayList<Road> r = new ArrayList<>();
@@ -61,16 +62,26 @@ public class GUIModel {
 			roadsForManager[i] = r.get(i);			
 		}
 		RoadManager manager = new RoadManager(roadsForManager);
-		Random rnd = new Random();
+		rnd = new Random();
 		generator = new BusGenerator(manager);
 		System.out.println("Generating buses...");
-		while (buses.size() < numOfBuses) {
-			try {
-				buses.add(generator.generateBus(1, maxTime, 5, 0)); // last argument should be calculated
-			} catch (Exception e) {
+		if (srep == null) {
+			while (buses.size() < numOfBuses) {
+				try {
+					buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
+				} catch (Exception e) {
+				}
+			}			
+			System.out.println(numOfBuses + " buses generated");
+		} else {
+			for (Bus bus : srep.getTimeTable().getBuses()) {
+				buses.add(bus);
+				System.out.println("adding bus");
+				if (bus == null)
+					System.out.println("ну че ты э");
 			}
+			numOfBuses = buses.size();
 		}
-		System.out.println(numOfBuses + " buses generated");
 		ArrayList<Transfer> tr = new ArrayList<>();
 		for (Bus bus : buses) {
 			for (Transfer transfer : bus.getTransfers())
@@ -81,12 +92,12 @@ public class GUIModel {
 			transfer[i] = tr.get(i);
 		}
 		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
-		Person[] persons = new Person[numOfPeople];
+		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
-			persons[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
+			people[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
 					roads.get(rnd.nextInt(roads.size())).to, 1000);
 		}
-		Night night = new Night(persons);
+		Night night = new Night(people);
 		System.out.println("Starting emulation");
 		Report rep = emul.startEmulation(night, 100);
 		System.out.println("Ended emulation");
@@ -100,7 +111,7 @@ public class GUIModel {
 		System.out.println(cnt + " out of " + numOfPeople + " people came home");
 	}
 
-	public void emulate(Report rep) {
+	public void emulateReport(Report rep) {
 		buses.clear();
 		peopleRoutes.clear();
 		TimeTable t = rep.getTimeTable();
@@ -110,12 +121,15 @@ public class GUIModel {
 			peopleRoutes.add(r.getRoute());
 	}
 	
-	public void emulate(ShortReport rep) {
+	public void emulateShortReport(ShortReport rep, boolean emulatePeople) {
 		peopleRoutes.clear();
 		buses.clear();
 		TimeTable t = rep.getTimeTable();
 		for (Bus bus : t.getBuses())
 			buses.add(bus);
+		if (emulatePeople) {
+			emulate(rep);
+		}
 	}
 	
 	public void setConstants() {

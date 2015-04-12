@@ -75,8 +75,13 @@ public class Annealing {
 				}
 			}
 		}
+		try {
+			writeRep(lastRep, "firstReport.srep", logpath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		double bestFit = start;
-		int repeats = 5;
+		int repeats = 7;
 		for (int i = 0; i < iterations; i++) {
 			int ind = rnd.nextInt(numOfBuses);
 			Bus prev = buses[ind];
@@ -171,7 +176,7 @@ public class Annealing {
 		in = new Scanner(System.in);
 		maxTime = 43200;
 		numOfBuses = 20;
-		numOfPeople = 100;
+		numOfPeople = 3000;
 		speedOfConvergence = 1.25;
 		iterations = 2500;
 		T = 2000;

@@ -66,7 +66,7 @@ public class GUIModel {
 		System.out.println("Generating buses...");
 		while (buses.size() < numOfBuses) {
 			try {
-				buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
+				buses.add(generator.generateBus(1, maxTime, 5, 0)); // last argument should be calculated
 			} catch (Exception e) {
 			}
 		}

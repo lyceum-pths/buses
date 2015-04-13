@@ -68,9 +68,9 @@ public class BusGenerator {
 		
 		// generating begins
 		if (timeGenerator == null) {
-			while (begins.size() < buses) {
-				begins.add(random.nextDouble() * (maxTime - minTime) + minTime);
-			}
+			double dT = route.getTotalTime() / buses;
+			for (int i = 0; i < buses; i++)
+				begins.add(i * dT);
 		} else {
 			double buffer;
 			while (begins.size() < buses) {
@@ -83,7 +83,6 @@ public class BusGenerator {
 		int index = 0;
 		for (Double d : begins)
 			times[index++] = d;
-		
 		return new Bus(route, times);
 	}
 }

@@ -281,7 +281,7 @@ public class Emulator {
 				} else {
 					way.add(new BusSegment(modes[current].getBus(), modes[current].getTime(), time[pred[current]] + modes[current].getWaitingTime(), 
 							time[current], nodes.get(pred[current]), nodes.get(current)));
-					if (modes[current].timeWaiting != 0)
+					if (modes[current].timeWaiting > 0)
 						way.add(new WaitingSegment(nodes.get(pred[current]), time[pred[current]], time[pred[current]] + modes[current].timeWaiting));
 				}
 				current = pred[current];

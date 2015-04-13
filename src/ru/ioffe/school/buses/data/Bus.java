@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import ru.ioffe.school.buses.timeManaging.PositionReport;
-import ru.ioffe.school.buses.timeManaging.PositionIndicator;
 import ru.ioffe.school.buses.timeManaging.Transfer;
 
 
 public class Bus implements Serializable {
-	
+
 	private static final long serialVersionUID = 699402716610762006L;
+	private static final double eps = 0.000000001; // 10^(-9)
+	
 	final Route route;
-	//int number;  just like id. Do we need for it?
 	final double[] begins;
 	final Transfer[] transfers;
 
@@ -21,27 +21,42 @@ public class Bus implements Serializable {
 		this.route = route;
 		this.begins = begins;
 		this.transfers = generateTransfers();
+		validate();
 	}
 	
+	private void validate() {
+		double cicleTime = route.getTotalTime();
+		for (int i = 0; i < begins.length; i++)
+			begins[i] %= cicleTime;
+		for (int i = 0; i < begins.length; i++)
+			if (begins[i] < 0)
+				begins[i] += cicleTime;
+		Arrays.sort(begins);
+	}
+
 	/**
 	 * Find (later or before) voyage which begins closest to {@time}
 	 * @param time
 	 * @return number of nearest voyage
 	 */
-	
+
 	public int findNearestVoyage(double time) {
-		int L = -1, R = begins.length, M;
+		double cycleTime = route.getTotalTime();
+		int approximation = (int) (Math.abs(time) / cycleTime) * begins.length;
+		int error = 2 * begins.length + 1;
+		int L = approximation - error, R = approximation + error, M;
 		while (R - L > 1) {
 			M = (R + L) >> 1;
-			if (begins[M] > time) 
+			if (getDeparture(M) >= time) {
 				R = M;
-			else
+			} else {
 				L = M;
+			}
 		}
 		double minDist = Double.POSITIVE_INFINITY, dT;
 		int bestVoyage = -1;
-		for (int i = Math.max(0, L); i <= Math.min(R, begins.length - 1); i++) {
-			dT = Math.abs(begins[i] - time);
+		for (int i = L - 1; i <= R + 1; i++) {
+			dT = Math.abs(getDeparture(i) - time);
 			if (dT < minDist) {
 				minDist = dT;
 				bestVoyage = i;
@@ -49,42 +64,84 @@ public class Bus implements Serializable {
 		}
 		return bestVoyage;
 	}
+
+//	private int findVoyage(double time) {
+//		int L = -1, R = begins.length, M;
+//		while (R - L > 1) {
+//			M = (R + L) >> 1;
+//		if (begins[M] + route.totalTime >= time) 
+//			R = M;
+//		else
+//			L = M;
+//		}
+//		return R;
+//	}
 	
-	private int findVoyage(double time) {
-		int L = -1, R = begins.length, M;
+	public double nextDeparture(double time) {
+		double cycleTime = route.getTotalTime();
+		int approximation = (int) (Math.abs(time) / cycleTime) * begins.length;
+		int error = 2 * begins.length + 1; // its enough
+		int L = approximation - error, R = approximation + error, M;
 		while (R - L > 1) {
 			M = (R + L) >> 1;
-			if (begins[M] + route.totalTime >= time) 
+			if (getDeparture(M) >= time) {
 				R = M;
-			else
+			} else {
 				L = M;
+			}
 		}
-		return R;
+		if ((time - getDeparture(L)) < eps * Math.abs(time)) // there is possible doubles fail
+			return getDeparture(L);
+		return getDeparture(R);
+	}
+	
+	private double getDeparture(int number) {
+		int voyageNumber = number % begins.length;
+		if (voyageNumber < 0)
+			voyageNumber += begins.length;
+		number -= voyageNumber;
+		number /= begins.length;
+		return route.getTotalTime() * number + begins[voyageNumber];
 	}
 
 	public ArrayList<Point> getPosition(double time) {
 		ArrayList<Point> points = new ArrayList<>();
-		for (int i = findVoyage(time); i < begins.length && begins[i] <= time; i++)
-			points.add(route.getPosition(time - begins[i]));
+		time %= route.getTotalTime();
+		if (time < 0)
+			time += route.getTotalTime();
+		double localTime;
+		for (int i = 0; i < begins.length; i++) {
+			localTime = time - begins[i];
+			if (localTime < 0)
+				localTime += route.getTotalTime();
+			points.add(route.getPosition(localTime));
+		}
 		return points;
 	}
-	
-	/** This method tell you information about positions of active buses at {@time}. 
+
+	/** This method tell you information about positions of buses at {@time}. 
 	 * 	Report also contains number of active voyage and link on this bus. 
 	 * 
 	 * @param time
-	 * @return info about positions of active voyages and its numbers
+	 * @return info about positions of voyages and its numbers
 	 */
-	
+
 	public ArrayList<PositionReport> getPositionReports(double time) {
 		ArrayList<PositionReport> points = new ArrayList<>();
-		for (int i = findVoyage(time); i < begins.length && begins[i] <= time; i++)
+		for (int i = 0; i < begins.length; i++)
 			points.add(new PositionReport(route.getPosition(time - begins[i]), this, i));
 		return points;
 	}
-	
+
 	public Point getPosition(double time, int voyage) {
-		return route.getPosition(time - begins[voyage]);
+		voyage %= begins.length;
+		if (voyage < 0)
+			voyage += begins.length;
+		time -= begins[voyage];
+		time %= route.getTotalTime();
+		if (time < 0)
+			time += route.getTotalTime();
+		return route.getPosition(time);
 	}
 
 	public Route getRoute() {
@@ -94,15 +151,12 @@ public class Bus implements Serializable {
 	public double[] getDepartures() {
 		return begins;
 	}
-	
+
 	private Transfer[] generateTransfers() {
 		ArrayList<Transfer> transfers = new ArrayList<>();
-		double[] departures = begins.clone();
 		for(Segment segment : route.getSegments()) {
 			transfers.add(new Transfer(this, segment.getStart(), 
-					segment.getEnd(), segment.getTimeEnd() - segment.getTimeStart(), segment.getTimeStart(), departures.clone()));
-			for (int i = 0; i < departures.length; i++)
-				departures[i] += segment.getTimeEnd() - segment.getTimeStart();
+					segment.getEnd(), segment.getTimeEnd() - segment.getTimeStart(), segment.getTimeStart()));
 		}
 		return transfers.toArray(new Transfer[transfers.size()]);
 	}
@@ -110,66 +164,7 @@ public class Bus implements Serializable {
 	public Transfer[] getTransfers() {
 		return transfers;
 	}
-	
 
-	public BusIndicator getBusIndicator(double startTime) {
-		return new BusIndicator(startTime);
-	}
-
-	public class BusIndicator implements PositionIndicator {
-
-		PositionIndicator indicator;
-		double currentTime;
-		int currentPassage;
-
-		private BusIndicator(double startTime) {
-			indicator = route.getPositionIndicator(startTime);
-			setTime(startTime);
-		}
-
-		@Override
-		public Point getPosition() {
-			return indicator.getPosition();
-		}
-
-		private boolean isReady() {
-			return currentPassage == begins.length || currentTime <= begins[currentPassage] + route.getTotalTime();
-		}
-
-		@Override
-		public void skipTime(double time) { // O(n*log(n)) summary
-			currentTime += time;
-			if (isReady()) {
-				indicator.skipTime(time);
-				return;
-			}
-			while (!isReady())
-				currentPassage++;
-			indicator.setTime(currentTime - (currentPassage < begins.length? begins[currentPassage] : Double.NEGATIVE_INFINITY));
-		}
-
-		@Override
-		public void setTime(double time) {
-			currentTime = time;
-			int L = 0, R = begins.length, M;
-			while (R - L > 1) {
-				M = (R + L) >> 1;
-			if (begins[M] > currentTime) {
-				R = M;
-			} else {
-				L = M;
-			}
-			}
-			currentPassage = L;
-			indicator.setTime(time - begins[currentPassage]);
-		}
-
-		@Override
-		public double getCurrentTime() {
-			return currentTime;
-		}
-	}
-	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

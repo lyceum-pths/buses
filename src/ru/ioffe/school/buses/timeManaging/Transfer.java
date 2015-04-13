@@ -1,7 +1,6 @@
 package ru.ioffe.school.buses.timeManaging;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.Point;
@@ -15,40 +14,22 @@ import ru.ioffe.school.buses.data.Point;
 public class Transfer implements Serializable {
 
 	private static final long serialVersionUID = 6322276115251647118L;
-	final double[] departure;
 	final double continuance; 
 	final double time; // time between bus started moving and it came to point from
 	final Point to;
 	final Point from;
 	final Bus bus;
 	
-	public Transfer(Bus bus, Point from, Point to, double continuance, double time, double... departure) {
+	public Transfer(Bus bus, Point from, Point to, double continuance, double time) {
 		this.bus = bus;
 		this.time = time;
 		this.from = from;
 		this.to = to;
 		this.continuance = continuance;
-		Arrays.sort(departure);
-		this.departure = departure;
 	}
 	
 	public double getNextDeparture(double current) {
-		if (current > departure[departure.length - 1]) 
-			return Double.POSITIVE_INFINITY; // infinity
-		int L = -1, R = departure.length - 1, M; // departure[L] < current, departure[R] >= current
-		while (R - L > 1) {
-			M = (R + L) >> 1;
-			if (departure[M] < current) {
-				L = M;
-			} else {
-				R = M;
-			}
-		}
-		return departure[R];
-	}
-
-	public double[] getDeparture() {
-		return departure;
+		return time + bus.nextDeparture(current - time);
 	}
 
 	public double getContinuance() {

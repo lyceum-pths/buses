@@ -11,7 +11,7 @@ import ru.ioffe.school.buses.timeManaging.Transfer;
 public class Bus implements Serializable {
 
 	private static final long serialVersionUID = 699402716610762006L;
-	private static final double eps = 0.000000001; // 10^(-9)
+	private static final double eps = 0.0000001; // 10^(-7)
 	
 	final Route route;
 	final double[] begins;

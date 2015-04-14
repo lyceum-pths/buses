@@ -20,6 +20,7 @@ import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.emulation.Emulator;
 import ru.ioffe.school.buses.emulation.ShortReport;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
+import ru.ioffe.school.buses.nightGeneration.TimeGenerator;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
 
@@ -132,10 +133,11 @@ public class Annealing {
 	}
 
 	Night generateNight() { // WHY DO YOU NOT USE NIGTH GENERATOR I WROTE?
+		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001);
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			people[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
-					roads.get(rnd.nextInt(roads.size())).to, 1000);
+					roads.get(rnd.nextInt(roads.size())).to, timeGenerator.getRandomTime());
 		}
 		return new Night(people);
 	}

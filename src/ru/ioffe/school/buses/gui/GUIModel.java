@@ -18,6 +18,7 @@ import ru.ioffe.school.buses.emulation.PersonalReport;
 import ru.ioffe.school.buses.emulation.Report;
 import ru.ioffe.school.buses.emulation.ShortReport;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
+import ru.ioffe.school.buses.nightGeneration.TimeGenerator;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
 import ru.ioffe.school.buses.timeManaging.Transfer;
@@ -68,7 +69,7 @@ public class GUIModel {
 		if (srep == null) {
 			while (buses.size() < numOfBuses) {
 				try {
-					buses.add(generator.generateBus(1, maxTime, 20, 0)); // last argument should be calculated
+					buses.add(generator.generateBus(1, maxTime, 5, 0)); // last argument should be calculated
 				} catch (Exception e) {
 				}
 			}			
@@ -78,7 +79,7 @@ public class GUIModel {
 				buses.add(bus);
 				System.out.println("adding bus");
 				if (bus == null)
-					System.out.println("Ð½Ñƒ Ñ‡Ðµ Ñ‚Ñ‹ Ñ");
+					System.out.println("Îé, âñ¸!");
 			}
 			numOfBuses = buses.size();
 		}
@@ -92,10 +93,11 @@ public class GUIModel {
 			transfer[i] = tr.get(i);
 		}
 		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
+		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001);
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			people[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
-					roads.get(rnd.nextInt(roads.size())).to, 1000);
+					roads.get(rnd.nextInt(roads.size())).to, timeGenerator.getRandomTime());
 		}
 		Night night = new Night(people);
 		System.out.println("Starting emulation");

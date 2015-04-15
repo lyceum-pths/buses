@@ -34,38 +34,37 @@ public class BusGenerator {
 	}
 
 	public Bus generateBus(double minTime, double maxTime, int buses, double minDistanceBetweenEnds) {
+		minDistanceBetweenEnds *= minDistanceBetweenEnds;
+		Point from;
+		Point to;
+		do {
+			from = nodes[random.nextInt(nodes.length)];
+			to = nodes[random.nextInt(nodes.length)];
+		} while (GeographyManager.getSquaredDistance(from, to) < minDistanceBetweenEnds); 
+		return generateBus(minTime, maxTime, buses, from, to);
+	}
+	
+	public Bus generateBus(double minTime, double maxTime, int buses) {
+		return generateBus(minTime, maxTime, buses, 0);
+	}
+
+	public Bus generateBus(double minTime, double maxTime, int buses, Point... controlPoints) {
 		if (buses < 1) 
 			throw new IllegalArgumentException("We need more buses: " + buses);
 		if (maxTime <= minTime)
 			throw new IllegalArgumentException("There is no time to begin!");
-		minDistanceBetweenEnds *= minDistanceBetweenEnds;
-		int from;
-		int to;
-		do {
-			from = random.nextInt(nodes.length);
-			to = random.nextInt(nodes.length);
-		} while (GeographyManager.getSquaredDistance(nodes[from], nodes[to]) < minDistanceBetweenEnds); 
+		if (controlPoints.length < 2)
+			throw new IllegalArgumentException("There is not enough points to generate route: " + controlPoints.length);
 		ArrayList<StraightSegment> way = new ArrayList<>();
 		double currentTime = 0;
-		ArrayList<Point> stations = new ArrayList<>();
-		stations.add(nodes[from]);
-		ArrayList<Double> time = new ArrayList<>();
-		time.add(0D);
-		for (Road road : roadManager.findWay(nodes[from], nodes[to])) {
-			stations.add(road.to);
-			way.add(new StraightSegment(road, currentTime));
-			currentTime += road.getLength() / road.getSpeedBound();
-			time.add(currentTime);
-		} // because roads can be one-way
-		for (Road road : roadManager.findWay(nodes[to], nodes[from])) {
-			stations.add(road.to);
-			way.add(new StraightSegment(road, currentTime));
-			currentTime += road.getLength() / road.getSpeedBound();
-			time.add(currentTime);
+		for (int i = 0; i < controlPoints.length; i++) {
+			for (Road road : roadManager.findWay(controlPoints[i], controlPoints[(i + 1) % controlPoints.length])) {
+				way.add(new StraightSegment(road, currentTime));
+				currentTime += road.getLength() / road.getSpeedBound();
+			}
 		}
 		Route route = new Route(way.toArray(new StraightSegment[way.size()]));
 		TreeSet<Double> begins = new TreeSet<>();
-		
 		// generating begins
 		if (timeGenerator == null) {
 			double dT = route.getTotalTime() / buses;

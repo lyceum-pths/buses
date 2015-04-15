@@ -94,7 +94,7 @@ public class SpeedTest {
 		ArrayList<Bus> buses = new ArrayList<>();
 		while (buses.size() < numOfBuses) {
 			try {
-				buses.add(gen.generateBus(1, maxTime, 20, 0));
+				buses.add(gen.generateBus(20, 0));
 			} catch (Exception e) {
 			}
 		}

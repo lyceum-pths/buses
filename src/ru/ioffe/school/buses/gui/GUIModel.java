@@ -69,10 +69,10 @@ public class GUIModel {
 		if (srep == null) {
 			while (buses.size() < numOfBuses) {
 				try {
-					buses.add(generator.generateBus(1, maxTime, 5, 0)); // last argument should be calculated
+					buses.add(generator.generateBus(5, 0)); // last argument should be calculated
 				} catch (Exception e) {
 				}
-			}			
+			}	
 			System.out.println(numOfBuses + " buses generated");
 		} else {
 			for (Bus bus : srep.getTimeTable().getBuses()) {

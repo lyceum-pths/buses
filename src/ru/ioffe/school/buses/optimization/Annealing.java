@@ -165,7 +165,7 @@ public class Annealing {
 		Bus bus = null;
 		while (bus == null) {
 			try {
-				bus = gen.generateBus(1, maxTime, 20, 0); // we should change count of buses on route
+				bus = gen.generateBus(20, 0); // we should change count of buses on route
 			} catch (Exception e) {}
 		}
 		return bus;

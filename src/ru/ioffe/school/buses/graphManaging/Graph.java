@@ -27,4 +27,6 @@ public class Graph {
 	public HashMap<Point, Integer> getIndexs() {
 		return indexs;
 	}
+	
+	
 }

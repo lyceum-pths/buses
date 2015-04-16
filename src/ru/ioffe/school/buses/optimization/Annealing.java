@@ -19,6 +19,7 @@ import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
 import ru.ioffe.school.buses.emulation.Emulator;
 import ru.ioffe.school.buses.emulation.ShortReport;
+import ru.ioffe.school.buses.graphManaging.Graph;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.nightGeneration.TimeGenerator;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
@@ -41,26 +42,36 @@ public class Annealing {
 	Scanner in;
 
 	void optimize() {
+		optimize(null);
+	}
+	
+	void optimize(Night night) {
 		init();
-		Bus[] buses = new Bus[numOfBuses]; // numOfBuses should not be constant, i think
+		if (night == null)
+			night = generateNight();
+		Bus[] buses = new Bus[numOfBuses];
 		for (int i = 0; i < numOfBuses; i++)
 			buses[i] = generateBus();
-		Night night = generateNight();
 		System.out.println("Insert 0 to start new random annealing or path to one of previous reports " + 
 				"\n(ex annlogs/reports/report239.rep) to continue from previous point");
 		ShortReport lastRep = null;
 		double start = Double.MAX_VALUE;
 		double lastFit = Double.MAX_VALUE;
+		Graph graph = null;
 		while (in.hasNext()) {
 			String line = in.next();
 			if (line.equals("0")) {
 				System.out.println("Starting emulation...");
-				lastRep = new Emulator(5, new TimeTable(buses), roads).
+				Emulator emulator = new Emulator(5, new TimeTable(buses), roads);
+				lastRep = emulator.
 						startFastEmulation(night, thrNum);
+				graph = emulator.getGraph();
 				start = lastRep.getFitness();
 				lastFit = lastRep.getFitness();
 				break;
-			} else {
+			}
+			// this part don't work now
+			/*else {
 				File f = new File(line);
 				if (f.exists() && f.isFile()) {
 					try {
@@ -74,7 +85,7 @@ public class Annealing {
 					}
 					System.err.println("File is corrupted");
 				}
-			}
+			} */
 		}
 		try {
 			writeRep(lastRep, "firstReport.srep", logpath);
@@ -82,19 +93,13 @@ public class Annealing {
 			e.printStackTrace();
 		}
 		double bestFit = start;
-		int repeats = 7;
 		for (int i = 0; i < iterations; i++) {
 			int ind = rnd.nextInt(numOfBuses);
 			Bus prev = buses[ind];
 			buses[ind] = generateBus();
-			ShortReport currRep = new Emulator(5, new TimeTable(buses), roads).
+			ShortReport currRep = new Emulator(new TimeTable(buses), graph).
 					startFastEmulation(night, thrNum);
 			double fit = currRep.getFitness();
-			for (int j = 1; j < repeats; j++) {
-				fit += new Emulator(5, new TimeTable(buses), roads).
-						startFastEmulation(night, thrNum).getFitness();
-			}
-			fit /= repeats;
 			if (fit > bestFit) {
 				bestFit = fit;
 				try {
@@ -165,7 +170,7 @@ public class Annealing {
 		Bus bus = null;
 		while (bus == null) {
 			try {
-				bus = gen.generateBus(20, 0); // we should change count of buses on route
+				bus = gen.generateBus(5, 0);
 			} catch (Exception e) {}
 		}
 		return bus;
@@ -177,8 +182,8 @@ public class Annealing {
 		peopleRoutes = new ArrayList<>();
 		in = new Scanner(System.in);
 		maxTime = 43200;
-		numOfBuses = 20;
-		numOfPeople = 3000;
+		numOfBuses = 10;
+		numOfPeople = 300;
 		speedOfConvergence = 1.25;
 		iterations = 2500;
 		T = 2000;

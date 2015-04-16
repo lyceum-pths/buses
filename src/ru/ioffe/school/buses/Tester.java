@@ -1,13 +1,13 @@
 package ru.ioffe.school.buses;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.awt.Dimension;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 
-import ru.ioffe.school.buses.data.Road;
-import ru.ioffe.school.buses.randomTownGenerator.RandomTownGenerator;
-import ru.ioffe.school.buses.randomTownGenerator.Town;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
 
 
 public class Tester {
@@ -51,15 +51,33 @@ public class Tester {
 //			System.out.println(bus.getPosition(in.nextDouble()));
 //		}
 //		in.close();
-		Town t = RandomTownGenerator.generateTown(50, 5, 5, 70, 100, 50);
-		// copy-paste 
-		FileOutputStream fos = new FileOutputStream(new File("roads.txt"));
-		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		for (Road road : t.getRoads()) {
-			oos.writeObject(road);
+//		Town t = RandomTownGenerator.generateTown(50, 5, 5, 70, 100, 50);
+//		// copy-paste 
+//		BusGenerator generator = new BusGenerator(roadManager)
+//		Bus[] busese = 
+//		FileOutputStream fos = new FileOutputStream(new File("roads.txt"));
+//		ObjectOutputStream oos = new ObjectOutputStream(fos);
+//		for (Road road : t.getRoads()) {
+//			oos.writeObject(road);
+//		}
+//		oos.flush();
+//		oos.close();
+		JPanel panel = new JPanel();
+		panel.setLayout(null);
+		panel.setPreferredSize(new Dimension(100, 100));
+		JTextField field = new JTextField("texkjgnitrnbijnit");
+		field.setBounds(20, 20, 60, 20);
+		panel.add(field);
+		JSlider slider = new JSlider(0, 100, 50);
+		slider.setBounds(20, 60, 60, 20);
+		panel.add(slider);
+		JFrame frame = new JFrame();
+		frame.setSize(300, 300);
+		frame.setVisible(true);
+		int type = JOptionPane.showConfirmDialog(frame, panel, "Choose parametres of night", JOptionPane.YES_NO_OPTION);
+		if (type == JOptionPane.YES_OPTION) {
+			System.out.println("Text : " + field.getText());
+			System.out.println("Integer : " + slider.getValue());
 		}
-		oos.flush();
-		oos.close();
-			
 	}
 }

@@ -7,20 +7,24 @@ import ru.ioffe.school.buses.timeManaging.TimeTable;
 
 public class ShortReport implements Serializable {
 
-	private static final long serialVersionUID = 1666009997974973284L;
+	private static final long serialVersionUID = 16669997974973284L;
 	final Person[] persons;
-	final double[] time;
 	final TimeTable timeTable;
 	final double fitness;
 	
 	public ShortReport(Person[] persons, double[] time, TimeTable timeTable) {
 		this.persons = persons;
-		this.time = time;
 		this.timeTable = timeTable;
 		double averageTime = 0;
 		for (double d : time)
 			averageTime += d;
 		fitness = averageTime / persons.length;
+	}
+	
+	public ShortReport(Person[] persons, double fitness, TimeTable timeTable) {
+		this.persons = persons;
+		this.timeTable = timeTable;
+		this.fitness = fitness;
 	}
 
 	public Person[] getPersons() {
@@ -30,10 +34,6 @@ public class ShortReport implements Serializable {
 	public double getFitness() {
 		return fitness;
 	}
-	
-	public double[] getTime() {
-		return time;
-	}
 
 	public TimeTable getTimeTable() {
 		return timeTable;
@@ -41,6 +41,6 @@ public class ShortReport implements Serializable {
 	
 	@Override
 	public ShortReport clone() {
-		return new ShortReport(persons, time, timeTable);
+		return new ShortReport(persons, fitness, timeTable);
 	}
 }

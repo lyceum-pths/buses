@@ -30,7 +30,7 @@ public class StabilityTest {
 		peopleRoutes = new ArrayList<>();
 		rnd = new Random();
 		numOfBuses = 20;
-		numOfPeople = 2000;
+		numOfPeople = 100;
 		maxTime = 43200;
 		File roadsFile;
 		try {
@@ -53,7 +53,7 @@ public class StabilityTest {
 		RoadManager manager = new RoadManager(roadsForManager);
 		BusGenerator generator = new BusGenerator(manager);
 		
-		int numOfTests = 20;
+		int numOfTests = 50;
 		double[] fit = new double[numOfTests];
 		Bus[] buses = generateBuses(generator);
 		ArrayList<Transfer> tr = new ArrayList<>();
@@ -74,7 +74,7 @@ public class StabilityTest {
 						roads.get(rnd.nextInt(roads.size())).to, 1000);
 			}
 			Night night = new Night(persons);
-			fit[i] = emul.startEmulation(night, 100).getFitness();
+			fit[i] = emul.startQuantumEmulation(night, 100).getFitness();
 		}
 		double average = 0;
 		for (double d : fit)
@@ -84,7 +84,7 @@ public class StabilityTest {
 		for (double d : fit)
 			error += (average - d) * (average - d);
 		error /= numOfTests;
-		System.out.println("Error = " + error);
+		System.out.println("Error = " + Math.sqrt(error));
 		double maxdiff = Integer.MIN_VALUE;
 		for (double d : fit)
 			maxdiff = Math.max(maxdiff, Math.abs(d - average));

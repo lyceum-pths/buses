@@ -130,7 +130,7 @@ public class Emulator {
 		int d = (n - 1) / threadsNumber + 1;  // rounding up
 		for (int i = 0; i < threadsNumber; i++) {
 			threads[i] = new Thread(
-					new Module(nigth.getPersons(), i * d, Math.min((i + 1) * d, n), times));
+					new Module(nigth.getPersons(), i * d, Math.min((i + 1) * d, n), times, false));
 			threads[i].start();
 		}
 		for (int i = 0; i < threadsNumber; i++) {
@@ -141,12 +141,36 @@ public class Emulator {
 		System.out.println("Time for fast emulating: " + (System.currentTimeMillis() - time));
 		return new ShortReport(nigth.getPersons(), times, timeTable);
 	}
+	
+	public ShortReport startQuantumEmulation(Night nigth, int threadsNumber) {
+		long time = System.currentTimeMillis();
+		if (threadsNumber < 1) 
+			throw new IllegalArgumentException("Bad idea");
+		threadsNumber = Math.min(threadsNumber, nodes.size());
+		Thread[] threads = new Thread[threadsNumber];
+		int n = nigth.getPersons().length;
+		double[] times = new double[n];
+		int d = (n - 1) / threadsNumber + 1;  // rounding up
+		for (int i = 0; i < threadsNumber; i++) {
+			threads[i] = new Thread(
+					new Module(nigth.getPersons(), i * d, Math.min((i + 1) * d, n), times, true));
+			threads[i].start();
+		}
+		for (int i = 0; i < threadsNumber; i++) {
+			try {
+				threads[i].join();
+			} catch (InterruptedException e) {}
+		}
+		System.out.println("Time for quantum emulating: " + (System.currentTimeMillis() - time));
+		return new ShortReport(nigth.getPersons(), times, timeTable);
+	}
 
 	private class Module implements Runnable {
 		// input
 		Person[] persons;
 		int begin;
 		int end;
+		boolean isQuantum;
 
 		// output
 		PersonalReport[] routes;
@@ -160,11 +184,12 @@ public class Emulator {
 			this.routes = routes;
 		}
 
-		public Module(Person[] persons, int begin, int end, double[] times) {
+		public Module(Person[] persons, int begin, int end, double[] times, boolean isQuantum) {
 			this.begin = begin;
 			this.end = end;
 			this.persons = persons;
 			this.times = times;
+			this.isQuantum = isQuantum;
 		}
 
 		@Override
@@ -172,7 +197,7 @@ public class Emulator {
 			if (routes == null) { // fast emulation
 				for (int i = begin; i < end; i++) {
 					try {
-						times[i] = findTime(persons[i]);
+						times[i] = isQuantum? findAverageTime(persons[i]) : findTime(persons[i]);
 					} catch (Exception e) {
 						e.printStackTrace();
 						System.err.println("Way wasn't found");
@@ -353,6 +378,63 @@ public class Emulator {
 				throw new IllegalArgumentException(
 						"Person cant come home: " + person);		
 			return time[to] - person.getTime();
+		}
+		
+		// find average time for person to go from his start point for every cross-road in town
+		private double findAverageTime(Person person) {
+			int from;
+			// looking for point
+			try {
+				from = indexs.get(person.getFrom());
+			} catch (NullPointerException e) {
+				from = tryFindNearestPoint(person.getFrom());
+				System.err.println("There isn't such point:" + person.getFrom());
+				System.err.println("For the start will be used the nearest point: " + nodes.get(from) + 
+						" (distance between = " + GeographyManager.getDistance(person.getFrom(), nodes.get(from)));
+			}
+			int n = nodes.size();
+			double[] time = new double[n];
+			boolean[] checked = new boolean[n];
+			Arrays.fill(time, Double.POSITIVE_INFINITY);
+			time[from] = person.getTime();
+			double nextTime;
+			Heap<Step> heap = new Heap<>();
+			heap.add(new Step(0, from));
+			int current;
+			int next;
+			while (!heap.isEmpty()) {
+				current = heap.poll().getTo();
+				if (checked[current])
+					continue;
+				checked[current] = true;
+				for (Edge edge : edges[current]) {
+					next = edge.getEnd();
+					if (checked[next])
+						continue;
+					if (time[current] + edge.getTime() < time[next]) {
+						time[next] = time[current] + edge.getTime();
+						heap.add(new Step(time[next], next));
+					}
+				}
+				for (BusEdge bus : buses[current]) {
+					next = bus.getEnd();
+					if (checked[next])
+						continue;
+					nextTime = bus.nextDeparture(time[current]);
+					if (nextTime + bus.getContinuance() < time[next]) {
+						time[next] = nextTime + bus.getContinuance();
+						heap.add(new Step(time[next], next));
+					}
+				}
+			}
+			int achievabled = 0;
+			double average = 0;
+			for (double d : time)
+				if (d != Double.POSITIVE_INFINITY) {
+					achievabled++;
+					average += d;
+				}
+			return average / achievabled;
 		}
 	}
 

@@ -70,7 +70,7 @@ public class Annealing {
 				System.out.println("Starting emulation...");
 				Emulator emulator = new Emulator(5, new TimeTable(buses), roads);
 				lastRep = emulator.
-						startFastEmulation(night, thrNum);
+						startQuantumEmulation(night, thrNum);
 				graph = emulator.getGraph();
 				start = lastRep.getFitness();
 				lastFit = lastRep.getFitness();
@@ -104,7 +104,7 @@ public class Annealing {
 			Bus prev = buses[ind];
 			buses[ind] = generateBus();
 			ShortReport currRep = new Emulator(new TimeTable(buses), graph).
-					startFastEmulation(night, thrNum);
+					startQuantumEmulation(night, thrNum);
 			double fit = currRep.getFitness();
 			if (fit > bestFit) {
 				bestFit = fit;

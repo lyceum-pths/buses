@@ -49,10 +49,10 @@ public class GUIControl extends JFrame {
 	int controlPanelHeight, busPanelWidth, busInfoPanelHeigth;
 	int percent, fps, timeUpdateDelay;
 	int currentX, currentY;
-	int paramWidth, paramHeight;
 	int minPeople, maxPeople;
 	
 	boolean busesInited, selectingRep;
+	boolean haveToEmulate;
 	
 	JPanel mapPanel, controlPanel, busPanel;
 	JPanel mapControlPanel, infoPanel, timelinePanel;
@@ -61,13 +61,11 @@ public class GUIControl extends JFrame {
 	
 	JButton zoomButton, unzoomButton, upButton, downButton, leftButton, rightButton;
 	JButton pauseButton, updateSpeedButton;
-	JButton confirmParamsButton;
 	JSlider timeSlider, timeSpeedSlider;
-	JSlider peopleSlider;
-	JTextField speedField;
+	JTextField speedField, peopleField;
 	JLabel actualRoadsNumberLabel, fpsLabel, speedLabel, timeLabel, routesAmountLabel, activeBusesAmountLabel;
 	JLabel currentBusNumLabel, currentBusPathLabel, currentBusTimeLabel;
-	JLabel peopleParamSelected;
+	JLabel peopleParamInfo;
 	Timer updateScreenTimer, updateTimeTimer;
 	
 	JMenuBar menuBar;
@@ -96,6 +94,7 @@ public class GUIControl extends JFrame {
 		view = new GUIView(model);
 		adapter = new ControlAdapter(this);
 		Dimension d = getToolkit().getScreenSize();
+		haveToEmulate = true;
 		percent = 20;
 		fps = 30;
 		timeUpdateDelay = 25;
@@ -105,8 +104,6 @@ public class GUIControl extends JFrame {
 		controlPanelHeight = 200;
 		busInfoPanelHeigth = 100;
 		busPanelWidth = 250;
-		paramWidth = 250;
-		paramHeight = 150;
 		totalHeight = d.height * 2 / 3;
 		totalWidth = d.width * 2 / 3;
 		int minimumWidth = Math.max(d.width / 2, 5 * controlPanelHeight);
@@ -367,12 +364,7 @@ public class GUIControl extends JFrame {
 		timelinePanel.setLayout(null);
 		
 		paramPanel = new JPanel();
-		this.add(paramPanel);
 		paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
-		paramPanel.setBounds(totalWidth / 2 - paramWidth / 2, totalHeight / 2 - paramHeight / 2,
-				paramWidth, paramHeight);
-		paramPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		paramPanel.setVisible(false);
 		
 		setButtons();
 	}
@@ -482,15 +474,11 @@ public class GUIControl extends JFrame {
 		updateSpeedButton.setBounds(340, 10, 100, 30);
 		updateSpeedButton.addActionListener(adapter);
 		
-		peopleSlider = new JSlider(minPeople, maxPeople);
-		paramPanel.add(peopleSlider);
-		peopleSlider.addChangeListener(adapter);
-		peopleParamSelected = new JLabel("" + peopleSlider.getValue());
-		paramPanel.add(peopleParamSelected);
-		confirmParamsButton = new JButton("Confirm");
-		paramPanel.add(confirmParamsButton);
-		confirmParamsButton.addActionListener(adapter);
-		paramHeight = (int) paramPanel.getPreferredSize().getHeight();
+		peopleParamInfo = new JLabel("Insert amount of people to emulate");
+		paramPanel.add(peopleParamInfo);
+		peopleField = new JTextField();
+		paramPanel.add(peopleField);
+
 		updateSizes();
 		
 	}
@@ -498,8 +486,6 @@ public class GUIControl extends JFrame {
 	private void updateSizes() {
 		totalWidth = this.getWidth();
 		totalHeight = this.getHeight();
-		paramPanel.setBounds(totalWidth / 2 - paramWidth / 2, totalHeight / 2 - paramHeight / 2,
-				paramWidth, paramHeight);
 		mapPanel.setBounds(0, controlPanelHeight, totalWidth - busPanelWidth, totalHeight);
 		busPanel.setBounds(totalWidth - busPanelWidth, controlPanelHeight,
 				busPanelWidth, totalHeight);
@@ -612,7 +598,9 @@ public class GUIControl extends JFrame {
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (answer == JOptionPane.YES_OPTION) {
 					currSRep = rep;
-					showParamPanel();
+					showParamPane();
+					if (haveToEmulate)
+						model.emulateShortReport(rep, true);
 				} else {
 					model.emulateShortReport(rep, false);					
 				}
@@ -622,32 +610,30 @@ public class GUIControl extends JFrame {
 				return;
 			}
 		}
-		initBusPanel();
+		if (haveToEmulate)
+			initBusPanel();
+		haveToEmulate = true;
 		busesInited = true;
 	}
 	
-	public void showParamPanel() {
-		mapPanel.setVisible(false);
-		busPanel.setVisible(false);
-		controlPanel.setVisible(false);
-		paramPanel.setVisible(true);
-	}
-	
-	public void hideParamPanel() {
-		mapPanel.setVisible(true);
-		busPanel.setVisible(true);
-		controlPanel.setVisible(true);
-		paramPanel.setVisible(false);
-	}
-	
-	public void setParams() {
-		model.numOfPeople = peopleSlider.getValue();
-		hideParamPanel();
-		if (currSRep != null) {
-			int answer = JOptionPane.showConfirmDialog(this, new JLabel("Emulate?"), "Emulation",
-					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if (answer == JOptionPane.YES_OPTION)
-				model.emulateShortReport(currSRep, true);			
+	public void showParamPane() {
+		peopleField.setText("" + model.numOfPeople);
+		int ans = JOptionPane.showConfirmDialog(this, paramPanel, "Emulation",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (ans == JOptionPane.OK_OPTION) {
+			String res = peopleField.getText();
+			try {
+				int num = Integer.parseInt(res);
+				if (num < 1)
+					throw new NumberFormatException();
+				model.numOfPeople = num;
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(this, "Not a valid number",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				showParamPane();
+			}
+		} else {
+			haveToEmulate = false;
 		}
 	}
 	

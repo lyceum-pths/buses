@@ -1,8 +1,10 @@
 package ru.ioffe.school.buses.data;
 
+import java.io.Serializable;
+
 import ru.ioffe.school.buses.randomGeneration.Generateable;
 
-public class InterestingPoint extends Point implements Generateable {
+public class InterestingPoint extends Point implements Generateable, Serializable {
 	
 	private static final long serialVersionUID = 9133810140827049601L;
 	final int popularity;

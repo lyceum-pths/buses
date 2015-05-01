@@ -30,7 +30,7 @@ public class StabilityTest {
 		peopleRoutes = new ArrayList<>();
 		rnd = new Random();
 		numOfBuses = 20;
-		numOfPeople = 100;
+		numOfPeople = 2000;
 		maxTime = 43200;
 		File roadsFile;
 		try {
@@ -53,21 +53,21 @@ public class StabilityTest {
 		RoadManager manager = new RoadManager(roadsForManager);
 		BusGenerator generator = new BusGenerator(manager);
 		
-		int numOfTests = 15;
+		int numOfTests = 20;
 		double[] fit = new double[numOfTests];
+		Bus[] buses = generateBuses(generator);
+		ArrayList<Transfer> tr = new ArrayList<>();
+		for (Bus bus : buses) {
+			for (Transfer transfer : bus.getTransfers())
+				tr.add(transfer);
+		}
+		Transfer[] transfer = new Transfer[tr.size()];
+		for (int j = 0; j < tr.size(); j++) {
+			transfer[j] = tr.get(j);
+		}
+		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
 		for (int i = 0; i < numOfTests; i++) {
 			System.out.println("Starting test " + (i + 1) + " out of " + numOfTests);
-			Bus[] buses = generateBuses(generator);
-			ArrayList<Transfer> tr = new ArrayList<>();
-			for (Bus bus : buses) {
-				for (Transfer transfer : bus.getTransfers())
-					tr.add(transfer);
-			}
-			Transfer[] transfer = new Transfer[tr.size()];
-			for (int j = 0; j < tr.size(); j++) {
-				transfer[j] = tr.get(i);
-			}
-			Emulator emul = new Emulator(5, new TimeTable(buses), roads);
 			Person[] persons = new Person[numOfPeople];
 			for (int j = 0; j < numOfPeople; j++) {
 				persons[j] = new Person(roads.get(rnd.nextInt(roads.size())).to,
@@ -80,6 +80,11 @@ public class StabilityTest {
 		for (double d : fit)
 			average += d;
 		average /= numOfTests;
+		double error = 0;
+		for (double d : fit)
+			error += (average - d) * (average - d);
+		error /= numOfTests;
+		System.out.println("Error = " + error);
 		double maxdiff = Integer.MIN_VALUE;
 		for (double d : fit)
 			maxdiff = Math.max(maxdiff, Math.abs(d - average));

@@ -112,16 +112,18 @@ public class ControlAdapter implements KeyListener, ActionListener,
 			c.selectingRep = false;
 			c.chooser.showOpenDialog(c);
 		} else if (e.getSource() == c.emulateItem) {
-			c.model.emulate(null);
-			c.initBusPanel();
-			c.busesInited = true;
+			c.showParamPane();
+			if (c.haveToEmulate) {
+				c.model.emulate(null);
+				c.initBusPanel();
+				c.busesInited = true;				
+			}
+			c.haveToEmulate = true;
 		} else if (e.getSource() == c.chooser) {
 			if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION))
 				return;
 			File file = c.chooser.getSelectedFile();
 			c.chooseFile(file);
-		} else if (e.getSource() == c.confirmParamsButton) {
-			c.setParams();
 		}
 	}
 	
@@ -136,8 +138,6 @@ public class ControlAdapter implements KeyListener, ActionListener,
 				c.pauseButton.setText("Pause");
 				c.model.timePaused = false;
 			}
-		} else if (e.getSource() == c.peopleSlider) {
-			c.peopleParamSelected.setText("" + c.peopleSlider.getValue());
 		}
 	}
 	

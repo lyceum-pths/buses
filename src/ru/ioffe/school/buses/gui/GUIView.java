@@ -9,6 +9,7 @@ import java.util.HashMap;
 import javax.swing.JFrame;
 
 import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.data.Route;
@@ -153,6 +154,15 @@ public class GUIView extends JFrame {
 							personSize, personSize);
 				}
 			}
+		}
+		g.setColor(Color.ORANGE);
+		for (InterestingPoint p : model.interestingPoints) {
+			double difX = p.getX() - model.left;
+			double difY = -p.getY() + model.up;
+			int x = (int) (difX * pxSize);
+			int y = (int) (difY * pxSize);
+			g.fillOval(x - TINY_SIZE / 2, y - TINY_SIZE / 2,
+					TINY_SIZE, TINY_SIZE);
 		}
 		if (showBus) {
 			g.setColor(Color.RED);

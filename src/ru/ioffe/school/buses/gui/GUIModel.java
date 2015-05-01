@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Night;
 import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.data.Point;
@@ -27,6 +28,7 @@ public class GUIModel {
 	ArrayList<Road> roads;
 	ArrayList<Bus> buses;
 	ArrayList<Route> peopleRoutes;
+	ArrayList<InterestingPoint> interestingPoints;
 	int totalGUIWidth, totalGUIHeight, controlPanelHeight;
 	double right, left, up, down;
 	double minX, minY, maxX, maxY;
@@ -43,6 +45,7 @@ public class GUIModel {
 		roads = new ArrayList<>();
 		buses = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
+		interestingPoints = getInterestingPoints(new File("int.data"));
 		setConstants();
 		timePaused = false;
 		getRoads(roadsFile);
@@ -77,9 +80,6 @@ public class GUIModel {
 		} else {
 			for (Bus bus : srep.getTimeTable().getBuses()) {
 				buses.add(bus);
-				System.out.println("adding bus");
-				if (bus == null)
-					System.out.println("Îé, âñ¸!");
 			}
 			numOfBuses = buses.size();
 		}
@@ -101,16 +101,21 @@ public class GUIModel {
 		}
 		Night night = new Night(people);
 		System.out.println("Starting emulation");
-		Report rep = emul.startEmulation(night, 100);
-		System.out.println("Ended emulation");
-		PersonalReport[] routes = rep.getReports();
-		int cnt = 0;
-		for (int i = 0; i < routes.length; i++) {
-			peopleRoutes.add(routes[i].getRoute());
-			if (routes[i].getTotalTime() < maxTime) //its Wrong!
-				cnt++;
-		}
-		System.out.println(cnt + " out of " + numOfPeople + " people came home");
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Report rep = emul.startEmulation(night, 100);
+				PersonalReport[] routes = rep.getReports();
+				int cnt = 0;
+				for (int i = 0; i < routes.length; i++) {
+					peopleRoutes.add(routes[i].getRoute());
+					if (routes[i].getTotalTime() < maxTime) //its Wrong!
+						cnt++;
+				}
+				System.out.println(cnt + " out of " + numOfPeople + " people came home");
+			}
+		}).start();;
 	}
 
 	public void emulateReport(Report rep) {
@@ -237,6 +242,19 @@ public class GUIModel {
 		return num;
 	}
 
+	private ArrayList<InterestingPoint> getInterestingPoints(File file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream oin = new ObjectInputStream(fis);
+		ArrayList<InterestingPoint> points = new ArrayList<>();
+		try {
+			while (true) {
+				points.add((InterestingPoint) oin.readObject());
+			}
+		} catch (Exception e) {}
+		oin.close();
+		return points;
+	}
+	
 	private void getRoads(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);

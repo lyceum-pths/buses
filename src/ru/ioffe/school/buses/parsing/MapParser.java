@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Point;
 import ru.ioffe.school.buses.data.Road;
 import ru.ioffe.school.buses.graphManaging.GraphBuilder;
@@ -67,10 +68,13 @@ public class MapParser {
 	
 	private static ArrayList<Point> parsePoints(String[] text) throws FileNotFoundException {
 		ArrayList<Point> points = new ArrayList<>();
+		ArrayList<InterestingPoint> interesting = new ArrayList<>();
 		String nodeRegex = "<node.*";
 		String idRegex = "<node id=\"\\d+\"";
 		String lonRegex = "lon=\"\\d+\\.\\d+\"";
 		String latRegex = "lat=\"\\d+\\.\\d+\"";
+		String pubRegex = "<tag k=\"amenity\" v=\"pub\"/>";
+		String nodeEnd = "</node>";
 		Matcher idMatcher;
 		Matcher lonMatcher;
 		Matcher latMatcher;
@@ -94,6 +98,13 @@ public class MapParser {
 					points.add(currPoint);
 					out.println(id);
 					pointsByIds.put(id, currPoint);
+					if (!text[i].endsWith("/>")) { //there are tags
+						while (!text[i].equals(nodeEnd)) {
+							if (text[i].matches(pubRegex))
+								interesting.add(new InterestingPoint(currPoint));
+							i++;
+						}
+					}
 				} else {
 					System.out.println("Error: one of the nodes doesn't have info about it's id, lat or lon; line " + (i + 1));
 					System.out.println(text[i]);
@@ -101,6 +112,11 @@ public class MapParser {
 			}
 		}
 		out.close();
+		try {
+			interestingPointsToFile(new File("int.data"), interesting);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		return points;
 	}
@@ -164,6 +180,16 @@ public class MapParser {
 			}
 		}
 		return roads;
+	}
+	
+	private static void interestingPointsToFile(File file, ArrayList<InterestingPoint> points) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		for (Point p : points) {
+			oos.writeObject(p);			
+		}
+		oos.flush();
+		oos.close();
 	}
 	
 	private static void pointsToFile(File file, ArrayList<Point> points) throws IOException {

@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 import ru.ioffe.school.buses.data.Bus;
+import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Night;
 import ru.ioffe.school.buses.data.Person;
 import ru.ioffe.school.buses.data.Road;
@@ -28,7 +29,8 @@ import ru.ioffe.school.buses.timeManaging.TimeTable;
 public class Annealing {
 
 	ArrayList<Road> roads;
-	ArrayList<Route> peopleRoutes;
+	ArrayList<InterestingPoint> poi;
+	ArrayList<Route> peopleRoutes; //?
 	int maxTime;
 	int numOfBuses, numOfPeople;
 	int thrNum;
@@ -137,7 +139,7 @@ public class Annealing {
 		T /= speedOfConvergence;
 	}
 
-	Night generateNight() { // WHY DO YOU NOT USE NIGTH GENERATOR I WROTE?
+	Night generateNight() {
 		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001);
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
@@ -179,6 +181,7 @@ public class Annealing {
 	void init() {
 		rnd = new Random();
 		roads = new ArrayList<>();
+		poi = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
 		in = new Scanner(System.in);
 		maxTime = 43200;
@@ -213,6 +216,7 @@ public class Annealing {
 		File roadsFile = new File("data/generated/roads.data");
 		try {
 			getRoads(roadsFile);
+			getPOI(new File("data/poi.data"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -229,6 +233,17 @@ public class Annealing {
 		gen = new BusGenerator(manager);
 	}
 
+	void getPOI(File file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		ObjectInputStream oin = new ObjectInputStream(fis);
+		try {
+			while (true) {
+				poi.add((InterestingPoint) oin.readObject());
+			}
+		} catch (Exception e) {}
+		oin.close();
+	}
+	
 	void getRoads(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);

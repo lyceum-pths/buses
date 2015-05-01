@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.zip.ZipInputStream;
 
 import ru.ioffe.school.buses.gui.GUIControl;
+import ru.ioffe.school.buses.parsing.CheckerPOI;
 import ru.ioffe.school.buses.parsing.MapParser;
 
 /*
@@ -85,6 +86,9 @@ public class Main {
 		}
 		System.out.println("Parsing roads from map.data file...");
 		MapParser.getRoads(new File("data/map.data"), true);
+		File file = new File("int.data"); 
+		CheckerPOI.validatePOI(new File("data/generated/roads.data"), file);
+		file.delete();
 		System.out.println("Running GUIControl...");
 		GUIControl.main(args);
 	}

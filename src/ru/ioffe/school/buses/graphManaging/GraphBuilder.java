@@ -220,6 +220,25 @@ public class GraphBuilder {
 		}
 		return comps[maxIndex];
 	}
+	
+	public Point findNearestPoint(Point point) {
+		Point nearest = null;
+		double distance = Double.POSITIVE_INFINITY;
+		double buffer;
+		for (Road road : roads) {
+			buffer = GeographyManager.getSquaredDistance(point, road.from);
+			if (buffer < distance) {
+				distance = buffer;
+				nearest = road.from;
+			}
+			buffer = GeographyManager.getSquaredDistance(point, road.to);
+			if (buffer < distance) {
+				distance = buffer;
+				nearest = road.to;
+			}
+		}
+		return nearest;
+	}
 
 	private static class SNM {
 		ArrayList<Integer> pred;

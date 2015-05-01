@@ -45,7 +45,7 @@ public class GUIModel {
 		roads = new ArrayList<>();
 		buses = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
-		interestingPoints = getInterestingPoints(new File("int.data"));
+		interestingPoints = getInterestingPoints(new File("data/generated/poi.data"));
 		setConstants();
 		timePaused = false;
 		getRoads(roadsFile);

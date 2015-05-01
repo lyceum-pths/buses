@@ -23,11 +23,14 @@ import ru.ioffe.school.buses.emulation.ShortReport;
 import ru.ioffe.school.buses.graphManaging.Graph;
 import ru.ioffe.school.buses.graphManaging.RoadManager;
 import ru.ioffe.school.buses.nightGeneration.TimeGenerator;
+import ru.ioffe.school.buses.randomGeneration.RandomObjectGenerator;
 import ru.ioffe.school.buses.routeGeneration.BusGenerator;
 import ru.ioffe.school.buses.timeManaging.TimeTable;
 
 public class Annealing {
-
+	
+	public static final long seed = 293874329875698239L;
+	
 	ArrayList<Road> roads;
 	ArrayList<InterestingPoint> poi;
 	ArrayList<Route> peopleRoutes; //?
@@ -36,6 +39,7 @@ public class Annealing {
 	int thrNum;
 	Random rnd;
 	BusGenerator gen;
+	RandomObjectGenerator<InterestingPoint> poiGenerator;
 	double speedOfConvergence;
 	double T;
 	int iterations;
@@ -140,10 +144,10 @@ public class Annealing {
 	}
 
 	Night generateNight() {
-		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001);
+		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001, rnd.nextLong());
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
-			people[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
+			people[i] = new Person(poiGenerator.getRandomObject(),
 					roads.get(rnd.nextInt(roads.size())).to, timeGenerator.getRandomTime());
 		}
 		return new Night(people);
@@ -179,7 +183,7 @@ public class Annealing {
 	}
 
 	void init() {
-		rnd = new Random();
+		rnd = new Random(seed);
 		roads = new ArrayList<>();
 		poi = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
@@ -216,7 +220,7 @@ public class Annealing {
 		File roadsFile = new File("data/generated/roads.data");
 		try {
 			getRoads(roadsFile);
-			getPOI(new File("data/poi.data"));
+			getPOI(new File("data/generated/poi.data"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -230,7 +234,8 @@ public class Annealing {
 			roadsForManager[i] = r.get(i);			
 		}
 		RoadManager manager = new RoadManager(roadsForManager);
-		gen = new BusGenerator(manager);
+		gen = new BusGenerator(manager, rnd.nextLong());
+		poiGenerator = new RandomObjectGenerator<>(poi.toArray(new InterestingPoint[poi.size()]), rnd.nextLong());
 	}
 
 	void getPOI(File file) throws IOException {

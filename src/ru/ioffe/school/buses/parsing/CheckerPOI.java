@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Point;
@@ -17,7 +19,7 @@ public class CheckerPOI {
 	
 	public static void validatePOI(File roads, File poi) throws IOException {
 		GraphBuilder builder = new GraphBuilder(getRoads(roads)); 
-		ArrayList<InterestingPoint> result = new ArrayList<>();
+		HashSet<InterestingPoint> result = new HashSet<>();
 		for (Point point : getPoints(poi))
 			result.add(new InterestingPoint(builder.findNearestPoint(point)));
 		savePoints(new File("data/generated/poi.data"), result);
@@ -51,7 +53,7 @@ public class CheckerPOI {
 		return points;
 	}
 	
-	static void savePoints(File file, ArrayList<InterestingPoint> points) throws IOException {
+	static void savePoints(File file, Collection<InterestingPoint> points) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
 		for (Point p : points) {

@@ -40,7 +40,7 @@ public class Point implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return (int) ((x + (566239 * y)) % Integer.MAX_VALUE);
+		return Double.hashCode(x) + 235349 * Double.hashCode(y);
 	}
 	
 	@Override

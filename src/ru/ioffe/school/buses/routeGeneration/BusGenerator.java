@@ -31,6 +31,19 @@ public class BusGenerator {
 		this.random = new Random();
 		this.timeGenerator = generator;
 	}
+	
+	public BusGenerator(RoadManager roadManager, long seed) {
+		this.roadManager = roadManager;
+		this.nodes = roadManager.getCrossroads();
+		this.random = new Random(seed);
+	}
+
+	public BusGenerator(RoadManager roadManager, TimeGenerator generator, long seed) {
+		this.roadManager = roadManager;
+		this.nodes = roadManager.getCrossroads();
+		this.random = new Random(seed);
+		this.timeGenerator = generator;
+	}
 
 	public Bus generateBus(int buses, double minDistanceBetweenEnds) {
 		minDistanceBetweenEnds *= minDistanceBetweenEnds;

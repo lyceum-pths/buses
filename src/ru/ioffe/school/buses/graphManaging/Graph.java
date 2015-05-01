@@ -28,5 +28,4 @@ public class Graph {
 		return indexs;
 	}
 	
-	
 }

@@ -8,6 +8,13 @@ public class RandomIndexGenerator {
 	Tree tree;
 	Random rand;
 	
+	public RandomIndexGenerator(int size, long seed) {
+		probability = new int[size];
+		Arrays.fill(probability, 1);
+		rand = new Random(seed);
+		tree = new Tree(probability);
+	}
+	
 	public RandomIndexGenerator(int size) {
 		probability = new int[size];
 		Arrays.fill(probability, 1);
@@ -18,6 +25,20 @@ public class RandomIndexGenerator {
 	public RandomIndexGenerator(int[] probability) {
 		this.probability = probability;
 		rand = new Random();
+		tree = new Tree(probability);
+	}
+	
+	public RandomIndexGenerator(int[] probability, long seed) {
+		this.probability = probability;
+		rand = new Random(seed);
+		tree = new Tree(probability);
+	}
+	
+	public RandomIndexGenerator(Generateable[] objects, long seed) {
+		this.probability = new int[objects.length];
+		for (int i = 0; i < objects.length; i++)
+			probability[i] = objects[i].getProbability();
+		rand = new Random(seed);
 		tree = new Tree(probability);
 	}
 	
@@ -62,8 +83,8 @@ public class RandomIndexGenerator {
 				return;
 			}
 			int M = (R + L) >> 1;
-			init((n << 1) + 1, L, M, array);
-			init((n << 1) + 2, M, R, array);
+			init((n >> 1) + 1, L, M, array);
+			init((n >> 1) + 2, M, R, array);
 			update(n);
 		}
 		
@@ -112,7 +133,7 @@ public class RandomIndexGenerator {
 		}
 		
 		private void update(int n) {
-			sum[n] = sum[(n << 1) + 1] + sum[(n << 1) + 2];
+			sum[n] = sum[(n >> 1) + 1] + sum[(n >> 1) + 2];
 		}
 	}
 }

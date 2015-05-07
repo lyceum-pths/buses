@@ -106,7 +106,7 @@ public class Annealing {
 			ShortReport currRep = new Emulator(new TimeTable(buses), graph).
 					startQuantumEmulation(night, thrNum);
 			double fit = currRep.getFitness();
-			if (fit > bestFit) {
+			if (fit < bestFit) {
 				bestFit = fit;
 				try {
 					writeRep(currRep, "bestReport.srep", logpath);
@@ -118,11 +118,14 @@ public class Annealing {
 			if (diff > 0) {
 				double p = Math.exp(-diff / T);
 				double rand = rnd.nextDouble();
-				if (rand < p)
+				if (rand < p) {
 					lastRep = currRep;
-				else
+					lastFit = fit;
+				} else {
 					buses[ind] = prev;
+				}
 			} else {
+				lastFit = fit;
 				lastRep = currRep;
 			}
 			System.out.println("Iteration " + (i + 1) + "; T = " + T + "; curr fitness = " + fit);
@@ -176,7 +179,7 @@ public class Annealing {
 		Bus bus = null;
 		while (bus == null) {
 			try {
-				bus = gen.generateBus(5, 0);
+				bus = gen.generateBus(2, 0);
 			} catch (Exception e) {}
 		}
 		return bus;
@@ -189,9 +192,9 @@ public class Annealing {
 		peopleRoutes = new ArrayList<>();
 		in = new Scanner(System.in);
 		maxTime = 43200;
-		numOfBuses = 10;
-		numOfPeople = 300;
-		speedOfConvergence = 1.25;
+		numOfBuses = 7;
+		numOfPeople = 1000;
+		speedOfConvergence = 1.008;
 		iterations = 2500;
 		T = 2000;
 		thrNum = 100;

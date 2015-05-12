@@ -45,6 +45,7 @@ public class Annealing {
 	int iterations;
 	String logpath;
 	PrintWriter log;
+	PrintWriter csvLogs;
 	Scanner in;
 
 	void optimize() {
@@ -98,6 +99,12 @@ public class Annealing {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		PrintWriter fitnessLogs = null;
+		try {
+			fitnessLogs = new PrintWriter(new File("MyLogs.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		double bestFit = start;
 		for (int i = 0; i < iterations; i++) {
 			int ind = rnd.nextInt(numOfBuses);
@@ -125,9 +132,11 @@ public class Annealing {
 					buses[ind] = prev;
 				}
 			} else {
-				lastFit = fit;
 				lastRep = currRep;
+				lastFit = fit;
 			}
+			fitnessLogs.println(lastFit);
+			csvLogs.println(i + 1 + " " + lastFit);
 			System.out.println("Iteration " + (i + 1) + "; T = " + T + "; curr fitness = " + fit);
 			log.println("Iteration " + (i + 1) + "; T = " + T + "; curr fitness = " + fit);
 			decrease();
@@ -138,6 +147,8 @@ public class Annealing {
 				+ "fitness at start = " + start + "; fitness in the end = " + end);
 		log.println("Ended annealing after " + iterations + " iterations, "
 				+ "fitness at start = " + start + "; fitness in the end = " + end);
+		fitnessLogs.close();
+		csvLogs.close();
 		log.close();
 		in.close();
 	}
@@ -186,6 +197,11 @@ public class Annealing {
 	}
 
 	void init() {
+		try {
+			csvLogs = new PrintWriter(new File("annlogs/reports/info.csv"));
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
 		rnd = new Random(seed);
 		roads = new ArrayList<>();
 		poi = new ArrayList<>();
@@ -194,8 +210,8 @@ public class Annealing {
 		maxTime = 43200;
 		numOfBuses = 7;
 		numOfPeople = 1000;
-		speedOfConvergence = 1.008;
-		iterations = 2500;
+		speedOfConvergence = 1.009;
+		iterations = 2000;
 		T = 2000;
 		thrNum = 100;
 		logpath = "annlogs/reports/";

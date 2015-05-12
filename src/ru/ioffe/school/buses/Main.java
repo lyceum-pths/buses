@@ -58,6 +58,10 @@ public class Main {
 		System.out.println("Hello, buses!");
 		File dir = new File("data/generated/");
 		dir.mkdirs();
+		String rej = "https://www.dropbox.com/s/22xz2o6rgwledxd/rejected.zip?dl=1";
+		File rejected = new File("data/rejected.txt");
+		if (!rejected.exists())
+			read(rej, rejected);
 		File f = new File("data/map.data");
 		if (f.exists()) {
 			System.out.println("You already have a map.data file on your computer");
@@ -85,7 +89,7 @@ public class Main {
 			in.close();
 		}
 		System.out.println("Parsing roads from map.data file...");
-		MapParser.getRoads(new File("data/map.data"), false);
+		MapParser.getRoads(new File("data/map.data"), true);
 		File file = new File("int.data"); 
 		CheckerPOI.validatePOI(new File("data/generated/roads.data"), file);
 		file.delete();

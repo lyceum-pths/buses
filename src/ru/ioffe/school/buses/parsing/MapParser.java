@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,6 +124,11 @@ public class MapParser {
  	
 	private static ArrayList<Road> parseRoads(String[] text) throws IOException {
 		parsePoints(text);
+		ArrayList<Long> rejected = new ArrayList<>();
+		Scanner in = new Scanner(new File("data/rejected.txt"));
+		while (in.hasNextLong())
+			rejected.add(in.nextLong());
+		in.close();
 		ArrayList<Road> roads = new ArrayList<>();
 		String wayRegex = "<way.*";
 		String wayCloseRegex = "</way>";
@@ -130,7 +136,7 @@ public class MapParser {
 		String highwayTypeRegex = "v=\"[a-z]+\"";
 		String refRegex = "<nd ref=\"\\d+\"/>";
 		String onewayRegex = "<tag k=\"oneway\" v=\"yes\"/>";
-		String[] types = { "secondary", "tertiary", "primary", "motorway" };
+		String[] types = { "secondary", "tertiary", "primary", "motorway", "residential" };
 //		String[] types = { "residential" };
 		HashSet<String> neededTypes = new HashSet<>();
 		for (int i = 0; i < types.length; i++) {
@@ -154,7 +160,7 @@ public class MapParser {
 						Long refId = Long.parseLong(ref);
 						if (last == -1) {
 							last = refId;
-						} else {
+						} else if (!(rejected.contains(last) || rejected.contains(refId))) {
 							currentRoads.add(new Road(pointsByIds.get(last), pointsByIds.get(refId)));
 							if (last == 0 && refId == 0)
 								System.out.println("lol");

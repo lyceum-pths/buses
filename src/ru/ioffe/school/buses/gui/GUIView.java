@@ -85,7 +85,7 @@ public class GUIView extends JFrame {
 				- model.controlPanelHeight, null);
 		double pxSize = model.totalGUIWidth / (model.right - model.left);
 		if (showWay && model.currentBus != null) {
-			g.setColor(Color.ORANGE);
+			g.setColor(Color.RED);
 			Route r = model.currentBus.getRoute();
 			for (Segment s : r.getSegments()) {
 				Point p1 = s.getStart();
@@ -100,6 +100,9 @@ public class GUIView extends JFrame {
 				int y2 = (int) (difY * pxSize);
 				g.drawLine(x1, y1, x2, y2);
 				g.drawLine(x1, y1 + 1, x2, y2 + 1);
+				g.drawLine(x1, y1 - 1, x2, y2 - 1);
+				g.drawLine(x1, y1 + 2, x2, y2 + 2);
+				g.drawLine(x1, y1 - 2, x2, y2 - 2);
 			}
 		}
 		g.setColor(Color.RED);
@@ -155,14 +158,15 @@ public class GUIView extends JFrame {
 				}
 			}
 		}
-		g.setColor(Color.ORANGE);
+		g.setColor(Color.CYAN);
 		for (InterestingPoint p : model.interestingPoints) {
 			double difX = p.getX() - model.left;
 			double difY = -p.getY() + model.up;
 			int x = (int) (difX * pxSize);
 			int y = (int) (difY * pxSize);
-			g.fillOval(x - TINY_SIZE / 2, y - TINY_SIZE / 2,
-					TINY_SIZE, TINY_SIZE);
+			int size = SMALL_SIZE;
+			g.fillOval(x - size / 2, y - size / 2,
+					size, size);
 		}
 		if (showBus) {
 			g.setColor(Color.RED);

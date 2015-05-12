@@ -85,7 +85,7 @@ public class Main {
 			in.close();
 		}
 		System.out.println("Parsing roads from map.data file...");
-		MapParser.getRoads(new File("data/map.data"), true);
+		MapParser.getRoads(new File("data/map.data"), false);
 		File file = new File("int.data"); 
 		CheckerPOI.validatePOI(new File("data/generated/roads.data"), file);
 		file.delete();

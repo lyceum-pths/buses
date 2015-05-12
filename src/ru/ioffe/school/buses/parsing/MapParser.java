@@ -130,7 +130,8 @@ public class MapParser {
 		String highwayTypeRegex = "v=\"[a-z]+\"";
 		String refRegex = "<nd ref=\"\\d+\"/>";
 		String onewayRegex = "<tag k=\"oneway\" v=\"yes\"/>";
-		String[] types = { "secondary", "tertiary", "primary", "residential" };
+		String[] types = { "secondary", "tertiary", "primary", "motorway" };
+//		String[] types = { "residential" };
 		HashSet<String> neededTypes = new HashSet<>();
 		for (int i = 0; i < types.length; i++) {
 			neededTypes.add(types[i]);

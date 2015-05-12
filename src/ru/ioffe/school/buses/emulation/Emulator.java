@@ -346,7 +346,7 @@ public class Emulator {
 			time[from] = person.getTime();
 			double nextTime;
 			Heap<Step> heap = new Heap<>();
-			heap.add(new Step(0, from));
+			heap.add(new Step(person.getTime(), from));
 			int current;
 			int next;
 			while (!heap.isEmpty() && !checked[to]) {
@@ -399,7 +399,7 @@ public class Emulator {
 			time[from] = person.getTime();
 			double nextTime;
 			Heap<Step> heap = new Heap<>();
-			heap.add(new Step(0, from));
+			heap.add(new Step(person.getTime(), from));
 			int current;
 			int next;
 			while (!heap.isEmpty()) {
@@ -432,7 +432,7 @@ public class Emulator {
 			for (double d : time)
 				if (d != Double.POSITIVE_INFINITY) {
 					achievabled++;
-					average += d;
+					average += d - person.getTime();
 				}
 			return average / achievabled;
 		}

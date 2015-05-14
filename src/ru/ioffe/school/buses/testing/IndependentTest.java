@@ -88,8 +88,10 @@ public class IndependentTest {
 		int persons = in.nextInt();
 		System.out.println("Insert name of report to test");
 		File f = new File(in.next());
+		ShortReport srep = readRep(f);
+		System.out.println("Current fitness = " + srep.getFitness());
 		IndependentTest test = new IndependentTest(new File("data/generated/roads.data"), new File("data/generated/poi.data"), 42000);
-		System.out.println("Fitness = " + test.test(readRep(f), persons, 100));
+		System.out.println("Fitness = " + test.test(srep, persons, 100));
 		in.close();
 	}
 }

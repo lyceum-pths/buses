@@ -20,7 +20,7 @@ import ru.ioffe.school.buses.data.Point;
 
 public class ControlAdapter implements KeyListener, ActionListener, 
 		MouseListener, MouseMotionListener, ListSelectionListener, ChangeListener {
-
+	
 	private GUIControl c;
 	
 	public ControlAdapter(GUIControl control) {
@@ -68,6 +68,9 @@ public class ControlAdapter implements KeyListener, ActionListener,
 		} else if (e.getSource() == c.showWay) {
 			c.view.setShowWay(!c.view.isShowWay());
 			c.showWay.setText((c.view.isShowWay()? "Hide" : "Show") +  " route");
+		} else if (e.getSource() == c.showPOI) {
+			c.view.setShowPOI(!c.view.isShowPOI());
+			c.showPOI.setText((c.view.isShowPOI()? "Hide" : "Show") +  " route");
 		} else if (e.getSource() == c.busVeryBig) {
 			c.view.setBusSize(GUIView.VERY_BIG_SIZE);
 		} else if (e.getSource() == c.busBig) {
@@ -103,7 +106,17 @@ public class ControlAdapter implements KeyListener, ActionListener,
 		} else if (e.getSource() == c.crossroadTiny) {
 			c.view.setCrossroadSize(GUIView.TINY_SIZE);
 			c.view.updateMap();
-		} else if (e.getSource() == c.exitItem) {
+		} else if (e.getSource() == c.poiVeryBig) {
+			c.view.setPOISize(GUIView.VERY_BIG_SIZE);
+		} else if (e.getSource() == c.poiBig) {
+			c.view.setPOISize(GUIView.BIG_SIZE);
+		} else if (e.getSource() == c.poiMedium) {
+			c.view.setPOISize(GUIView.MEDIUM_SIZE);
+		} else if (e.getSource() == c.poiSmall) {
+			c.view.setPOISize(GUIView.SMALL_SIZE);
+		} else if (e.getSource() == c.poiTiny) {
+			c.view.setPOISize(GUIView.TINY_SIZE);
+		}else if (e.getSource() == c.exitItem) {
 			System.exit(0);
 		} else if (e.getSource() == c.openReport) {
 			c.selectingRep = true;

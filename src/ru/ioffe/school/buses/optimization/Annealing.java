@@ -29,7 +29,8 @@ import ru.ioffe.school.buses.timeManaging.TimeTable;
 
 public class Annealing {
 	
-	public static final long seed = 293874329875698239L;
+//	public static final long seed = 293874329875698239L;
+	public static final long seed = 874673465746L;
 	
 	ArrayList<Road> roads;
 	ArrayList<InterestingPoint> poi;
@@ -141,6 +142,11 @@ public class Annealing {
 			log.println("Iteration " + (i + 1) + "; T = " + T + "; curr fitness = " + fit);
 			decrease();
 			log.flush();
+			try {
+				writeRep(lastRep, "Iteration ¹" + (i + 1) + ".srep", "reports/");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		double end = lastRep.getFitness();
 		System.out.println("Ended annealing after " + iterations + " iterations, "
@@ -210,7 +216,7 @@ public class Annealing {
 		maxTime = 43200;
 		numOfBuses = 7;
 		numOfPeople = 1000;
-		speedOfConvergence = 1.009;
+		speedOfConvergence = 1.005;
 		iterations = 2000;
 		T = 2000;
 		thrNum = 100;

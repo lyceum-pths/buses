@@ -70,12 +70,13 @@ public class GUIControl extends JFrame {
 	
 	JMenuBar menuBar;
 	JMenu fileMenu, settingsMenu, showMenu;
-	JMenu sizeMenu, busSizeMenu, personSize, crossroadsSize, openMenu;
+	JMenu sizeMenu, busSizeMenu, personSize, crossroadsSize, poiSize, openMenu;
 	JMenuItem openReport, openShortReport;
-	JMenuItem showPerson, showBus, showCrossroads, showWay;
+	JMenuItem showPerson, showBus, showCrossroads, showWay, showPOI;
 	JMenuItem busVeryBig, busBig, busMedium, busSmall, busTiny;
 	JMenuItem personVeryBig, personBig, personMedium, personSmall, personTiny;
 	JMenuItem crossroadVeryBig, crossroadBig, crossroadMedium, crossroadSmall, crossroadTiny;
+	JMenuItem poiVeryBig, poiBig, poiMedium, poiSmall, poiTiny;
 	JMenuItem exitItem, emulateItem;
 	
 	JFileChooser chooser;
@@ -173,6 +174,11 @@ public class GUIControl extends JFrame {
         showMenu.add(showWay);
         showWay.addActionListener(adapter);
         
+        showPOI = new JMenuItem((view.isShowPOI()? "Hide" : "Show") +  " poi");
+        showPOI.setFont(font);
+        showMenu.add(showPOI);
+        showPOI.addActionListener(adapter);
+        
         // size menu
         
         sizeMenu = new JMenu("Size");
@@ -265,6 +271,35 @@ public class GUIControl extends JFrame {
         crossroadTiny.setFont(font);
         crossroadsSize.add(crossroadTiny);
         crossroadTiny.addActionListener(adapter);
+        
+        poiSize = new JMenu("POI");
+        poiSize.setFont(font);
+        sizeMenu.add(poiSize);
+        
+        poiVeryBig = new JMenuItem("Very big");
+        poiVeryBig.setFont(font);
+        poiSize.add(poiVeryBig);
+        poiVeryBig.addActionListener(adapter);
+        
+        poiBig = new JMenuItem("Big");
+        poiBig.setFont(font);
+        poiSize.add(poiBig);
+        poiBig.addActionListener(adapter);
+        
+        poiMedium = new JMenuItem("Medium");
+        poiMedium.setFont(font);
+        poiSize.add(poiMedium);
+        poiMedium.addActionListener(adapter);
+        
+        poiSmall = new JMenuItem("Small");
+        poiSmall.setFont(font);
+        poiSize.add(poiSmall);
+        poiSmall.addActionListener(adapter);
+        
+        poiTiny = new JMenuItem("Tiny");
+        poiTiny.setFont(font);
+        poiSize.add(poiTiny);
+        poiTiny.addActionListener(adapter);
         
         openMenu = new JMenu("Open");
         openMenu.setFont(font);

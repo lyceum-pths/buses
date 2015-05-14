@@ -23,6 +23,7 @@ public class GUIView extends JFrame {
 	public static final int MEDIUM_SIZE = 8;
 	public static final int SMALL_SIZE = 6;
 	public static final int TINY_SIZE = 4;
+	public static final Color PURPLE = new Color(139, 0, 255);
 	private double eps = 10e-4;
 
 	GUIModel model;
@@ -30,10 +31,12 @@ public class GUIView extends JFrame {
 	int busSize;
 	int personSize;
 	int crossroadSize;
+	int poiSize;
 	boolean showBus;
 	boolean showPerson;
 	boolean showCrossroads;
 	boolean showWay;
+	boolean showPOI;
 
 	public GUIView(GUIModel model) {
 		this.model = model;
@@ -42,10 +45,12 @@ public class GUIView extends JFrame {
 		busSize = MEDIUM_SIZE;
 		personSize = TINY_SIZE;
 		crossroadSize = TINY_SIZE;
+		poiSize = SMALL_SIZE;
 		showBus = true;
 		showPerson = true;
 		showCrossroads = false;
 		showWay = true;
+		showPOI = false;
 	}
 
 	public void updateMap() {
@@ -158,15 +163,16 @@ public class GUIView extends JFrame {
 				}
 			}
 		}
-		g.setColor(Color.CYAN);
-		for (InterestingPoint p : model.interestingPoints) {
-			double difX = p.getX() - model.left;
-			double difY = -p.getY() + model.up;
-			int x = (int) (difX * pxSize);
-			int y = (int) (difY * pxSize);
-			int size = SMALL_SIZE;
-			g.fillOval(x - size / 2, y - size / 2,
-					size, size);
+		if (showPOI) {
+			g.setColor(PURPLE);
+			for (InterestingPoint p : model.interestingPoints) {
+				double difX = p.getX() - model.left;
+				double difY = -p.getY() + model.up;
+				int x = (int) (difX * pxSize);
+				int y = (int) (difY * pxSize);
+				g.fillOval(x - poiSize / 2, y - poiSize / 2,
+						poiSize, poiSize);
+			}
 		}
 		if (showBus) {
 			g.setColor(Color.RED);
@@ -193,6 +199,10 @@ public class GUIView extends JFrame {
 	public void setCrossroadSize(int crossroadSize) {
 		this.crossroadSize = crossroadSize;
 	}
+	
+	public void setPOISize(int poiSize) {
+		this.poiSize = poiSize;
+	}
 
 	public void setShowBus(boolean showBus) {
 		this.showBus = showBus;
@@ -210,6 +220,10 @@ public class GUIView extends JFrame {
 		this.showWay = showWay;
 	}
 
+	public void setShowPOI(boolean showPOI) {
+		this.showPOI = showPOI;
+	}
+
 	public int getPersonSize() {
 		return personSize;
 	}
@@ -224,6 +238,10 @@ public class GUIView extends JFrame {
 
 	public int getCrossroadSize() {
 		return crossroadSize;
+	}
+	
+	public int getPOISize() {
+		return poiSize;
 	}
 
 	public boolean isShowBus() {
@@ -240,5 +258,9 @@ public class GUIView extends JFrame {
 
 	public boolean isShowWay() {
 		return showWay;
+	}
+
+	public boolean isShowPOI() {
+		return showPOI;
 	}
 }

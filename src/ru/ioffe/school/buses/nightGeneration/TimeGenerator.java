@@ -8,14 +8,14 @@ public class TimeGenerator {
 	double scaleLog;
 	Random rand;
 	
-	public TimeGenerator(int bound, double scale) {
+	public TimeGenerator(double bound, double scale) {
 		this.min = Math.pow(scale, -bound);
 		this.randBound = 1 - min;
 		this.scaleLog = Math.log(scale);
 		this.rand = new Random();
 	}
 	
-	public TimeGenerator(int bound, double scale, long seed) {
+	public TimeGenerator(double bound, double scale, long seed) {
 		this.min = Math.pow(scale, -bound);
 		this.randBound = 1 - min;
 		this.scaleLog = Math.log(scale);

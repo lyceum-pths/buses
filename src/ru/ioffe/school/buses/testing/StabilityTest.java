@@ -29,8 +29,8 @@ public class StabilityTest {
 		roads = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
 		rnd = new Random();
-		numOfBuses = 20;
-		numOfPeople = 100;
+		numOfBuses = 5;
+		numOfPeople = 1000;
 		maxTime = 43200;
 		File roadsFile;
 		try {
@@ -53,7 +53,7 @@ public class StabilityTest {
 		RoadManager manager = new RoadManager(roadsForManager);
 		BusGenerator generator = new BusGenerator(manager);
 		
-		int numOfTests = 50;
+		int numOfTests = 20;
 		double[] fit = new double[numOfTests];
 		Bus[] buses = generateBuses(generator);
 		ArrayList<Transfer> tr = new ArrayList<>();
@@ -65,7 +65,7 @@ public class StabilityTest {
 		for (int j = 0; j < tr.size(); j++) {
 			transfer[j] = tr.get(j);
 		}
-		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
+		Emulator emul = new Emulator(new TimeTable(buses), roads);
 		for (int i = 0; i < numOfTests; i++) {
 			System.out.println("Starting test " + (i + 1) + " out of " + numOfTests);
 			Person[] persons = new Person[numOfPeople];

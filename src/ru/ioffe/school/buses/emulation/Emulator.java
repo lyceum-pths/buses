@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
+import ru.ioffe.school.buses.Settings;
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.BusSegment;
 import ru.ioffe.school.buses.data.Night;
@@ -32,7 +33,8 @@ public class Emulator {
 	final TimeTable timeTable;
 
 	@SuppressWarnings("unchecked")
-	public Emulator(double speed, TimeTable timeTable, Road[] roads) {
+	public Emulator(TimeTable timeTable, Road[] roads) {
+		double speed = Settings.PERSONS_SPEED;
 		this.nodes = new ArrayList<>();
 		this.timeTable = timeTable;
 		this.indexs = new HashMap<>();
@@ -62,8 +64,8 @@ public class Emulator {
 			list.trimToSize();
 	}
 
-	public Emulator(double speed, TimeTable timeTable, Collection<Road> roads) {
-		this(speed, timeTable, roads.toArray(new Road[roads.size()]));
+	public Emulator(TimeTable timeTable, Collection<Road> roads) {
+		this(timeTable, roads.toArray(new Road[roads.size()]));
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -67,7 +67,7 @@ public class SpeedTest {
 			for (int j = 0; j < tr.size(); j++) {
 				transfer[j] = tr.get(i);
 			}
-			Emulator emul = new Emulator(5, new TimeTable(buses), roads);
+			Emulator emul = new Emulator(new TimeTable(buses), roads);
 			Person[] persons = new Person[numOfPeople];
 			for (int j = 0; j < numOfPeople; j++) {
 				persons[j] = new Person(roads.get(rnd.nextInt(roads.size())).to,

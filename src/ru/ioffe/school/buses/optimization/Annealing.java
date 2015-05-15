@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+import ru.ioffe.school.buses.Settings;
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Night;
@@ -30,13 +31,14 @@ import ru.ioffe.school.buses.timeManaging.TimeTable;
 public class Annealing {
 	
 //	public static final long seed = 293874329875698239L;
-	public static final long seed = 874673465746L;
+	public static final long seed = 83465L;
 	
 	ArrayList<Road> roads;
 	ArrayList<InterestingPoint> poi;
 	ArrayList<Route> peopleRoutes; //?
 	int maxTime;
-	int numOfBuses, numOfPeople;
+	int numOfPeople;
+	int[] busesSize;
 	int thrNum;
 	Random rnd;
 	BusGenerator gen;
@@ -57,9 +59,9 @@ public class Annealing {
 		init();
 		if (night == null)
 			night = generateNight();
-		Bus[] buses = new Bus[numOfBuses];
-		for (int i = 0; i < numOfBuses; i++)
-			buses[i] = generateBus();
+		Bus[] buses = new Bus[busesSize.length];
+		for (int i = 0; i < busesSize.length; i++)
+			buses[i] = generateBus(busesSize[i]);
 		System.out.println("Insert 0 to start new random annealing or path to one of previous reports " + 
 				"\n(ex annlogs/reports/report239.rep) to continue from previous point");
 		ShortReport lastRep = null;
@@ -70,7 +72,7 @@ public class Annealing {
 			String line = in.next();
 			if (line.equals("0")) {
 				System.out.println("Starting emulation...");
-				Emulator emulator = new Emulator(5, new TimeTable(buses), roads);
+				Emulator emulator = new Emulator(new TimeTable(buses), roads);
 				lastRep = emulator.
 						startQuantumEmulation(night, thrNum);
 				graph = emulator.getGraph();
@@ -108,9 +110,9 @@ public class Annealing {
 		}
 		double bestFit = start;
 		for (int i = 0; i < iterations; i++) {
-			int ind = rnd.nextInt(numOfBuses);
+			int ind = rnd.nextInt(busesSize.length);
 			Bus prev = buses[ind];
-			buses[ind] = generateBus();
+			buses[ind] = generateBus(busesSize[ind]);
 			ShortReport currRep = new Emulator(new TimeTable(buses), graph).
 					startQuantumEmulation(night, thrNum);
 			double fit = currRep.getFitness();
@@ -164,7 +166,7 @@ public class Annealing {
 	}
 
 	Night generateNight() {
-		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001, rnd.nextLong());
+		TimeGenerator timeGenerator = new TimeGenerator(Settings.NIGHT_LENGTH, Settings.MAGIC_TIME_GENERATION, rnd.nextLong());
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			people[i] = new Person(poiGenerator.getRandomObject(),
@@ -192,11 +194,11 @@ public class Annealing {
 		oos.close();
 	}
 
-	Bus generateBus() {
+	Bus generateBus(int size) {
 		Bus bus = null;
 		while (bus == null) {
 			try {
-				bus = gen.generateBus(2, 0);
+				bus = gen.generateBus(size, 0);
 			} catch (Exception e) {}
 		}
 		return bus;
@@ -214,10 +216,10 @@ public class Annealing {
 		peopleRoutes = new ArrayList<>();
 		in = new Scanner(System.in);
 		maxTime = 43200;
-		numOfBuses = 7;
+		busesSize = Settings.BUSES;
 		numOfPeople = 1000;
 		speedOfConvergence = 1.005;
-		iterations = 2000;
+		iterations = 10;
 		T = 2000;
 		thrNum = 100;
 		logpath = "annlogs/reports/";

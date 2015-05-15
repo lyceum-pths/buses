@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+import ru.ioffe.school.buses.Settings;
 import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Night;
 import ru.ioffe.school.buses.data.Person;
@@ -36,7 +37,7 @@ public class IndependentTest {
 	}
 
 	Night generateNight(int numOfPeople) {
-		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001, rnd.nextLong());
+		TimeGenerator timeGenerator = new TimeGenerator(Settings.NIGHT_LENGTH, Settings.MAGIC_TIME_GENERATION, rnd.nextLong());
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			people[i] = new Person(poiGenerator.getRandomObject(),
@@ -78,7 +79,7 @@ public class IndependentTest {
 	}
 	
 	public double test(ShortReport shortReport, int numOfPeople, int threadNum) {
-		Emulator emulator = new Emulator(5, shortReport.getTimeTable(), roads);
+		Emulator emulator = new Emulator(shortReport.getTimeTable(), roads);
 		return emulator.startFastEmulation(generateNight(numOfPeople), threadNum).getFitness();
 	}
 

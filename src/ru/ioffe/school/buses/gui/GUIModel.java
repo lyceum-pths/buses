@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
+import ru.ioffe.school.buses.Settings;
 import ru.ioffe.school.buses.data.Bus;
 import ru.ioffe.school.buses.data.InterestingPoint;
 import ru.ioffe.school.buses.data.Night;
@@ -92,8 +93,8 @@ public class GUIModel {
 		for (int i = 0; i < tr.size(); i++) {
 			transfer[i] = tr.get(i);
 		}
-		Emulator emul = new Emulator(5, new TimeTable(buses), roads);
-		TimeGenerator timeGenerator = new TimeGenerator(42000, 1.001);
+		Emulator emul = new Emulator(new TimeTable(buses), roads);
+		TimeGenerator timeGenerator = new TimeGenerator(Settings.NIGHT_LENGTH, Settings.MAGIC_TIME_GENERATION);
 		Person[] people = new Person[numOfPeople];
 		for (int i = 0; i < numOfPeople; i++) {
 			people[i] = new Person(roads.get(rnd.nextInt(roads.size())).to,
@@ -115,7 +116,7 @@ public class GUIModel {
 				}
 				System.out.println(cnt + " out of " + numOfPeople + " people came home");
 			}
-		}).start();;
+		}).start();
 	}
 
 	public void emulateReport(Report rep) {

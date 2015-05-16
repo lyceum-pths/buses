@@ -83,8 +83,8 @@ public class RandomIndexGenerator {
 				return;
 			}
 			int M = (R + L) >> 1;
-			init((n >> 1) + 1, L, M, array);
-			init((n >> 1) + 2, M, R, array);
+			init((n << 1) + 1, L, M, array);
+			init((n << 1) + 2, M, R, array);
 			update(n);
 		}
 		
@@ -133,7 +133,7 @@ public class RandomIndexGenerator {
 		}
 		
 		private void update(int n) {
-			sum[n] = sum[(n >> 1) + 1] + sum[(n >> 1) + 2];
+			sum[n] = sum[(n << 1) + 1] + sum[(n << 1) + 2];
 		}
 	}
 }

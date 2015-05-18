@@ -39,8 +39,8 @@ public class MapParser {
 		if (oneComponent) {
 			GraphBuilder build = new GraphBuilder(ans).findMaxComponent();
 			ans.clear();
-			for (Road r : build.getRoads()) {
-				ans.add(r);
+			for (Road road : build.getRoads()) {
+				ans.add(road);
 			}
 		}
 		roadsToFile(new File(outFileName), ans);

@@ -97,16 +97,21 @@ public class Annealing {
 				}
 			} */
 		}
+		if (lastRep == null) {
+			throw new NullPointerException();
+		}
 		try {
 			writeRep(lastRep, "firstReport.srep", logpath);
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		PrintWriter fitnessLogs = null;
 		try {
 			fitnessLogs = new PrintWriter(new File("MyLogs.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		double bestFit = start;
 		for (int i = 0; i < iterations; i++) {
@@ -145,7 +150,7 @@ public class Annealing {
 			decrease();
 			log.flush();
 			try {
-				writeRep(lastRep, "Iteration ¹" + (i + 1) + ".srep", "reports/");
+				writeRep(lastRep, "Iteration ï¿½" + (i + 1) + ".srep", "reports/");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -175,7 +180,7 @@ public class Annealing {
 		return new Night(people);
 	}
 
-	ShortReport readRep(File file) throws IOException, ClassNotFoundException {
+	static ShortReport readRep(File file) throws IOException, ClassNotFoundException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		Object rep = oin.readObject();
@@ -185,7 +190,7 @@ public class Annealing {
 		return (ShortReport) rep;
 	}
 	
-	void writeRep(ShortReport rep, String name, String path) throws IOException {
+	static void writeRep(ShortReport rep, String name, String path) throws IOException {
 		File file = new File(path + name);
 		FileOutputStream fos = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);

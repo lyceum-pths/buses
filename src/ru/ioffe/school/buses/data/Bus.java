@@ -153,12 +153,12 @@ public class Bus implements Serializable {
 	}
 
 	private Transfer[] generateTransfers() {
-		ArrayList<Transfer> transfers = new ArrayList<>();
+		ArrayList<Transfer> transfersList = new ArrayList<>();
 		for(Segment segment : route.getSegments()) {
-			transfers.add(new Transfer(this, segment.getStart(), 
+			transfersList.add(new Transfer(this, segment.getStart(), 
 					segment.getEnd(), segment.getTimeEnd() - segment.getTimeStart(), segment.getTimeStart()));
 		}
-		return transfers.toArray(new Transfer[transfers.size()]);
+		return transfersList.toArray(new Transfer[transfersList.size()]);
 	}
 
 	public Transfer[] getTransfers() {

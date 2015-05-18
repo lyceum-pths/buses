@@ -17,9 +17,9 @@ public class Report implements Serializable {
 		this.report = reports;
 		this.timeTable = timeTable;
 		double average = 0;
-		for (PersonalReport report : reports) 
-			if (report != null)
-			average += report.getTotalTime();
+		for (PersonalReport rep : reports) 
+			if (rep != null)
+			average += rep.getTotalTime();
 		average /= reports.length;
 		this.fitness = average;
 	}

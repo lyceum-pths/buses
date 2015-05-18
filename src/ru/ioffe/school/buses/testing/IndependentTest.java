@@ -56,7 +56,7 @@ public class IndependentTest {
 		return (ShortReport) rep;
 	}
 
-	void getPOI(ArrayList<InterestingPoint> buffer, File file) throws IOException {
+	static void getPOI(ArrayList<InterestingPoint> buffer, File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		try {
@@ -67,7 +67,7 @@ public class IndependentTest {
 		oin.close();
 	}
 	
-	void getRoads(ArrayList<Road> buffer, File file) throws IOException {
+	static void getRoads(ArrayList<Road> buffer, File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		try {

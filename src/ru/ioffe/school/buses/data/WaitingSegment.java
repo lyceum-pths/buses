@@ -43,7 +43,7 @@ public class WaitingSegment implements Segment {
 	}
 
 	@Override
-	public PositionReport getPositionReport(double time) {
+	public PositionReport getPositionReport(@SuppressWarnings("unused") double time) {
 		return new PositionReport(p, null, -1);
 	}
 }

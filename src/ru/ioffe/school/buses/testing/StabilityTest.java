@@ -25,7 +25,7 @@ public class StabilityTest {
 	int numOfBuses, numOfPeople;
 	Random rnd;
 	
-	public void test() throws IOException {
+	public void test() {
 		roads = new ArrayList<>();
 		peopleRoutes = new ArrayList<>();
 		rnd = new Random();
@@ -119,7 +119,7 @@ public class StabilityTest {
 		oin.close();
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		new StabilityTest().test();
 	}
 }

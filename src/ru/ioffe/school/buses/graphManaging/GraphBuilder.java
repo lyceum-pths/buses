@@ -89,7 +89,7 @@ public class GraphBuilder {
 		return getGraph(speedBound, false);
 	}
 
-	private void addPoint(HashMap<Point, Integer> indexs, ArrayList<Point> nodes, Point node) {
+	private static void addPoint(HashMap<Point, Integer> indexs, ArrayList<Point> nodes, Point node) {
 		if (indexs.containsKey(node))
 			return;
 		indexs.put(node, nodes.size());
@@ -128,6 +128,9 @@ public class GraphBuilder {
 				bestDist = current;
 			}
 		}
+		if (best == null) {
+			throw new NullPointerException();
+		}
 		Point a = best.getFrom();
 		Point b = best.getTo();
 		double dx = b.getX() - a.getX();
@@ -154,7 +157,7 @@ public class GraphBuilder {
 		return separator;
 	}
 
-	private double getDistance(Road road, Point point) {
+	private static double getDistance(Road road, Point point) {
 		Point a = road.getFrom();
 		Point b = road.getTo();
 		double scalarProduct = (b.getX() - a.getX()) * (point.getX() - a.getX()) + (b.getY() - a.getY()) * (point.getY() - a.getY());
@@ -167,7 +170,7 @@ public class GraphBuilder {
 	 * @return distance from point "point" to line which contain road "road"
 	 */
 
-	private double getDistanceFromPointToLine(Road road, Point point) {
+	private static double getDistanceFromPointToLine(Road road, Point point) {
 		Point a = road.getFrom();
 		Point b = road.getTo();
 		double vectorProduct = Math.abs((b.getX() - a.getX()) * (point.getY() - a.getY()) -

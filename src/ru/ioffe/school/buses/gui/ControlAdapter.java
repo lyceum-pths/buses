@@ -197,7 +197,7 @@ public class ControlAdapter implements KeyListener, ActionListener,
 	}
 	
 	@Override
-	public void valueChanged(ListSelectionEvent e) {
+	public void valueChanged(@SuppressWarnings("unused") ListSelectionEvent e) {
 		c.setCurrentBus();
 	}
 
@@ -230,27 +230,27 @@ public class ControlAdapter implements KeyListener, ActionListener,
 	//not used
 	
 	@Override
-	public void keyTyped(KeyEvent e) {
+	public void keyTyped(@SuppressWarnings("unused") KeyEvent e) {
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {		
+	public void keyReleased(@SuppressWarnings("unused") KeyEvent e) {		
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
+	public void mouseReleased(@SuppressWarnings("unused") MouseEvent e) {
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e) {
+	public void mouseEntered(@SuppressWarnings("unused") MouseEvent e) {
 	}
 
 	@Override
-	public void mouseExited(MouseEvent e) {
+	public void mouseExited(@SuppressWarnings("unused") MouseEvent e) {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e) {
+	public void mouseMoved(@SuppressWarnings("unused") MouseEvent e) {
 	}
 
 }

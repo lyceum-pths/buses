@@ -1,7 +1,6 @@
 package ru.ioffe.school.buses;
 
 import java.awt.Dimension;
-import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -11,7 +10,7 @@ import javax.swing.JTextField;
 
 
 public class Tester {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 //		Point p = new Point(1.1, 2);
 //		FileManager manager = new FileManager("");
 //		manager.save("point", p);

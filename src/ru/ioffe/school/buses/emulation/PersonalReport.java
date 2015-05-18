@@ -19,19 +19,19 @@ public class PersonalReport {
 		this.person = person;
 		double busTime = 0;
 		double walkTime = 0;
-		double timeWaiting = 0;
+		double timeWaitingCounter = 0;
 		for (Segment segment : route.getSegments()) {
 			if (segment instanceof BusSegment) {
 				busTime += segment.getTimeEnd() - segment.getTimeStart();
 			} else if (segment instanceof StraightSegment) {
 				walkTime += segment.getTimeEnd() - segment.getTimeStart();
 			} else {
-				timeWaiting += segment.getTimeEnd() - segment.getTimeStart();
+				timeWaitingCounter += segment.getTimeEnd() - segment.getTimeStart();
 			}
 		}
 		this.timeByBus = busTime;
 		this.timeWalk = walkTime;
-		this.timeWaiting = timeWaiting;
+		this.timeWaiting = timeWaitingCounter;
 	}
 
 	public Route getRoute() {

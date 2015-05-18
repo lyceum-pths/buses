@@ -23,22 +23,27 @@ public class BusSegment implements Segment {
 		this.voyageNumber = bus.findNearestVoyage(timeStart - time);
 	}
 
+	@Override
 	public Point getStart() {
 		return start;
 	}
 
+	@Override
 	public Point getEnd() {
 		return end;
 	}
 
+	@Override
 	public double getTimeStart() {
 		return timeStart;
 	}
 
+	@Override
 	public double getTimeEnd() {
 		return timeEnd;
 	}
 	
+	@Override
 	public Point getPosition(double time) {
 		if (time < timeStart || time > timeEnd)
 			return null;

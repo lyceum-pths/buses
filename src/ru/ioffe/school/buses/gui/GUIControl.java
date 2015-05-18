@@ -124,7 +124,7 @@ public class GUIControl extends JFrame {
 		setMenuBar();
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
-			public void componentResized(ComponentEvent e) {
+			public void componentResized(@SuppressWarnings("unused") ComponentEvent e) {
 				updateSizes();
 			}
 		});
@@ -619,7 +619,7 @@ public class GUIControl extends JFrame {
 	public void chooseFile(File file) {
 		if (selectingRep) {
 			try {
-				Report rep = model.getReport(file);
+				Report rep = GUIModel.getReport(file);
 				model.emulateReport(rep);
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(this, "An error occured while reading from file",
@@ -628,7 +628,7 @@ public class GUIControl extends JFrame {
 			}
 		} else {
 			try {
-				ShortReport rep = model.getShortReport(file);
+				ShortReport rep = GUIModel.getShortReport(file);
 				int answer = JOptionPane.showConfirmDialog(this, new JLabel("Emulate people?"), "Emulation",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (answer == JOptionPane.YES_OPTION) {

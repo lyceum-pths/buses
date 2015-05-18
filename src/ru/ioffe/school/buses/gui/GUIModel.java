@@ -243,7 +243,7 @@ public class GUIModel {
 		return num;
 	}
 
-	private ArrayList<InterestingPoint> getInterestingPoints(File file) throws IOException {
+	private static ArrayList<InterestingPoint> getInterestingPoints(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		ArrayList<InterestingPoint> points = new ArrayList<>();
@@ -267,7 +267,7 @@ public class GUIModel {
 		oin.close();
 	}
 	
-	public Report getReport(File file) throws IOException {
+	public static Report getReport(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		Report rep = null;
@@ -281,7 +281,7 @@ public class GUIModel {
 		return rep;
 	}
 	
-	public ShortReport getShortReport(File file) throws IOException {
+	public static ShortReport getShortReport(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream oin = new ObjectInputStream(fis);
 		ShortReport rep = null;
